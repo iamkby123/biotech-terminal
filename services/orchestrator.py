@@ -590,7 +590,11 @@ def compute_trial_analytics(trial):
                 pass
 
         cur.close()
-        conn.close()
+        try:
+            from models.ticker_map import release_connection
+            release_connection(conn)
+        except Exception:
+            conn.close()
     except Exception as e:
         logger.warning("Trial analytics failed: %s", e)
 
@@ -1132,7 +1136,11 @@ def _batch_db_trial_details(nct_ids):
         """, nct_ids)
         rows = {r["nct_id"]: dict(r) for r in cur.fetchall()}
         cur.close()
-        conn.close()
+        try:
+            from models.ticker_map import release_connection
+            release_connection(conn)
+        except Exception:
+            conn.close()
         return rows
     except Exception as e:
         logger.warning("Batch DB lookup failed: %s", e)
@@ -1324,7 +1332,11 @@ def retrieve_supporting(trial, domain, k=5):
                 pass
 
         cur.close()
-        conn.close()
+        try:
+            from models.ticker_map import release_connection
+            release_connection(conn)
+        except Exception:
+            conn.close()
 
         # Score candidates and attach outcomes
         scored = []

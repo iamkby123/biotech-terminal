@@ -12,6 +12,7 @@ import time
 import logging
 import psycopg2
 import psycopg2.extras
+import psycopg2.pool
 from datetime import datetime
 from config import (
     EDGAR_COMPANY_TICKERS,
@@ -23,10 +24,40 @@ from normalize import normalize_sponsor
 
 logger = logging.getLogger(__name__)
 
+# Connection pool — reuse connections instead of opening new ones each time
+_pool = None
+
+def _get_pool():
+    global _pool
+    if _pool is None or _pool.closed:
+        _pool = psycopg2.pool.SimpleConnectionPool(
+            1, 10, DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor
+        )
+        logger.info("Database connection pool created (1-10 connections)")
+    return _pool
+
 
 def get_connection() -> psycopg2.extensions.connection:
-    conn = psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
-    return conn
+    try:
+        pool = _get_pool()
+        conn = pool.getconn()
+        conn.autocommit = False
+        return conn
+    except Exception:
+        # Fallback to direct connection if pool fails
+        return psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
+
+
+def release_connection(conn):
+    """Return connection to pool instead of closing it."""
+    try:
+        pool = _get_pool()
+        pool.putconn(conn)
+    except Exception:
+        try:
+            conn.close()
+        except Exception:
+            pass
 
 
 def init_db():

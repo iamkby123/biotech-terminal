@@ -12,6 +12,18 @@ from sklearn.preprocessing import LabelEncoder
 
 logger = logging.getLogger(__name__)
 
+
+def _release(conn):
+    """Return connection to pool or close it."""
+    try:
+        from models.ticker_map import release_connection
+        release_connection(conn)
+    except Exception:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 _APP_DIR = os.path.dirname(_THIS_DIR)
 ENSEMBLE_DIR = os.path.join(_APP_DIR, "model_data", "ensemble_v10")
@@ -62,12 +74,22 @@ def _enrich_trial_from_aact(trial: dict) -> dict:
 
         enriched = {}
 
-        # Design fields
-        cur.execute("""SELECT allocation, intervention_model, primary_purpose, masking,
-                       subject_masked, caregiver_masked, investigator_masked, outcomes_assessor_masked
-                       FROM ctgov.designs WHERE nct_id = %s""", (nct_id,))
+        # Single JOIN query instead of 4 separate queries
+        cur.execute("""
+            SELECT d.allocation, d.intervention_model, d.primary_purpose, d.masking,
+                   d.subject_masked, d.caregiver_masked, d.investigator_masked, d.outcomes_assessor_masked,
+                   e.gender, e.minimum_age, e.maximum_age, e.healthy_volunteers, e.criteria,
+                   s.number_of_arms, s.start_date, s.primary_completion_date, s.completion_date,
+                   (SELECT COUNT(DISTINCT country) FROM ctgov.facilities WHERE nct_id = %s) as num_countries
+            FROM ctgov.studies s
+            LEFT JOIN ctgov.designs d ON d.nct_id = s.nct_id
+            LEFT JOIN ctgov.eligibilities e ON e.nct_id = s.nct_id
+            WHERE s.nct_id = %s
+        """, (nct_id, nct_id))
         row = cur.fetchone()
+
         if row:
+            # Design fields
             enriched["allocation"] = row.get("allocation", "")
             enriched["intervention_model"] = row.get("intervention_model", "")
             enriched["primary_purpose"] = row.get("primary_purpose", "")
@@ -76,24 +98,15 @@ def _enrich_trial_from_aact(trial: dict) -> dict:
             enriched["caregiver_masked"] = row.get("caregiver_masked")
             enriched["investigator_masked"] = row.get("investigator_masked")
             enriched["outcomes_assessor_masked"] = row.get("outcomes_assessor_masked")
-
-        # Eligibility fields
-        cur.execute("""SELECT gender, minimum_age, maximum_age, healthy_volunteers, criteria
-                       FROM ctgov.eligibilities WHERE nct_id = %s""", (nct_id,))
-        row = cur.fetchone()
-        if row:
+            # Eligibility fields
             enriched["gender"] = row.get("gender", "")
             enriched["minimum_age"] = row.get("minimum_age", "")
             enriched["maximum_age"] = row.get("maximum_age", "")
             enriched["healthy_volunteers"] = row.get("healthy_volunteers", "")
             enriched["eligibility_criteria"] = row.get("criteria", "")
-
-        # Study dates + arms
-        cur.execute("""SELECT number_of_arms, start_date, primary_completion_date, completion_date
-                       FROM ctgov.studies WHERE nct_id = %s""", (nct_id,))
-        row = cur.fetchone()
-        if row:
+            # Study fields
             enriched["number_of_arms"] = row.get("number_of_arms")
+            enriched["num_countries"] = row.get("num_countries", 0)
             start = row.get("start_date")
             end = row.get("primary_completion_date") or row.get("completion_date")
             if start and end:
@@ -104,30 +117,26 @@ def _enrich_trial_from_aact(trial: dict) -> dict:
                 except:
                     pass
 
-        # Country count from facilities
-        cur.execute("SELECT COUNT(DISTINCT country) as n FROM ctgov.facilities WHERE nct_id = %s", (nct_id,))
-        row = cur.fetchone()
-        if row and row.get("n"):
-            enriched["num_countries"] = row["n"]
-
         conn.close()
 
-        # Also get v2 schema data (endpoint counts, collaborators)
+        # v2 schema data — use connection pool
         try:
-            NEON_URL = "postgresql://neondb_owner:npg_SzFm50IMjLkc@ep-twilight-cell-ak7nytds-pooler.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-            neon_conn = psycopg2.connect(NEON_URL, cursor_factory=psycopg2.extras.RealDictCursor,
-                                         connect_timeout=5)
+            from models.ticker_map import get_connection, release_connection
+            neon_conn = get_connection()
             neon_cur = neon_conn.cursor()
 
-            neon_cur.execute("SELECT COUNT(*) as n FROM v2.endpoint WHERE nct_id = %s AND endpoint_type = 'secondary'", (nct_id,))
+            neon_cur.execute("""
+                SELECT
+                    (SELECT COUNT(*) FROM v2.endpoint WHERE nct_id = %s AND endpoint_type = 'secondary') as sec_ep,
+                    (SELECT COUNT(*) FROM v2.trial_sponsor WHERE nct_id = %s AND role = 'collaborator') as collabs
+            """, (nct_id, nct_id))
             r = neon_cur.fetchone()
-            if r: enriched["num_secondary_endpoints"] = r["n"]
+            if r:
+                enriched["num_secondary_endpoints"] = r["sec_ep"]
+                enriched["is_multi_sponsor"] = 1 if r["collabs"] > 0 else 0
 
-            neon_cur.execute("SELECT COUNT(*) as n FROM v2.trial_sponsor WHERE nct_id = %s AND role = 'collaborator'", (nct_id,))
-            r = neon_cur.fetchone()
-            if r: enriched["is_multi_sponsor"] = 1 if r["n"] > 0 else 0
-
-            neon_conn.close()
+            neon_cur.close()
+            release_connection(neon_conn)
         except Exception as e2:
             logger.debug("Neon enrichment failed: %s", e2)
 
@@ -441,12 +450,12 @@ def compute_sponsor_signal(trial: dict) -> dict:
         cur = conn.cursor()
         sp_kw = sponsor.split(",")[0].split()[0] if sponsor else ""
         if len(sp_kw) < 3:
-            cur.close(); conn.close()
+            cur.close(); _release(conn)
             return None
 
         cur.execute("SELECT status, COUNT(*) as n FROM trials WHERE sponsor ILIKE %s GROUP BY status", (f"%{sp_kw}%",))
         counts = {r["status"]: r["n"] for r in cur.fetchall()}
-        cur.close(); conn.close()
+        cur.close(); _release(conn)
 
         completed = counts.get("COMPLETED", 0) + counts.get("Completed", 0)
         terminated = counts.get("TERMINATED", 0) + counts.get("Terminated", 0)
@@ -560,7 +569,7 @@ def compute_similar_signal(trial: dict) -> dict:
         """, params + [nct_id])
 
         rows = cur.fetchall()
-        cur.close(); conn.close()
+        cur.close(); _release(conn)
 
         if len(rows) < 3:
             return None
@@ -732,7 +741,7 @@ def compute_drug_history_signal(trial: dict) -> dict:
                 factors.append(f"No completed {prior_phase} found — may lack prior validation")
 
         cur.close()
-        conn.close()
+        _release(conn)
 
         if not fail_adjustments:
             return None
