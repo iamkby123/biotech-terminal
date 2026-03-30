@@ -1505,38 +1505,189 @@ def _load_drug_science(drug_name):
         return {}
 
 
-def _load_rag_evidence(trial):
-    """Load RAG V2 facts relevant to this trial."""
+_RAG_INDEX = None
+
+def _get_rag_index():
+    """Load RAG V3 once, build inverted indices for fast retrieval."""
+    global _RAG_INDEX
+    if _RAG_INDEX is not None:
+        return _RAG_INDEX
+
     _app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    rag_path = os.path.join(_app_dir, "model_data", "rag_v2.jsonl")
+    rag_path = os.path.join(_app_dir, "model_data", "rag_v3.jsonl")
     if not os.path.exists(rag_path):
-        return []
+        # Fallback to v2
+        rag_path = os.path.join(_app_dir, "model_data", "rag_v2.jsonl")
+    if not os.path.exists(rag_path):
+        _RAG_INDEX = {"facts": [], "by_drug": {}, "by_disease_group": {}, "by_modality": {}, "by_sponsor": {}}
+        return _RAG_INDEX
 
     try:
         with open(rag_path, "r", encoding="utf-8") as f:
-            facts = [json.loads(l) for l in f.readlines()]
-    except:
+            facts = [json.loads(l) for l in f if l.strip()]
+    except Exception:
+        facts = []
+
+    # Build inverted indices
+    by_drug = {}
+    by_disease_group = {}
+    by_modality = {}
+    by_sponsor = {}
+
+    for i, fact in enumerate(facts):
+        tags = fact.get("tags", {})
+        # Handle both V2 (list) and V3 (dict) tag formats
+        if isinstance(tags, list):
+            # V2 format: flat list
+            for t in tags:
+                by_drug.setdefault(t.lower(), []).append(i)
+        else:
+            # V3 format: structured dict
+            for d in tags.get("drug", []):
+                by_drug.setdefault(d.lower(), []).append(i)
+            for dg in tags.get("disease_group", []):
+                by_disease_group.setdefault(dg.lower(), []).append(i)
+            for m in tags.get("modality", []):
+                by_modality.setdefault(m.lower(), []).append(i)
+            for s in tags.get("sponsor", []):
+                by_sponsor.setdefault(s.lower(), []).append(i)
+
+    _RAG_INDEX = {
+        "facts": facts,
+        "by_drug": by_drug,
+        "by_disease_group": by_disease_group,
+        "by_modality": by_modality,
+        "by_sponsor": by_sponsor,
+    }
+    logger.info("RAG V3 index loaded: %d facts, %d drug keys, %d condition keys",
+                len(facts), len(by_drug), len(by_disease_group))
+    return _RAG_INDEX
+
+
+def _load_rag_evidence(trial):
+    """Load RAG V3 facts with multi-dimensional scoring and category-aware selection."""
+    idx = _get_rag_index()
+    facts = idx["facts"]
+    if not facts:
         return []
 
+    # Extract trial attributes
     phase = str(trial.get("phase", "")).lower()
+    phase_tag = ""
+    if "4" in phase: phase_tag = "phase4"
+    elif "3" in phase: phase_tag = "phase3"
+    elif "2" in phase: phase_tag = "phase2"
+    elif "1" in phase: phase_tag = "phase1"
+
     condition = str(trial.get("condition", "")).lower()
     intervention = str(trial.get("intervention", "")).lower()
-    sponsor = str(trial.get("sponsor", "")).lower().split()[0] if trial.get("sponsor") else ""
-    drug_words = set(w.strip().lower().split()[0] for w in intervention.split(";") if w.strip() and len(w.strip()) > 2)
+    sponsor = str(trial.get("sponsor", "")).lower()
+    sponsor_word = sponsor.split()[0] if sponsor else ""
 
+    # Better drug word extraction: full names + first words
+    drug_words = set()
+    for part in intervention.split(";"):
+        part = part.strip().lower()
+        if len(part) > 2:
+            drug_words.add(part)  # full name
+            first = part.split()[0]
+            if len(first) > 2:
+                drug_words.add(first)  # first word
+
+    # Map condition to disease group
+    disease_group = str(trial.get("feat_therapeutic_area", trial.get("disease_group", "")) or "").lower()
+    modality = str(trial.get("feat_modality", trial.get("modality", "")) or "").lower()
+
+    # Collect candidate fact indices using inverted indices (fast)
+    candidates = set()
+    for dw in drug_words:
+        candidates.update(idx["by_drug"].get(dw, []))
+    if disease_group:
+        candidates.update(idx["by_disease_group"].get(disease_group, []))
+    if modality:
+        candidates.update(idx["by_modality"].get(modality, []))
+    if sponsor_word:
+        candidates.update(idx["by_sponsor"].get(sponsor_word, []))
+
+    # Also check condition text against disease_group keys
+    for dg_key in idx["by_disease_group"]:
+        if len(dg_key) > 4 and dg_key in condition:
+            candidates.update(idx["by_disease_group"][dg_key])
+
+    # Score candidates
     scored = []
-    for fact in facts:
-        tags = [t.lower() for t in fact.get("tags", [])]
-        drug = fact.get("drug", "").lower()
+    for i in candidates:
+        fact = facts[i]
+        tags = fact.get("tags", {})
         score = 0
-        if drug and any(dw in drug or drug.startswith(dw) for dw in drug_words): score += 10
-        if any(phase and t in phase for t in tags): score += 3
-        if any(t in condition for t in tags if len(t) > 3): score += 2
-        if any(sponsor and t == sponsor for t in tags): score += 2
-        if score > 0: scored.append((score, fact["text"]))
+
+        if isinstance(tags, list):
+            # V2 fallback
+            drug = fact.get("drug", "").lower()
+            if drug and any(dw in drug or drug.startswith(dw) for dw in drug_words):
+                score += 15
+            for t in tags:
+                t = t.lower()
+                if phase_tag and t == phase_tag: score += 3
+                if len(t) > 3 and t in condition: score += 2
+                if sponsor_word and t == sponsor_word: score += 2
+        else:
+            # V3 structured tags
+            fact_drugs = [d.lower() for d in tags.get("drug", [])]
+            if fact_drugs and any(dw in fd or fd in dw for dw in drug_words for fd in fact_drugs):
+                score += 15
+
+            fact_dgs = [d.lower() for d in tags.get("disease_group", [])]
+            if disease_group and disease_group in fact_dgs:
+                score += 6
+            elif any(dg in condition for dg in fact_dgs if len(dg) > 4):
+                score += 3
+
+            if phase_tag and phase_tag in [p.lower() for p in tags.get("phase", [])]:
+                score += 4
+
+            fact_mods = [m.lower() for m in tags.get("modality", [])]
+            if modality and modality in fact_mods:
+                score += 4
+
+            if sponsor_word and sponsor_word in [s.lower() for s in tags.get("sponsor", [])]:
+                score += 3
+
+        if score > 0:
+            scored.append((score, fact))
 
     scored.sort(key=lambda x: -x[0])
-    return [text for _, text in scored[:7]]
+
+    # Category-aware selection: pick diverse facts across types
+    from collections import defaultdict
+    buckets = defaultdict(list)
+    for score, fact in scored:
+        ftype = fact["type"]
+        # Group drug_* types together
+        bucket = "drug" if ftype.startswith("drug_") else ftype
+        buckets[bucket].append((score, fact))
+
+    # Quotas per bucket
+    quotas = {
+        "drug": 3,
+        "competitor_outcome": 3,
+        "condition_rate": 1, "phase_condition_rate": 1, "condition_modality_rate": 1,
+        "modality_rate": 1, "phase_rate": 1,
+        "sponsor_rate": 1,
+        "endpoint_pattern": 1,
+        "design_pattern": 1,
+        "enrollment_pattern": 1,
+    }
+
+    selected = []
+    for bucket, items in buckets.items():
+        quota = quotas.get(bucket, 1)
+        for score, fact in items[:quota]:
+            selected.append((score, fact))
+
+    # Sort by score and cap at 12
+    selected.sort(key=lambda x: -x[0])
+    return [{"type": f["type"], "text": f["text"]} for _, f in selected[:12]]
 
 
 def generate_analysis(trial, prediction, supporting, domain):
@@ -1595,11 +1746,35 @@ def generate_analysis(trial, prediction, supporting, domain):
         for entry in drug_science["prior_results"][:2]:
             parts.append(f"- {entry.get('abstract', '')[:200]}")
 
-    # RAG Evidence
+    # RAG V3 Evidence — organized by category
     if rag_evidence:
-        parts.append(f"\n## Historical Evidence")
-        for ev in rag_evidence[:5]:
-            parts.append(f"- {ev[:200]}")
+        # Drug-specific evidence
+        drug_ev = [e for e in rag_evidence if e.get("type", "").startswith("drug_")]
+        if drug_ev:
+            parts.append(f"\n## Drug Evidence")
+            for ev in drug_ev[:3]:
+                parts.append(f"- {ev['text'][:250]}")
+
+        # Competitor trial results
+        comp_ev = [e for e in rag_evidence if e.get("type") == "competitor_outcome"]
+        if comp_ev:
+            parts.append(f"\n## Competitor Trial Results")
+            for ev in comp_ev[:3]:
+                parts.append(f"- {ev['text'][:250]}")
+
+        # Statistical context (rates, patterns)
+        stat_ev = [e for e in rag_evidence if "rate" in e.get("type", "") or "pattern" in e.get("type", "")]
+        if stat_ev:
+            parts.append(f"\n## Historical Success Rates")
+            for ev in stat_ev[:4]:
+                parts.append(f"- {ev['text'][:250]}")
+
+        # Sponsor track record
+        sp_ev = [e for e in rag_evidence if e.get("type") == "sponsor_rate"]
+        if sp_ev:
+            parts.append(f"\n## Sponsor Track Record")
+            for ev in sp_ev[:1]:
+                parts.append(f"- {ev['text'][:250]}")
 
     # Similar Trials Summary
     if supporting:
