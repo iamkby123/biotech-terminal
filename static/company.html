@@ -764,20 +764,39 @@
     async function loadCompanyData() {
       companyData = null;
       renderContent();
-      
+
+      // 1. Load sidebar FAST (lightweight DB-only endpoint, no yfinance)
       try {
-        console.log('Fetching data for:', currentTicker);
+        const quickResp = await fetch(`/api/company/${currentTicker}/quick`);
+        if (quickResp.ok) {
+          const quick = await quickResp.json();
+          // Render sidebar immediately with quick data
+          const tk = currentTicker;
+          const drugsEl = document.getElementById('sb-drugs');
+          const trialsEl = document.getElementById('sb-trials');
+          if (drugsEl) {
+            drugsEl.innerHTML = (quick.drugs || []).length === 0
+              ? '<div style="padding:6px 16px;color:#64748b;font-size:11px">No drugs</div>'
+              : (quick.drugs || []).slice(0, 15).map(dr =>
+                `<a class="sb-item" href="/drug/${encodeURIComponent(dr.name)}?from=${tk}">${dr.name}</a>`
+              ).join('');
+          }
+          if (trialsEl) {
+            trialsEl.innerHTML = (quick.trials || []).length === 0
+              ? '<div style="padding:6px 16px;color:#64748b;font-size:11px">No trials</div>'
+              : (quick.trials || []).slice(0, 25).map(t =>
+                `<a class="sb-item" href="/trial/${t.nct_id}?from=${tk}" title="${t.title || ''}">${t.nct_id}</a>`
+              ).join('');
+          }
+        }
+      } catch (e) { console.log('Quick sidebar load failed, will use full data:', e); }
+
+      // 2. Load full company data (slower — yfinance, news, filings, etc.)
+      try {
         const response = await fetch(`/api/company/${currentTicker}`);
         if (!response.ok) throw new Error('Failed to load');
         companyData = await response.json();
-        console.log('Received company data:', companyData);
-        
-        // Debug: Log each data section
-        console.log('News count:', companyData.news?.length || 0);
-        console.log('Trials count:', companyData.trials?.length || 0);
-        console.log('Filings count:', companyData.filings?.length || 0);
-        console.log('Drugs count:', companyData.drugs?.length || 0);
-        
+
         // Ensure arrays exist
         if (!companyData.news) companyData.news = [];
         if (!companyData.trials) companyData.trials = [];
@@ -791,7 +810,7 @@
         console.error('Error loading company data:', err);
         companyData = { error: err.message };
       }
-      
+
       renderContent();
       loadEarningsData();
       loadStockData();

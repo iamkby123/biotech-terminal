@@ -555,6 +555,58 @@ def get_earnings_calendar(days: int = 90, ticker: str = None):
 
 # ── Company detail ─────────────────────────────────────────────────────
 
+@app.get("/api/company/{ticker}/quick")
+def company_quick(ticker: str):
+    """Fast lightweight endpoint: just trials + drugs from DB (no yfinance). For sidebar."""
+    ticker = ticker.upper()
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        # Get sponsor name
+        cur.execute("SELECT company_name, ctgov_sponsor_name FROM ticker_map WHERE ticker = %s", (ticker,))
+        info = cur.fetchone()
+        if not info:
+            return {"trials": [], "drugs": []}
+        sponsor = info.get("ctgov_sponsor_name") or info.get("company_name") or ticker
+
+        # Trials (fast DB query)
+        cur.execute("""
+            SELECT nct_id, title, phase, status, condition, intervention
+            FROM trials WHERE sponsor ILIKE %s
+            ORDER BY phase DESC NULLS LAST LIMIT 25
+        """, (f"%{sponsor}%",))
+        trials = [dict(r) for r in cur.fetchall()]
+        if not trials:
+            first_word = sponsor.split()[0]
+            cur.execute("""
+                SELECT nct_id, title, phase, status, condition, intervention
+                FROM trials WHERE sponsor ILIKE %s
+                ORDER BY phase DESC NULLS LAST LIMIT 25
+            """, (f"%{first_word}%",))
+            trials = [dict(r) for r in cur.fetchall()]
+
+        # Extract unique drugs from trials
+        drugs = []
+        seen = set()
+        for t in trials:
+            for d in str(t.get("intervention", "") or "").split(";"):
+                d = d.strip()
+                if d and len(d) > 2 and d.lower() not in seen:
+                    seen.add(d.lower())
+                    drugs.append({"name": d})
+        cur.close()
+        return {"trials": trials, "drugs": drugs[:15]}
+    except Exception as e:
+        logger.warning("company_quick failed: %s", e)
+        return {"trials": [], "drugs": []}
+    finally:
+        try:
+            from models.ticker_map import release_connection
+            release_connection(conn)
+        except Exception:
+            conn.close()
+
+
 @app.get("/api/company/{ticker}")
 def company_detail(ticker: str):
     """Get comprehensive company data including insider, holdings, competitors, drugs."""
