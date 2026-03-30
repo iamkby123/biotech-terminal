@@ -6,12 +6,17 @@ Extracts trial-related endpoints from api.py.
 from __future__ import annotations
 
 import logging
+import time
 from datetime import datetime, timezone
 
-from models.ticker_map import get_connection
+from models.ticker_map import get_connection, release_connection
 from source_status import SourceStatus
 
 logger = logging.getLogger(__name__)
+
+# Simple in-memory cache for trial queries
+_trials_cache = {}  # key -> (timestamp, data)
+_CACHE_TTL = 300  # 5 minutes
 
 
 def query_trials(
@@ -20,7 +25,16 @@ def query_trials(
     status: str | None = None,
     sponsor: str | None = None,
 ) -> tuple[list[dict], SourceStatus]:
-    """Query trials with optional filters."""
+    """Query trials with optional filters. Cached for 5 minutes."""
+    cache_key = f"{limit}:{phase}:{status}:{sponsor}"
+    now = time.time()
+
+    # Return cached result if fresh
+    if cache_key in _trials_cache:
+        ts, cached_rows = _trials_cache[cache_key]
+        if now - ts < _CACHE_TTL:
+            return cached_rows, SourceStatus.ok("db:trials:cached", len(cached_rows), data_mode="snapshot")
+
     conn = get_connection()
     cur = conn.cursor()
     try:
@@ -47,16 +61,28 @@ def query_trials(
         )
         rows = [dict(r) for r in cur.fetchall()]
         cur.close()
+
+        # Cache the result
+        _trials_cache[cache_key] = (now, rows)
+
         return rows, SourceStatus.ok("db:trials", len(rows), data_mode="snapshot")
     except Exception as e:
         logger.error(f"query_trials failed: {e}")
         return [], SourceStatus.error("db:trials", str(e))
     finally:
-        conn.close()
+        release_connection(conn)
 
+
+_stats_cache = None
+_stats_cache_time = 0
 
 def get_trials_stats() -> tuple[dict, SourceStatus]:
-    """Get trial statistics grouped by phase/status and top sponsors."""
+    """Get trial statistics grouped by phase/status and top sponsors. Cached 5 min."""
+    global _stats_cache, _stats_cache_time
+    now = time.time()
+    if _stats_cache and now - _stats_cache_time < _CACHE_TTL:
+        return _stats_cache, SourceStatus.ok("db:trials:cached", 0, data_mode="snapshot")
+
     conn = get_connection()
     cur = conn.cursor()
     try:
@@ -77,15 +103,18 @@ def get_trials_stats() -> tuple[dict, SourceStatus]:
         sponsors = [dict(r) for r in cur.fetchall()]
 
         cur.close()
+        result = {"phase_status": phase_status, "sponsors": sponsors}
+        _stats_cache = result
+        _stats_cache_time = now
         return (
-            {"phase_status": phase_status, "sponsors": sponsors},
+            result,
             SourceStatus.ok("db:trials", len(phase_status), data_mode="snapshot"),
         )
     except Exception as e:
         logger.error(f"get_trials_stats failed: {e}")
         return {}, SourceStatus.error("db:trials", str(e))
     finally:
-        conn.close()
+        release_connection(conn)
 
 
 def get_pipeline(ticker: str) -> tuple[dict, list[SourceStatus]]:
@@ -175,7 +204,7 @@ def get_pipeline(ticker: str) -> tuple[dict, list[SourceStatus]]:
         logger.error(f"get_pipeline failed [{ticker}]: {e}")
         return {"error": str(e)}, [SourceStatus.error("db", str(e))]
     finally:
-        conn.close()
+        release_connection(conn)
 
 
 def get_trial_detail(nct_id: str) -> tuple[dict | None, SourceStatus]:
@@ -204,4 +233,4 @@ def get_trial_detail(nct_id: str) -> tuple[dict | None, SourceStatus]:
         logger.error(f"get_trial_detail failed [{nct_id}]: {e}")
         return None, SourceStatus.error("db:trials", str(e))
     finally:
-        conn.close()
+        release_connection(conn)
