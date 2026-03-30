@@ -1,0 +1,11 @@
+{
+  "drug": "MK-8150 10 mg",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. J Am Heart Assoc. 2016 Aug 25;5(9):e003493. doi: 10.1161/JAHA.116.003493.\n\nDiscovery and Clinical Evaluation of MK-8150, A Novel Nitric Oxide Donor With a \nUnique Mechanism of Nitric Oxide Release.\n\nKnox CD(1), de Kam PJ(1), Azer K(1), Wong P(1), Ederveen AG(1), Shevell D(1), \nMorabito C(1), Meehan AG(1), Liu W(1), Reynders T(1), Denef JF(1), Mitselos \nA(1), Jonathan D(1), Gutstein DE(1), Mitra K(1), Sun SY(1), Lo MM(1), Cully \nD(1), Ali A(2).\n\nAuthor information:\n(1)Merck & Co, Inc, Kenilworth, NJ.\n(2)Merck & Co, Inc, Kenilworth, NJ amjad_ali@merck.com.\n\nBACKGROUND: Nitric oxide donors are widely used to treat cardiovascular disease, \nbut their major limitation is the development of tolerance, a multifactorial \nprocess to which the in vivo release of nitric oxide is thought to contribute. \nHere we describe the preclinical and clinical results of a translational drug \ndevelopment effort to create a next-generation nitric oxide donor with improved \npharmacokinetic properties and a unique mechanism of nitric oxide release \nthrough CYP3A4 metabolism that was designed to circumvent the development of \ntolerance.\nMETHODS AND RESULTS: Single- and multiple-dose studies in telemetered dogs \nshowed that MK-8150 induced robust blood-pressure lowering that was sustained \nover 14 days. The molecule was safe and well tolerated in humans, and single \ndoses reduced systolic blood pressure by 5 to 20 mm Hg in hypertensive patients. \nMultiple-dose studies in hypertensive patients showed that the \nblood-pressure-lowering effect diminished after 10 days, and 28-day studies \nshowed that the hemodynamic effects were completely lost by day 28, even when \nthe dose of MK-8150 was increased during the dosing period.\nCONCLUSIONS: The novel nitric oxide donor MK-8150 induced significant \nblood-pressure lowering in dogs and humans for up to 14 days. However, despite a \nunique mechanism of nitric oxide release mediated by CYP3A4 metabolism, \ntolerance developed over 28 days, suggesting that "
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "drug": "lademirsen (SAR339375)",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Cells. 2022 Feb 9;11(4):594. doi: 10.3390/cells11040594.\n\nAnti-microRNA-21 Therapy on Top of ACE Inhibition Delays Renal Failure in Alport \nSyndrome Mouse Models.\n\nRubel D(1), Boulanger J(2), Craciun F(3), Xu EY(3)(4), Zhang Y(1)(5), Phillips \nL(3)(6), Callahan M(3), Weber W(3)(7), Song W(3), Ngai N(3), Bukanov NO(3)(8), \nShi X(3)(9), Hariri A(10)(11), Husson H(3), Ibraghimov-Beskrovnaya O(3)(12), Liu \nS(10), Gross O(1).\n\nAuthor information:\n(1)Clinic for Nephrology and Rheumatology, University Medical Center Goettingen, \n37075 Goettingen, Germany.\n(2)Sanofi Research & Development, Cambridge, MA 02142, USA.\n(3)Sanofi-Genzyme Research and Development, Framingham, MA 02118, USA.\n(4)Excision BioTherapeutics, San Francisco, CA 94111, USA.\n(5)Department of Pediatrics, Peking University First Hospital, Beijing 100034, \nChina.\n(6)Abbvie Bioresearch Center, Worcester, MA 01605, USA.\n(7)Takeda Pharmaceuticals, Cambridge, MA 02139, USA.\n(8)Janssen Pharmaceuticals, Boston, MA 02115, USA.\n(9)Novartis Institute for BioMedical Research, Boston, MA 02139, USA.\n(10)Sanofi-Genzyme, Clinical Development, Cambridge, MA 02142, USA.\n(11)Eloxx Pharmaceuticals, Watertown, MA 02140, USA.\n(12)Dyne Therapeutics, Waltham, MA 02451, USA.\n\nCol4a3-/- Alport mice serve as an animal model for renal fibrosis. MicroRNA-21 \n(miR-21) expression has been shown to be increased in the kidneys of Alport \nsyndrome patients. Here, we investigated the nephroprotective effects of \nLademirsen anti-miR-21 therapy. We used a fast-progressing Col4a3-/- mouse model \nwith a 129/SvJ background and an intermediate-progressing F1 hybrid mouse model \nwith a mixed genetic background, with angiotensin-converting enzyme inhibitor \n(ACEi) monotherapy in combination with anti-miR-21 therapy. In the \nfast-progressing model, the anti miR-21 and ACEi therapies showed an additive \neffect in the reduction in fibrosis, the decline of proteinuria, the \npreservation of kidney function and increased survival. In the \nintermediate"
+      }
+    ]
+  }
+}

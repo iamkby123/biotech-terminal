@@ -1,0 +1,11 @@
+{
+  "drug": "RSLV-132",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Lupus. 2017 Jul;26(8):825-834. doi: 10.1177/0961203316678675. Epub 2016 Nov\n16.\n\nSafety, pharmacokinetics, and pharmacodynamics of RSLV-132, an RNase-Fc fusion \nprotein in systemic lupus erythematosus: a randomized, double-blind, \nplacebo-controlled study.\n\nBurge DJ(1), Eisenman J(1), Byrnes-Blake K(1), Smolak P(1), Lau K(1), Cohen \nSB(2), Kivitz AJ(3), Levin R(4), Martin RW(5), Sherrer Y(6), Posada JA(1).\n\nAuthor information:\n(1)1 Resolve Therapeutics, LLC, Seattle, WA, USA.\n(2)2 Metroplex Clinical Research Center, Dallas, TX, USA.\n(3)3 Altoona Center for Clinical Research, Duncansville, PA, USA.\n(4)4 Clinical Research of West Florida, Clearwater, FL, USA.\n(5)5 Michigan State University, East Lansing, MI, USA.\n(6)6 Center for Rheumatology, Immunology, and Arthritis, Ft. Lauderdale, FL, \nUSA.\n\nBlood-borne RNA circulating in association with autoantibodies is a potent \nstimulator of interferon production and immune system activation. RSLV-132 is a \nnovel fully human biologic Fc fusion protein that is comprised of human RNase \nfused to the Fc domain of human IgG1. The drug is designed to remain in \ncirculation and digest extracellular RNA with the aim of preventing activation \nof the immune system via Toll-like receptors and the interferon pathway. The \npresent study describes the first clinical study of nuclease therapy in 32 \nsubjects with systemic lupus erythematosus. The drug was well tolerated with a \nvery favorable safety profile. The approximately 19-day serum half-life \npotentially supports once monthly dosing. There were no subjects in the study \nthat developed anti-RSLV-132 antibodies. Decreases in B-cell activating factor \ncorrelated with decreases in disease activity in a subset of patients.\n\nDOI: 10.1177/0961203316678675\nPMID: 27852935 [Indexed for MEDLINE]"
+      }
+    ]
+  }
+}

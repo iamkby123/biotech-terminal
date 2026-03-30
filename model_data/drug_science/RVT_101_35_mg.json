@@ -1,0 +1,11 @@
+{
+  "drug": "RVT-101 35 mg",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. J Nucl Med. 2015 Dec;56(12):1901-9. doi: 10.2967/jnumed.115.162743. Epub 2015 \nSep 17.\n\nHuman Kinetic Modeling of the 5HT6 PET Radioligand 11C-GSK215083 and Its Utility \nfor Determining Occupancy at Both 5HT6 and 5HT2A Receptors by SB742457 as a \nPotential Therapeutic Mechanism of Action in Alzheimer Disease.\n\nParker CA(1), Rabiner EA(2), Gunn RN(3), Searle G(4), Martarello L(5), Comley \nRA(6), Davy M(7), Wilson AA(8), Houle S(8), Mizrahi R(8), Laruelle M(9), \nCunningham VJ(10).\n\nAuthor information:\n(1)GlaxoSmithKline, Clinical Imaging Centre, Hammersmith Hospital, London, \nUnited Kingdom Division of Brain Sciences, Department of Medicine, Imperial \nCollege London, London, United Kingdom Christine.A.Parker@gsk.com.\n(2)Imanova Ltd., Imperial College London, London, United Kingdom Centre for \nNeuroimaging Sciences, Institute of Psychiatry, Psychology and Neuroscience, \nKing's College, London, United Kingdom.\n(3)Division of Brain Sciences, Department of Medicine, Imperial College London, \nLondon, United Kingdom Imanova Ltd., Imperial College London, London, United \nKingdom Department of Engineering Science, University of Oxford, Oxford, United \nKingdom.\n(4)Division of Brain Sciences, Department of Medicine, Imperial College London, \nLondon, United Kingdom.\n(5)AbbVie, Translational Imaging, Integrated Science and Technology, North \nChicago, Illinois.\n(6)Roche Pharmaceutical Research and Early Development, Basel, Switzerland.\n(7)GlaxoSmithKline, Neuroscience Therapy Area Unit, Stevenage, United Kingdom.\n(8)Research Imaging Centre, CAMH, and Department of Psychiatry, University of \nToronto, Toronto, Canada.\n(9)Intra-Cellular Therapies Inc., New York, New York; and.\n(10)School of Medical Sciences, University of Aberdeen, Aberdeen, United \nKingdom.\n\nAntagonism of 5-hydroxytrypamine-6 (5HT6) receptors is associated with \nprocognitive effects in preclinical species, suggesting a therapeutic potential \nfor this mechanism in Alzheimer disease (AD) and other cognitive disease"
+      }
+    ]
+  }
+}

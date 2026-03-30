@@ -1,0 +1,11 @@
+{
+  "drug": "High intensity disease management",
+  "science": {
+    "prior_results": [
+      {
+        "title": "1",
+        "abstract": "1. BMC Med Res Methodol. 2012 Jul 7;12:95. doi: 10.1186/1471-2288-12-95.\n\nSimultaneous evaluation of abstinence and relapse using a Markov chain model in \nsmokers enrolled in a two-year randomized trial.\n\nYeh HW(1), Ellerbeck EF, Mahnken JD.\n\nAuthor information:\n(1)Department of Biostatistics, The University of Kansas Medical Center, Kansas \nCity, KS 66160, USA. hyeh@kumc.edu\n\nBACKGROUND: GEE and mixed models are powerful tools to compare treatment effects \nin longitudinal smoking cessation trials. However, they are not capable of \nassessing the relapse (from abstinent back to smoking) simultaneously with \ncessation, which can be studied by transition models.\nMETHODS: We apply a first-order Markov chain model to analyze the transition of \nsmoking status measured every 6 months in a 2-year randomized smoking cessation \ntrial, and to identify what factors are associated with the transition from \nsmoking to abstinent and from abstinent to smoking. Missing values due to \nnon-response are assumed non-ignorable and handled by the selection modeling \napproach.\nRESULTS: Smokers receiving high-intensity disease management (HDM), of male \ngender, lower daily cigarette consumption, higher motivation and confidence to \nquit, and having serious attempts to quit were more likely to become abstinent \n(OR = 1.48, 1.66, 1.03, 1.15, 1.09 and 1.34, respectively) in the next 6 months. \nAmong those who were abstinent, lower income and stronger nicotine dependence \n(OR = 1.72 for ≤ vs. > 40 K and OR = 1.75 for first cigarette ≤ vs. > 5 min) \nwere more likely to have relapse in the next 6 months.\nCONCLUSIONS: Markov chain models allow investigation of dynamic \nsmoking-abstinence behavior and suggest that relapse is influenced by different \nfactors than cessation. The knowledge of treatments and covariates in \ntransitions in both directions may provide guidance for designing more effective \ninterventions on smoking cessation and relapse prevention.\n\nDOI: 10.1186/1471-2288-12-95\nPMCID: PMC3"
+      }
+    ]
+  }
+}

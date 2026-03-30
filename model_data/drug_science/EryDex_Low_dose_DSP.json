@@ -1,0 +1,11 @@
+{
+  "drug": "EryDex Low dose DSP",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. CPT Pharmacometrics Syst Pharmacol. 2025 Nov;14(11):1882-1892. doi: \n10.1002/psp4.70103. Epub 2025 Sep 22.\n\nPopulation Pharmacokinetic Modeling and Pediatric Exposure of Dexamethasone \nSodium Phosphate Encapsulated in Erythrocytes (eDSP) Administered Monthly for \nTreatment of Neurological Symptoms of Patients With Ataxia Telangiectasia.\n\nOzdin D(1), Kheibarshekan L(2), Mambrini G(3), Tremblay PO(2).\n\nAuthor information:\n(1)Syneos Health, Morrisville, North Carolina, USA.\n(2)Syneos Health, Québec, Québec, Canada.\n(3)Quince Therapeutics S.p.A., Milan, Italy.\n\nThe EryDex System (EDS) is a drug/device combination, which has been tested in \nclinical trials for ataxia telangiectasia (AT). EDS encapsulates dexamethasone \nsodium phosphate (DSP) solution in autologous erythrocytes at the point of care, \nand encapsulated DSP (eDSP) is infused back into the patient. Low doses of \ndexamethasone are released from erythrocytes over a 30-day period. This study \naimed to (1) characterize the pharmacokinetics (PK) of dexamethasone released \nfrom intravenously infused eDSP based on data collected in clinical trials of \nhealthy adults and pediatric AT patients, and to (2) simulate and extrapolate \nexposure measures of dexamethasone following intravenous infusion of eDSP \nadministered once per month over 6 months in a pediatric population. The \npopulation PK model was developed using dense PK data from a phase 1 study in \nhealthy adults and sparse PK data from a phase 3 study in pediatric AT patients. \nThree dose levels were studied, and the overall PK population included 24 \nhealthy adults and 109 AT patients. The PK of dexamethasone released from eDSP \nwas described using a simplified two-compartment model, adequate for estimating \nsystemic exposure despite not fully capturing RBC release kinetics indicative of \na triphasic pattern. The model showed a good fit, and future refinement will \ninclude mechanistic release modeling as more in vitro and in vivo data become \navailable. Mon"
+      }
+    ]
+  }
+}

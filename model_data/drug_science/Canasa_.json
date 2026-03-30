@@ -1,0 +1,25 @@
+{
+  "drug": "Canasa®",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Med Lett Drugs Ther. 2018 Jul 2;60(1550):e117-e122.\n\nComparison table: some drugs for inflammatory bowel disease.\n\n[No authors listed]\n\nPMID: 30036356 [Indexed for MEDLINE]"
+      },
+      {
+        "title": "Med Lett Drugs Ther",
+        "abstract": "Med Lett Drugs Ther. 2018 Jul 2;60(1550):107-114.\n\nDrugs for inflammatory bowel disease.\n\n[No authors listed]\n\nPMID: 30036352 [Indexed for MEDLINE]"
+      },
+      {
+        "title": "Inflamm Bowel Dis",
+        "abstract": "Inflamm Bowel Dis. 2013 Feb;19(2):301-8. doi: 10.1002/ibd.23003.\n\nSimulated comparison of topical and oral formulations of 5-aminosalicylate for \nthe treatment of ulcerative colitis.\n\nStobaugh DJ(1), Deepak P, Thorpe M, Hannon B, Ehrenpreis ED.\n\nAuthor information:\n(1)Gastroenterology Department, NorthShore University HealthSystem, Highland \nPark, Illinois, USA.\n\nBACKGROUND: 5-Aminosalicylate (5-ASA) formulations are approved for the \ntreatment of ulcerative colitis (UC). Determination of the colonic \npharmacokinetics of 5-ASA is challenging. A dynamic model of 5-ASA colonic \namounts after oral delayed-release 5-ASA (Asacol), oral extended delayed-release \n5-ASA (Lialda), 5-ASA enema (Rowasa), foam and suppositories (Canasa) was \ndeveloped to determine the colonic kinetics of these agents.\nMETHODS: We created a model with Stella software. Colonic 5-ASA in the right, \ntransverse, descending, sigmoid colon, and rectum were estimated for adults \nafter recommended doses of the above formulations. Simulations of active \nmild/moderate UC and in remission were performed and compared using Student's \nt-test for differences in means.\nRESULTS: For UC in remission, the highest amounts of 5-ASA were from Asacol in \nthe right and transverse colon (P < 0.01), Lialda in the descending and sigmoid \ncolon (P < 0.01), and Rowasa in the rectum (P < 0.01). For active UC, sigmoid \namounts were highest with foam (P < 0.01), and rectal amounts highest with \nRowasa (P < 0.01). Differences in rectosigmoid amounts of 5-ASA from enemas and \nsuppositories for UC in remission occurred based on the relationship between the \ntiming of administration relative to the daily bowel movement (P < 0.01).\nCONCLUSIONS: Compared to Asacol, Lialda results in higher 5-ASA amounts in the \nleft colon. Asacol with Rowasa provides highest 5-ASA amounts across the entire \ncolon. Higher 5-ASA amounts from topical formulations occur when the insertion \noccurs soon after the daily bowel movement. This model provides"
+      }
+    ],
+    "prior_results": [
+      {
+        "title": "1",
+        "abstract": "1. Inflamm Bowel Dis. 2005 Jul;11(7):625-30. doi: \n10.1097/01.mib.0000171277.70404.40.\n\nEfficacy and safety of mesalamine 1 g HS versus 500 mg BID suppositories in mild \nto moderate ulcerative proctitis: a multicenter randomized study.\n\nLamet M(1), Ptak T, Dallaire C, Shah U, Grace M, Spenard J, de Montigny D; \nMesalamine Study Group.\n\nAuthor information:\n(1)Center for Gastrointestinal Disorders, Hollywood, Florida 33021, USA.\n\nBACKGROUND: Ulcerative proctitis (UP) usually presents as fresh rectal bleeding. \nSuccessful treatment using topical mesalamine 5-aminosalicyclic acid (5-ASA) 500 \nmg BID suppository led to developing a once-a-day formulation that could \ncontribute to better acceptability and ease of use by patients. The objective of \nthis randomized trial, conducted in 18 centers, was to compare efficacy of 2 \nmodes of treatment with 5-ASA suppositories.\nMETHODS: Ninety-nine patients with mild or moderate UP limited to 15 cm of the \nanal margin, evidenced by a disease activity index (DAI) between 4 and 11, were \nrandomized to 5-ASA 500 mg suppository (Canasa; Axcan Pharma) BID or 1 g at \nbedtime (HS) for 6 weeks. The study used a noninferiority hypothesis based on \nthe mean difference in DAI values after 6 weeks of treatment on an \nintent-to-treat basis using analysis of covariance. DAI was derived from a \ncomposite of the measures of stool frequency, rectal bleeding, mucosal \nvisualization at endoscopy, and general well being.\nRESULTS: There was no difference between groups at baseline for demographic and \nclinical parameters. Mean DAIs fell from 6.6 +/- 1.5 (SD) to 1.6 +/- 2.3 in the \n500 mg BID group (n = 48) and from 6.1 +/- 1.5 to 1.3 +/- 2.2 in the 1 g HS \ngroup (n = 39). There was no significant difference (P = 0.74) in mean DAI at \nweek 6 between the 2 groups. Both groups showed a significant reduction (P < \n0.0001) in DAI over the course of the 6 weeks. Both formulations showed \neffectiveness in reducing each individual component of the DAI. There w"
+      }
+    ]
+  }
+}

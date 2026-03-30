@@ -1,0 +1,11 @@
+{
+  "drug": "Osimertinib 80mg/40mg",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. J Clin Pharmacol. 2018 Apr;58(4):504-513. doi: 10.1002/jcph.1042. Epub 2017\nDec  14.\n\nPharmacokinetics of Osimertinib in Chinese Patients With Advanced NSCLC: A Phase \n1 Study.\n\nZhao H(1), Cao J(2), Chang J(2), Zhang Z(3), Yang L(3), Wang J(3), Cantarini \nM(4), Zhang L(1).\n\nAuthor information:\n(1)Sun Yat-sen University Cancer Center, Guangzhou, China.\n(2)Fudan University Shanghai Cancer Center, Shanghai, China.\n(3)China Development Unit, AstraZeneca, Zhangjiang Hi-Tech Park, Shanghai, \nChina.\n(4)AstraZeneca, Macclesfield, United Kingdom.\n\nOsimertinib is an oral, irreversible, central nervous system active epidermal \ngrowth factor receptor (EGFR)-tyrosine kinase inhibitor (TKI) selective for both \nEGFR-TKI sensitizing and T790M resistance mutations. The study's (NCT02529995) \nprimary objective was to characterize the pharmacokinetics (PK) of osimertinib \nand its metabolites in Chinese patients enrolled in China. PK was assessed \nfollowing single and multiple doses of 40 or 80 mg osimertinib once daily. \nPatients were aged ≥ 18 years with locally advanced or metastatic \nEGFR-TKI-sensitizing (EGFRm) non-small cell lung cancer and World Health \nOrganization performance status of 0/1, who had progressed following prior \nEGFR-TKI. Thirty-one patients were assigned to treatment (40 mg, n = 15; 80 mg, \nn = 16), and 25 were included in the PK analyses set (40 mg, n = 12; 80 mg, \nn = 13). Six were excluded from analyses because of prior treatment with an \nosimertinib-like substance. At steady state a flat PK profile with a low \nmaximum-minimum plasma concentration ratio was observed. Investigator-assessed \nobjective response rate was 47% (7 of 15; 95%CI, 21.3-73.4) in the 40-mg cohort \nand 75% (12 of 16; 95%CI, 47.6-92.7) in the 80-mg cohort. Adverse events (AEs) \nleading to dose modification and treatment discontinuation were reported in 2 \npatients (6%) and 3 patients (10%), respectively. Serious AEs were reported in 8 \npatients (26%) and AEs leading to death in 1 patien"
+      }
+    ]
+  }
+}

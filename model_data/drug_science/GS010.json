@@ -1,0 +1,11 @@
+{
+  "drug": "GS010",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Eur J Ophthalmol. 2020 Nov;30(6):1220-1227. doi: 10.1177/1120672120936592.\nEpub  2020 Jun 19.\n\nTreatment of Leber's hereditary optic neuropathy: An overview of recent \ndevelopments.\n\nZuccarelli M(1)(2), Vella-Szijj J(2), Serracino-Inglott A(1)(2), Borg JJ(1)(3).\n\nAuthor information:\n(1)Medicines Authority, San Ġwann, Malta.\n(2)Department of Pharmacy, Faculty of Medicine and Surgery, University of Malta, \nMsida, Malta.\n(3)Department of Biology, University of Tor Vergata, Rome, Italy.\n\nLeber's hereditary optic neuropathy (LHON) is a rare, maternally-inherited optic \nneuropathy caused by mitochondrial DNA point mutations and which can cause \nblindness. Currently, Raxone (idebenone) is the only available medicinal product \nauthorised to treat LHON within the European Union and LHON remains an unmet \nmedical need. The aim of this article was to summarise interventional clinical \ntrials published over the past 5 years (between 2014 and 2019) with the primary \npurpose of treating LHON. Therapeutic approaches discussed include modulating \nagents of the mitochondrial electron transport chain such as Raxone, cysteamine \nbitartrate and KH176, inhibitors of apoptosis such as elamipretide, gene therapy \nmedicinal products such as GS010 and scAAV2P1ND4 and retinal tissue regeneration \nmedicinal products such as bone marrow-derived stem cells.\n\nDOI: 10.1177/1120672120936592\nPMID: 32552047 [Indexed for MEDLINE]"
+      }
+    ]
+  }
+}

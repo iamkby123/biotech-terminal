@@ -1,0 +1,11 @@
+{
+  "drug": "Nutropin AQ",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Growth Horm IGF Res. 2010 Oct;20(5):367-71. doi: 10.1016/j.ghir.2010.07.002. \nEpub 2010 Aug 13.\n\nBioequivalence studies for three formulations of a recombinant human growth \nhormone: challenges and lessons learned.\n\nDao L(1), Jacobs J, Kuebler P, Bakker B, Lippe B.\n\nAuthor information:\n(1)Genentech, Inc., 1 DNA Way, South San Francisco, CA 94080, USA. le1@gene.com\n\nTwo bioequivalence (BE) studies in healthy volunteers comparing new formulations \nof the recombinant human growth hormone (rhGH) Nutropin AQ (somatropin [rDNA \norigin] injection; Genentech, Inc., South San Francisco, CA) with the currently \nmarketed formulation (5 mg/mL) were conducted to extend available dosing \noptions. All formulations were administered by subcutaneous (SC) injection \nranging in volume from 0.25 to 1.0 mL depending on the formulation \nconcentration. Study A was a 2-period crossover design to assess the BE of 5 and \n10 mg/mL. The estimate for relative bioavailability (AUC(0-24 h)) was within the \nprespecified BE interval (0.80-1.25). However, while the C(max) estimate (1.17) \nwas contained within the range for BE, the 90% CI (0.986-1.38) extended beyond \nthe prespecified BE interval. As a result, Study A failed to show BE between the \n5 and 10mg/mL formulations. Review of the data showed unexpected increased \nvariability in the observed C(max). Further review of individual data suggested \nthat in 4 subjects, the GH concentration profile of 1 of the 2 injections \nclosely resembled the absorption kinetics of an intramuscular injection rather \nthan an SC injection. Because study conduct may have contributed to these \nresults, we performed a second study, Study B. This study incorporated injection \ntechnique training, a defined injection site, and a larger sample size to \naccommodate variability. It also included a third formulation, creating a \n3-period crossover design to assess the BE of 2.5, 5, and 10 mg/mL. Study B \nresults demonstrated BE of the new 2.5- and 10-mg/mL formulations t"
+      }
+    ]
+  }
+}

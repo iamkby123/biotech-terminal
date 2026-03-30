@@ -1,0 +1,11 @@
+{
+  "drug": "NeuVax vaccine",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Cancer Prev Res (Phila). 2023 Jun 1;16(6):333-341. doi: \n10.1158/1940-6207.CAPR-22-0388.\n\nPhase II Trial of Nelipepimut-S Peptide Vaccine in Women with Ductal Carcinoma \nIn Situ.\n\nO'Shea AE(#)(1), Clifton GT(#)(1), Qiao N(2), Heckman-Stoddard BM(3), Wojtowicz \nM(3), Dimond E(3), Bedrosian I(2), Weber D(4), Garber JE(5)(6)(7)(8), Husband \nA(5)(7), Pastorello R(6)(9), Lee JJ(10), Hernandez M(10), Liu DD(10), Vornik \nLA(11), Brown PH(11), Alatrash G(12), Peoples GE(13), Mittendorf EA(6)(8)(9).\n\nAuthor information:\n(1)Department of Surgery, Brooke Army Medical Center, Ft. Sam Houston, Texas.\n(2)Department of Breast Surgical Oncology, The University of Texas MD Anderson \nCancer Center, Houston, Texas.\n(3)Division of Cancer Prevention, National Cancer Institute, Bethesda, Maryland.\n(4)Department of Breast Medical Oncology, The University of Texas MD Anderson \nCancer Center, Houston, Texas.\n(5)Department of Medical Oncology, Dana-Farber Cancer Institute, Boston, \nMassachusetts.\n(6)Breast Oncology Program, Dana-Farber Brigham Cancer Center, Boston, \nMassachusetts.\n(7)Center for Cancer Genetics and Prevention, Dana-Farber Cancer Institute, \nBoston, Massachusetts.\n(8)Harvard Medical School, Boston, Massachusetts.\n(9)Division of Breast Surgery, Department of Surgery, Brigham and Women's \nHospital, Boston, Massachusetts.\n(10)Department of Biostatistics, The University of Texas MD Anderson Cancer \nCenter, Houston, Texas.\n(11)Department of Clinical Cancer Prevention, The University of Texas MD \nAnderson Cancer Center, Houston, Texas.\n(12)Department of Stem Cell Transplant and Cellular Therapy, The University of \nTexas MD Anderson Cancer Center, Houston, Texas.\n(13)Cancer Vaccine Development Program, San Antonio, Texas.\n(#)Contributed equally\n\nNeuVax is a vaccine comprised of the HER2-derived MHC class I peptide E75 \n(nelipepimut-S, NPS) combined with GM-CSF. We completed a randomized trial of \npreoperative vaccination with NeuVax versus GM-CSF alone in patients with ductal \nca"
+      }
+    ]
+  }
+}

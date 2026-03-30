@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biotech Terminal - Data Backfill Progress</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0e1a;color:#e2e8f0}
+    
+    .header{background:#0d1117;border-bottom:1px solid #1e2a3a;padding:16px 24px}
+    .header h1{font-size:20px;font-weight:700;color:#60a5fa}
+    
+    .main-content{max-width:800px;margin:0 auto;padding:40px 24px}
+    
+    .progress-card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:32px;margin-bottom:24px}
+    
+    .progress-bar-bg{background:#1f2937;height:24px;border-radius:12px;overflow:hidden;margin:20px 0}
+    .progress-bar-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#1d4ed8);transition:width 0.5s ease;border-radius:12px}
+    
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+    .stat-box{background:#0d1623;border:1px solid #1e2a3a;border-radius:8px;padding:16px;text-align:center}
+    .stat-value{font-size:32px;font-weight:700;color:#60a5fa}
+    .stat-label{font-size:12px;color:#64748b;text-transform:uppercase;margin-top:4px}
+    
+    .status-indicator{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:#05966920;border:1px solid #059669;border-radius:20px;color:#10b981;font-size:14px;font-weight:600}
+    .status-indicator.stopped{background:#dc262620;border-color:#dc2626;color:#ef4444}
+    .status-dot{width:8px;height:8px;border-radius:50%;background:#10b981;animation:pulse 2s infinite}
+    .status-indicator.stopped .status-dot{background:#ef4444;animation:none}
+    
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    
+    .log-container{background:#0d1117;border:1px solid #1e2a3a;border-radius:8px;padding:16px;height:300px;overflow-y:auto;font-family:monospace;font-size:13px}
+    .log-entry{padding:4px 0;border-bottom:1px solid #1f2937;color:#94a3b8}
+    .log-entry:last-child{border-bottom:none}
+    .log-time{color:#64748b;font-size:11px}
+    .log-success{color:#10b981}
+    .log-error{color:#ef4444}
+    
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
+    .btn:hover{background:#2563eb}
+    .btn:disabled{opacity:0.5;cursor:not-allowed}
+    
+    .eta-text{color:#64748b;font-size:14px;margin-top:8px}
+    
+    ::-webkit-scrollbar{width:8px}
+    ::-webkit-scrollbar-track{background:#0d1117}
+    ::-webkit-scrollbar-thumb{background:#1f2937;border-radius:4px}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>🧬 Biotech Terminal - Data Backfill Monitor</h1>
+  </header>
+
+  <main class="main-content">
+    <div class="progress-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h2 style="font-size:18px;font-weight:600;margin:0">Trial Database Expansion</h2>
+        <span id="status-badge" class="status-indicator stopped">
+          <span class="status-dot"></span>
+          <span id="status-text">Checking...</span>
+        </span>
+      </div>
+      
+      <!-- Target Progress (53k → 200k) -->
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="color:#94a3b8">Database Size Target</span>
+          <span id="target-percent" style="font-weight:600">0%</span>
+        </div>
+        <div class="progress-bar-bg" style="height:32px;background:#1f2937">
+          <div id="target-progress-bar" class="progress-bar-fill" style="width:0%;background:linear-gradient(90deg,#10b981,#059669)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:13px;color:#64748b">
+          <span id="current-total">0 trials</span>
+          <span id="target-total">Target: 200,000</span>
+        </div>
+      </div>
+      
+      <!-- Detailed Data Progress -->
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="color:#94a3b8">Detailed Data Backfill</span>
+          <span id="detail-percent" style="font-weight:600">0%</span>
+        </div>
+        <div class="progress-bar-bg" style="height:20px">
+          <div id="detail-progress-bar" class="progress-bar-fill" style="width:0%"></div>
+        </div>
+      </div>
+      
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div id="stat-total" class="stat-value">0</div>
+          <div class="stat-label">Total Trials</div>
+        </div>
+        <div class="stat-box">
+          <div id="stat-detailed" class="stat-value">0</div>
+          <div class="stat-label">With Details</div>
+        </div>
+        <div class="stat-box">
+          <div id="stat-to-target" class="stat-value">0</div>
+          <div class="stat-label">To Target</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-card">
+      <h3 style="font-size:16px;font-weight:600;margin:0 0 16px 0">Recent Activity</h3>
+      <div id="log-container" class="log-container">
+        <div class="log-entry">Loading...</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:24px">
+      <button id="refresh-btn" class="btn" onclick="fetchProgress()">🔄 Refresh Now</button>
+      <button id="start-btn" class="btn" onclick="startBackfill()" style="margin-left:12px;background:#059669">▶ Start Backfill</button>
+      <button id="stop-btn" class="btn" onclick="stopBackfill()" style="margin-left:12px;background:#dc2626;display:none">⏹ Stop</button>
+      <span style="color:#64748b;margin-left:16px;font-size:14px">Auto-refreshes every 5 seconds</span>
+    </div>
+    <div id="action-message" style="text-align:center;margin-top:12px;color:#64748b;font-size:14px"></div>
+  </main>
+
+  <script>
+    let lastUpdated = 0;
+    let lastTime = Date.now();
+    let rateHistory = [];
+
+    async function fetchProgress() {
+      try {
+        const response = await fetch('/api/backfill/status');
+        const data = await response.json();
+        
+        updateUI(data);
+      } catch (err) {
+        console.error('Error fetching progress:', err);
+        showError('Failed to fetch progress data');
+      }
+    }
+
+    function updateUI(data) {
+      const { updated, total, target, percent_complete, percent_target, is_running, recent_logs } = data;
+      
+      // Update target progress (green bar)
+      const targetPct = Math.min(percent_target || 0, 100);
+      document.getElementById('target-progress-bar').style.width = `${targetPct}%`;
+      document.getElementById('target-percent').textContent = `${targetPct.toFixed(1)}%`;
+      document.getElementById('current-total').textContent = `${total.toLocaleString()} trials`;
+      document.getElementById('target-total').textContent = `Target: ${target.toLocaleString()}`;
+      
+      // Update detail progress (blue bar)
+      document.getElementById('detail-progress-bar').style.width = `${percent_complete}%`;
+      document.getElementById('detail-percent').textContent = `${percent_complete.toFixed(1)}%`;
+      
+      // Update stats
+      document.getElementById('stat-total').textContent = total.toLocaleString();
+      document.getElementById('stat-detailed').textContent = updated.toLocaleString();
+      document.getElementById('stat-to-target').textContent = Math.max(0, target - total).toLocaleString();
+      
+      // Update status badge
+      const statusBadge = document.getElementById('status-badge');
+      const statusText = document.getElementById('status-text');
+      
+      if (is_running) {
+        statusBadge.classList.remove('stopped');
+        statusText.textContent = 'Running';
+      } else {
+        statusBadge.classList.add('stopped');
+        statusText.textContent = percent_target >= 100 ? 'Complete' : 'Stopped';
+      }
+      
+      // Update logs
+      updateLogs(recent_logs || []);
+    }
+
+    function updateLogs(logs) {
+      const container = document.getElementById('log-container');
+      
+      if (logs.length === 0) {
+        container.innerHTML = '<div class="log-entry">No recent activity</div>';
+        return;
+      }
+      
+      container.innerHTML = logs.map(log => {
+        const time = new Date(log.time).toLocaleTimeString();
+        const statusClass = log.status === 'success' ? 'log-success' : 'log-error';
+        const icon = log.status === 'success' ? '✓' : '✗';
+        return `
+          <div class="log-entry">
+            <span class="log-time">${time}</span>
+            <span class="${statusClass}">${icon} ${log.nct_id}</span>
+            ${log.message ? `- ${log.message}` : ''}
+          </div>
+        `;
+      }).join('');
+      
+      // Scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function showError(message) {
+      document.getElementById('log-container').innerHTML = `
+        <div class="log-entry log-error">Error: ${message}</div>
+      `;
+    }
+
+    async function startBackfill() {
+      const btn = document.getElementById('start-btn');
+      const msg = document.getElementById('action-message');
+      
+      btn.disabled = true;
+      msg.textContent = 'Starting backfill...';
+      msg.style.color = '#60a5fa';
+      
+      try {
+        const response = await fetch('/api/backfill/start', { method: 'POST' });
+        const data = await response.json();
+        
+        if (data.success) {
+          msg.textContent = data.message || 'Backfill started!';
+          msg.style.color = '#10b981';
+          document.getElementById('start-btn').style.display = 'none';
+          document.getElementById('stop-btn').style.display = 'inline-flex';
+        } else {
+          msg.textContent = data.error || 'Failed to start backfill';
+          msg.style.color = '#ef4444';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        msg.textContent = 'Error: ' + err.message;
+        msg.style.color = '#ef4444';
+        btn.disabled = false;
+      }
+    }
+
+    async function stopBackfill() {
+      const btn = document.getElementById('stop-btn');
+      const msg = document.getElementById('action-message');
+      
+      btn.disabled = true;
+      msg.textContent = 'Stopping backfill...';
+      msg.style.color = '#f59e0b';
+      
+      try {
+        const response = await fetch('/api/backfill/stop', { method: 'POST' });
+        const data = await response.json();
+        
+        if (data.success) {
+          msg.textContent = data.message || 'Backfill stopped';
+          msg.style.color = '#64748b';
+          document.getElementById('start-btn').style.display = 'inline-flex';
+          document.getElementById('stop-btn').style.display = 'none';
+          document.getElementById('start-btn').disabled = false;
+        } else {
+          msg.textContent = data.error || 'Failed to stop backfill';
+          msg.style.color = '#ef4444';
+        }
+        btn.disabled = false;
+      } catch (err) {
+        msg.textContent = 'Error: ' + err.message;
+        msg.style.color = '#ef4444';
+        btn.disabled = false;
+      }
+    }
+
+    // Initial fetch
+    fetchProgress();
+    
+    // Auto-refresh every 5 seconds
+    setInterval(fetchProgress, 5000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biotech Terminal - News</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0e1a;color:#e2e8f0}
+    a{color:#60a5fa;text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    /* ── Header ── */
+    .header{position:sticky;top:0;z-index:100;background:#0d1117;border-bottom:1px solid #1e2a3a;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    .header-logo{font-size:18px;font-weight:700;color:#60a5fa;white-space:nowrap}
+    .header-nav{display:flex;gap:8px;margin-left:auto}
+    .header-nav a{padding:6px 14px;border-radius:6px;font-size:13px;color:#94a3b8;transition:all .15s}
+    .header-nav a:hover,.header-nav a.active{background:#1e3a5f;color:#e2e8f0;text-decoration:none}
+
+    /* ── Layout ── */
+    .page{display:flex;max-width:1440px;margin:0 auto;min-height:calc(100vh - 52px)}
+    .sidebar{width:260px;min-width:260px;border-right:1px solid #1e2a3a;padding:20px 16px;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto}
+    .main{flex:1;padding:24px;min-width:0}
+
+    @media(max-width:900px){
+      .page{flex-direction:column}
+      .sidebar{width:100%;min-width:100%;position:static;height:auto;border-right:none;border-bottom:1px solid #1e2a3a;padding:16px}
+      .main{padding:16px}
+    }
+
+    /* ── Sidebar ── */
+    .filter-section{margin-bottom:20px}
+    .filter-title{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+    .filter-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:7px 10px;border:none;background:transparent;color:#94a3b8;font-size:13px;border-radius:6px;cursor:pointer;text-align:left;transition:all .12s}
+    .filter-btn:hover{background:#1a2535;color:#e2e8f0}
+    .filter-btn.active{background:#1e3a5f;color:#e2e8f0}
+    .filter-btn .count{font-size:11px;color:#475569;min-width:28px;text-align:right}
+    .filter-btn.active .count{color:#94a3b8}
+
+    .search-box{width:100%;padding:8px 12px;background:#111827;border:1px solid #1f2937;border-radius:8px;color:#e2e8f0;font-size:13px;margin-bottom:16px}
+    .search-box:focus{outline:none;border-color:#3b82f6}
+    .search-box::placeholder{color:#475569}
+
+    /* ── News cards ── */
+    .news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+    @media(max-width:600px){.news-grid{grid-template-columns:1fr}}
+
+    .news-card{background:#111827;border:1px solid #1f2937;border-radius:12px;overflow:hidden;transition:border-color .15s,transform .15s;display:flex;flex-direction:column}
+    .news-card:hover{border-color:#3b82f6;transform:translateY(-2px)}
+    .news-card a{text-decoration:none;color:inherit;display:flex;flex-direction:column;height:100%}
+
+    .card-img{width:100%;height:160px;object-fit:cover;background:#0d1623}
+    .card-img-placeholder{width:100%;height:6px;background:linear-gradient(90deg,#1e3a5f,#3b82f6)}
+
+    .card-body{padding:16px;flex:1;display:flex;flex-direction:column}
+    .card-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+    .card-source{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase}
+    .card-date{font-size:11px;color:#475569}
+
+    .card-title{font-size:15px;font-weight:600;color:#e2e8f0;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .card-summary{font-size:13px;color:#94a3b8;line-height:1.5;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+    .card-footer{padding:10px 16px;border-top:1px solid #1e2a3a;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+    /* ── Badges ── */
+    .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+    .badge-catalyst{background:#1e293b;color:#60a5fa;border:1px solid #1e3a5f}
+    .badge-positive{background:#052e16;color:#4ade80;border:1px solid #16a34a}
+    .badge-negative{background:#2d0a0a;color:#f87171;border:1px solid #dc2626}
+    .badge-neutral{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+    .badge-ticker{background:#312e81;color:#a5b4fc;border:1px solid #4338ca;cursor:pointer}
+    .badge-ticker:hover{background:#3730a3}
+
+    /* ── Pagination ── */
+    .pagination{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:24px;flex-wrap:wrap}
+    .page-btn{padding:6px 12px;border:1px solid #1f2937;background:#111827;color:#94a3b8;border-radius:6px;font-size:13px;cursor:pointer;transition:all .12s}
+    .page-btn:hover:not(:disabled){background:#1e3a5f;color:#e2e8f0;border-color:#3b82f6}
+    .page-btn.active{background:#1e3a5f;color:#e2e8f0;border-color:#3b82f6}
+    .page-btn:disabled{opacity:.4;cursor:default}
+    .page-info{font-size:13px;color:#64748b;margin:0 8px}
+
+    /* ── Loading / Empty ── */
+    .loading{text-align:center;padding:60px 20px;color:#64748b}
+    .spinner{display:inline-block;width:32px;height:32px;border:3px solid #1e2a3a;border-top-color:#3b82f6;border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty-state{text-align:center;padding:60px 20px;color:#475569;font-size:15px}
+
+    /* ── Top bar ── */
+    .top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+    .top-bar h1{font-size:22px;font-weight:700}
+    .top-bar .result-count{font-size:13px;color:#64748b}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">Biotech Terminal</div>
+  <nav class="header-nav">
+    <a href="/">Dashboard</a>
+    <a href="/news" class="active">News</a>
+  </nav>
+</div>
+
+<div class="page">
+  <!-- Sidebar Filters -->
+  <aside class="sidebar">
+    <input type="text" class="search-box" id="searchInput" placeholder="Search news...">
+
+    <div class="filter-section">
+      <div class="filter-title">Sentiment</div>
+      <div id="sentimentFilters"></div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Catalyst Type</div>
+      <div id="catalystFilters"></div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Source</div>
+      <div id="sourceFilters"></div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="top-bar">
+      <div>
+        <h1>Biotech News</h1>
+        <span class="result-count" id="resultCount"></span>
+      </div>
+      <div id="activeFilters" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+
+    <div id="newsGrid" class="news-grid"></div>
+    <div id="loading" class="loading" style="display:none"><div class="spinner"></div><div>Loading news...</div></div>
+    <div id="empty" class="empty-state" style="display:none">No news found matching your filters.</div>
+    <div id="pagination" class="pagination"></div>
+  </main>
+</div>
+
+<script>
+const state = {
+  page: 1,
+  perPage: 24,
+  category: null,
+  source: null,
+  ticker: null,
+  catalyst: null,
+  sentiment: null,
+  search: null,
+  stats: null,
+};
+
+// Parse URL params
+(function() {
+  const p = new URLSearchParams(location.search);
+  if (p.get('ticker')) state.ticker = p.get('ticker');
+  if (p.get('catalyst')) state.catalyst = p.get('catalyst');
+  if (p.get('sentiment')) state.sentiment = p.get('sentiment');
+  if (p.get('source')) state.source = p.get('source');
+  if (p.get('search')) state.search = p.get('search');
+  if (p.get('page')) state.page = parseInt(p.get('page')) || 1;
+})();
+
+async function loadStats() {
+  try {
+    const r = await fetch('/api/news/stats');
+    state.stats = await r.json();
+    renderFilters();
+  } catch(e) { console.error('Stats load failed', e); }
+}
+
+function renderFilters() {
+  const s = state.stats;
+  if (!s) return;
+
+  // Sentiment
+  const sentEl = document.getElementById('sentimentFilters');
+  const sentItems = [
+    { key: 'positive', label: 'Positive', count: s.sentiment.positive },
+    { key: 'neutral', label: 'Neutral', count: s.sentiment.neutral },
+    { key: 'negative', label: 'Negative', count: s.sentiment.negative },
+  ];
+  sentEl.innerHTML = sentItems.map(i => `
+    <button class="filter-btn${state.sentiment === i.key ? ' active' : ''}" data-filter="sentiment" data-value="${i.key}">
+      <span>${i.label}</span><span class="count">${i.count}</span>
+    </button>
+  `).join('');
+
+  // Catalysts
+  const catEl = document.getElementById('catalystFilters');
+  catEl.innerHTML = s.catalysts.map(c => `
+    <button class="filter-btn${state.catalyst === c.catalyst_type ? ' active' : ''}" data-filter="catalyst" data-value="${c.catalyst_type}">
+      <span>${c.catalyst_type}</span><span class="count">${c.count}</span>
+    </button>
+  `).join('');
+
+  // Sources
+  const srcEl = document.getElementById('sourceFilters');
+  srcEl.innerHTML = s.sources.slice(0, 15).map(c => `
+    <button class="filter-btn${state.source === c.source ? ' active' : ''}" data-filter="source" data-value="${c.source}">
+      <span>${c.source}</span><span class="count">${c.count}</span>
+    </button>
+  `).join('');
+
+  // Attach click handlers
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter;
+      const value = btn.dataset.value;
+      if (state[filter] === value) {
+        state[filter] = null; // toggle off
+      } else {
+        state[filter] = value;
+      }
+      state.page = 1;
+      loadNews();
+      renderFilters();
+      updateURL();
+    });
+  });
+}
+
+function formatDate(raw) {
+  if (!raw) return '';
+  try {
+    const d = new Date(raw.replace(' ', 'T') + (raw.includes('+') || raw.includes('Z') ? '' : 'Z'));
+    if (isNaN(d)) return raw.split(' ')[0];
+    const now = new Date();
+    const diff = (now - d) / 1000;
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch { return raw.split(' ')[0]; }
+}
+
+function renderNews(data) {
+  const grid = document.getElementById('newsGrid');
+  const loading = document.getElementById('loading');
+  const empty = document.getElementById('empty');
+  const countEl = document.getElementById('resultCount');
+
+  loading.style.display = 'none';
+
+  if (!data.items || data.items.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    countEl.textContent = '0 results';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  countEl.textContent = `${data.total.toLocaleString()} articles`;
+
+  grid.innerHTML = data.items.map(item => {
+    const tickers = (item.tickers || '').split(',').filter(Boolean);
+    const tickerBadges = tickers.map(t =>
+      `<span class="badge badge-ticker" onclick="event.preventDefault();event.stopPropagation();filterTicker('${t.trim()}')">${t.trim()}</span>`
+    ).join('');
+
+    const sentBadge = item.sentiment
+      ? `<span class="badge badge-${item.sentiment}">${item.sentiment}</span>`
+      : '';
+
+    const catalystBadge = item.catalyst_type
+      ? `<span class="badge badge-catalyst">${item.catalyst_type}</span>`
+      : '';
+
+    const imgHtml = item.image_url
+      ? `<img class="card-img" src="${item.image_url}" alt="" onerror="this.outerHTML='<div class=card-img-placeholder></div>'" loading="lazy">`
+      : `<div class="card-img-placeholder"></div>`;
+
+    return `
+      <div class="news-card">
+        <a href="${item.url || '#'}" target="_blank" rel="noopener">
+          ${imgHtml}
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-source">${item.source || ''}</span>
+              <span class="card-date">${formatDate(item.published_at)}</span>
+            </div>
+            <div class="card-title">${escapeHtml(item.title)}</div>
+            <div class="card-summary">${escapeHtml(item.summary || '')}</div>
+          </div>
+          <div class="card-footer">
+            ${sentBadge}${catalystBadge}${tickerBadges}
+          </div>
+        </a>
+      </div>
+    `;
+  }).join('');
+
+  renderPagination(data);
+}
+
+function renderPagination(data) {
+  const el = document.getElementById('pagination');
+  if (data.pages <= 1) { el.innerHTML = ''; return; }
+
+  let html = `<button class="page-btn" ${data.page <= 1 ? 'disabled' : ''} onclick="goPage(${data.page - 1})">&laquo;</button>`;
+
+  const maxButtons = 7;
+  let start = Math.max(1, data.page - 3);
+  let end = Math.min(data.pages, start + maxButtons - 1);
+  start = Math.max(1, end - maxButtons + 1);
+
+  if (start > 1) html += `<button class="page-btn" onclick="goPage(1)">1</button><span class="page-info">...</span>`;
+  for (let i = start; i <= end; i++) {
+    html += `<button class="page-btn${i === data.page ? ' active' : ''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  if (end < data.pages) html += `<span class="page-info">...</span><button class="page-btn" onclick="goPage(${data.pages})">${data.pages}</button>`;
+
+  html += `<button class="page-btn" ${data.page >= data.pages ? 'disabled' : ''} onclick="goPage(${data.page + 1})">&raquo;</button>`;
+  el.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function loadNews() {
+  const loading = document.getElementById('loading');
+  const grid = document.getElementById('newsGrid');
+  loading.style.display = 'block';
+  grid.innerHTML = '';
+
+  const params = new URLSearchParams();
+  params.set('page', state.page);
+  params.set('per_page', state.perPage);
+  if (state.category) params.set('category', state.category);
+  if (state.source) params.set('source', state.source);
+  if (state.ticker) params.set('ticker', state.ticker);
+  if (state.catalyst) params.set('catalyst', state.catalyst);
+  if (state.sentiment) params.set('sentiment', state.sentiment);
+  if (state.search) params.set('search', state.search);
+
+  try {
+    const r = await fetch('/api/news?' + params.toString());
+    const data = await r.json();
+    renderNews(data);
+  } catch(e) {
+    console.error('News load failed', e);
+    loading.style.display = 'none';
+    document.getElementById('empty').style.display = 'block';
+  }
+  renderActiveFilters();
+}
+
+function renderActiveFilters() {
+  const el = document.getElementById('activeFilters');
+  const filters = [];
+  if (state.ticker) filters.push({ key: 'ticker', label: `Ticker: ${state.ticker}` });
+  if (state.catalyst) filters.push({ key: 'catalyst', label: state.catalyst });
+  if (state.sentiment) filters.push({ key: 'sentiment', label: state.sentiment });
+  if (state.source) filters.push({ key: 'source', label: state.source });
+  if (state.search) filters.push({ key: 'search', label: `"${state.search}"` });
+
+  el.innerHTML = filters.map(f =>
+    `<span class="badge badge-catalyst" style="cursor:pointer;font-size:11px;padding:4px 10px" onclick="clearFilter('${f.key}')">${f.label} &times;</span>`
+  ).join('');
+}
+
+function clearFilter(key) {
+  state[key] = null;
+  if (key === 'search') document.getElementById('searchInput').value = '';
+  state.page = 1;
+  loadNews();
+  renderFilters();
+  updateURL();
+}
+
+function filterTicker(t) {
+  state.ticker = state.ticker === t ? null : t;
+  state.page = 1;
+  loadNews();
+  renderFilters();
+  updateURL();
+}
+
+function goPage(p) {
+  state.page = p;
+  loadNews();
+  updateURL();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateURL() {
+  const params = new URLSearchParams();
+  if (state.ticker) params.set('ticker', state.ticker);
+  if (state.catalyst) params.set('catalyst', state.catalyst);
+  if (state.sentiment) params.set('sentiment', state.sentiment);
+  if (state.source) params.set('source', state.source);
+  if (state.search) params.set('search', state.search);
+  if (state.page > 1) params.set('page', state.page);
+  const qs = params.toString();
+  history.replaceState(null, '', qs ? '?' + qs : location.pathname);
+}
+
+// Search debounce
+let searchTimer = null;
+document.getElementById('searchInput').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    state.search = e.target.value.trim() || null;
+    state.page = 1;
+    loadNews();
+    updateURL();
+  }, 400);
+});
+
+// Restore search input
+if (state.search) document.getElementById('searchInput').value = state.search;
+
+// Init
+loadStats();
+loadNews();
+</script>
+</body>
+</html>

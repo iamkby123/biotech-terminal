@@ -1,0 +1,673 @@
+import os
+from datetime import datetime, timedelta
+from dotenv import load_dotenv
+load_dotenv()
+
+import psycopg2
+import psycopg2.extras
+import psycopg2.pool
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+
+app = FastAPI(title="Biotech Terminal")
+
+# Connection pool for better performance
+_db_pool = None
+
+def get_db_pool():
+    global _db_pool
+    if _db_pool is None:
+        _db_pool = psycopg2.pool.SimpleConnectionPool(
+            1, 10,
+            DATABASE_URL,
+            cursor_factory=psycopg2.extras.RealDictCursor
+        )
+    return _db_pool
+
+def db():
+    return get_db_pool().getconn()
+
+def release_db(conn):
+    get_db_pool().putconn(conn)
+
+
+@app.get("/api/summary")
+def summary():
+    c = db()
+    cur = c.cursor()
+    tables = ["trials", "catalysts", "filings", "publications", "ticker_map", "news"]
+    counts = {}
+    for t in tables:
+        cur.execute(f"SELECT COUNT(*) AS n FROM {t}")
+        counts[t] = cur.fetchone()["n"]
+
+    cur.execute("""
+        SELECT source, ticker, rows_upserted, status, finished_at
+        FROM ingestion_log ORDER BY finished_at DESC LIMIT 20
+    """)
+    log = [dict(r) for r in cur.fetchall()]
+    for row in log:
+        if row.get("finished_at"):
+            row["finished_at"] = str(row["finished_at"])
+
+    cur.close(); c.close()
+    return {"counts": counts, "log": log}
+
+
+@app.get("/api/trials")
+def trials(limit: int = 100, phase: str = None, status: str = None, sponsor: str = None):
+    c = db()
+    cur = c.cursor()
+    where, params = [], []
+    if phase:
+        where.append("phase ILIKE %s"); params.append(f"%{phase}%")
+    if status:
+        where.append("status ILIKE %s"); params.append(f"%{status}%")
+    if sponsor:
+        where.append("sponsor ILIKE %s"); params.append(f"%{sponsor}%")
+    clause = ("WHERE " + " AND ".join(where)) if where else ""
+    cur.execute(f"""
+        SELECT nct_id, title, sponsor, phase, status, condition,
+               enrollment, primary_completion_date, results_posted
+        FROM trials {clause}
+        ORDER BY phase DESC NULLS LAST, status
+        LIMIT %s
+    """, params + [limit])
+    rows = [dict(r) for r in cur.fetchall()]
+    cur.close(); c.close()
+    return rows
+
+
+@app.get("/api/trials/stats")
+def trials_stats():
+    c = db()
+    cur = c.cursor()
+    cur.execute("""
+        SELECT phase, status, COUNT(*) AS cnt
+        FROM trials GROUP BY phase, status
+        ORDER BY phase DESC NULLS LAST, cnt DESC
+    """)
+    phase_status = [dict(r) for r in cur.fetchall()]
+
+    cur.execute("""
+        SELECT sponsor, COUNT(*) AS total,
+               SUM(CASE WHEN status = 'RECRUITING' THEN 1 ELSE 0 END) AS recruiting,
+               SUM(CASE WHEN results_posted = 1 THEN 1 ELSE 0 END) AS with_results
+        FROM trials WHERE sponsor IS NOT NULL
+        GROUP BY sponsor ORDER BY total DESC LIMIT 20
+    """)
+    sponsors = [dict(r) for r in cur.fetchall()]
+
+    cur.close(); c.close()
+    return {"phase_status": phase_status, "sponsors": sponsors}
+
+
+@app.get("/api/catalysts")
+def catalysts(days: int = 180, ticker: str = None):
+    c = db()
+    cur = c.cursor()
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    cutoff = (datetime.utcnow() + timedelta(days=days)).strftime("%Y-%m-%d")
+    if ticker:
+        cur.execute("""
+            SELECT event_date, event_type, company, drug_name, indication, ticker
+            FROM catalysts WHERE event_date >= %s AND event_date <= %s
+            AND ticker ILIKE %s ORDER BY event_date ASC
+        """, (today, cutoff, ticker.upper()))
+    else:
+        cur.execute("""
+            SELECT event_date, event_type, company, drug_name, indication, ticker
+            FROM catalysts WHERE event_date >= %s AND event_date <= %s
+            ORDER BY event_date ASC
+        """, (today, cutoff))
+    rows = [dict(r) for r in cur.fetchall()]
+    cur.close(); c.close()
+    return rows
+
+
+@app.get("/api/filings")
+def filings(limit: int = 50, ticker: str = None):
+    c = db()
+    cur = c.cursor()
+    if ticker:
+        cur.execute("""
+            SELECT ticker, form_type, filed_date, filing_url
+            FROM filings WHERE ticker ILIKE %s
+            ORDER BY filed_date DESC NULLS LAST LIMIT %s
+        """, (ticker.upper(), limit))
+    else:
+        cur.execute("""
+            SELECT ticker, form_type, filed_date, filing_url
+            FROM filings ORDER BY filed_date DESC NULLS LAST LIMIT %s
+        """, (limit,))
+    rows = [dict(r) for r in cur.fetchall()]
+    cur.close(); c.close()
+    return rows
+
+
+@app.get("/api/pipeline/{ticker}")
+def pipeline(ticker: str):
+    c = db()
+    try:
+        cur = c.cursor()
+        ticker = ticker.upper()
+
+        cur.execute("SELECT * FROM ticker_map WHERE ticker = %s", (ticker,))
+        info = cur.fetchone()
+        if not info:
+            return JSONResponse({"error": f"{ticker} not found"}, status_code=404)
+        info = dict(info)
+
+        company = info.get("company_name") or ticker
+        first_word = company.split()[0]
+
+        cur.execute("""
+            SELECT nct_id, title, phase, status, condition, intervention,
+                   primary_completion_date, results_posted, enrollment
+            FROM trials WHERE sponsor ILIKE %s
+            ORDER BY phase DESC NULLS LAST, status
+        """, (f"%{first_word}%",))
+        trials = [dict(r) for r in cur.fetchall()]
+
+        cur.execute("""
+            SELECT form_type, filed_date, filing_url FROM filings
+            WHERE ticker = %s ORDER BY filed_date DESC LIMIT 10
+        """, (ticker,))
+        filings = [dict(r) for r in cur.fetchall()]
+
+        cur.execute("""
+            SELECT event_date, event_type, drug_name, indication FROM catalysts
+            WHERE ticker = %s ORDER BY event_date
+        """, (ticker,))
+        cats = [dict(r) for r in cur.fetchall()]
+
+        cur.close()
+        return {"info": info, "trials": trials, "filings": filings, "catalysts": cats}
+    finally:
+        release_db(c)
+
+
+@app.get("/api/tickers")
+def tickers():
+    c = db()
+    cur = c.cursor()
+    cur.execute("""
+        SELECT tm.ticker, tm.company_name,
+               COUNT(DISTINCT t.nct_id) AS trial_count,
+               COUNT(DISTINCT f.accession_number) AS filing_count
+        FROM ticker_map tm
+        LEFT JOIN trials t ON t.sponsor ILIKE CONCAT('%', SPLIT_PART(tm.company_name, ' ', 1), '%')
+        LEFT JOIN filings f ON f.ticker = tm.ticker
+        WHERE tm.company_name IS NOT NULL
+        GROUP BY tm.ticker, tm.company_name
+        ORDER BY trial_count DESC
+    """)
+    rows = [dict(r) for r in cur.fetchall()]
+    cur.close(); c.close()
+    return rows
+
+
+@app.get("/api/news")
+def news(
+    limit: int = 60,
+    category: str = None,
+    source: str = None,
+    ticker: str = None,
+):
+    c = db()
+    cur = c.cursor()
+    where, params = [], []
+    if category:
+        where.append("category = %s"); params.append(category)
+    if source:
+        where.append("source ILIKE %s"); params.append(f"%{source}%")
+    if ticker:
+        where.append("tickers ILIKE %s"); params.append(f"%{ticker.upper()}%")
+    clause = ("WHERE " + " AND ".join(where)) if where else ""
+    cur.execute(f"""
+        SELECT id, source, category, title, summary, url, published_at, tickers, nct_id, ingested_at
+        FROM news {clause}
+        ORDER BY published_at DESC NULLS LAST, ingested_at DESC
+        LIMIT %s
+    """, params + [limit])
+    rows = [dict(r) for r in cur.fetchall()]
+    for r in rows:
+        if r.get("ingested_at"):
+            r["ingested_at"] = str(r["ingested_at"])
+    cur.close(); c.close()
+    return rows
+
+
+@app.get("/api/news/ingest")
+def trigger_news_ingest():
+    from ingestion.news import ingest_all_news
+    n = ingest_all_news()
+    return {"upserted": n}
+
+
+@app.get("/api/news/sources")
+def news_sources():
+    c = db()
+    cur = c.cursor()
+    cur.execute("""
+        SELECT source, category, COUNT(*) AS count,
+               MAX(published_at) AS latest
+        FROM news
+        GROUP BY source, category
+        ORDER BY count DESC
+    """)
+    rows = [dict(r) for r in cur.fetchall()]
+    cur.close(); c.close()
+    return rows
+
+
+@app.get("/api/competitors/{ticker}")
+def competitors(ticker: str, indication: str = None):
+    ticker = ticker.upper()
+    c = db()
+    cur = c.cursor()
+
+    # Get this ticker's sponsor name(s) and conditions
+    cur.execute("""
+        SELECT DISTINCT t.sponsor, t.condition
+        FROM trials t
+        JOIN ticker_map tm ON t.sponsor ILIKE CONCAT('%%', SPLIT_PART(tm.company_name, ' ', 1), '%%')
+        WHERE tm.ticker = %s AND t.condition IS NOT NULL
+        LIMIT 50
+    """, (ticker,))
+    own_rows = cur.fetchall()
+
+    if not own_rows:
+        # Fallback: get by ctgov_sponsor_name
+        cur.execute("""
+            SELECT DISTINCT condition FROM trials
+            WHERE sponsor ILIKE (SELECT CONCAT('%%', SPLIT_PART(COALESCE(ctgov_sponsor_name, company_name), ' ', 1), '%%')
+                                 FROM ticker_map WHERE ticker = %s LIMIT 1)
+            AND condition IS NOT NULL LIMIT 50
+        """, (ticker,))
+        own_conditions = [r["condition"] for r in cur.fetchall()]
+        own_sponsors = []
+    else:
+        own_conditions = list({r["condition"] for r in own_rows})
+        own_sponsors = list({r["sponsor"] for r in own_rows})
+
+    if not own_conditions:
+        cur.close(); c.close()
+        return {"ticker": ticker, "indications": [], "competitors": []}
+
+    # Filter to specific indication if requested
+    if indication:
+        target_conditions = [c for c in own_conditions if indication.lower() in c.lower()]
+        if not target_conditions:
+            target_conditions = own_conditions
+    else:
+        target_conditions = own_conditions
+
+    # Find all sponsors in the same conditions
+    placeholders = ",".join(["%s"] * len(target_conditions))
+    cur.execute(f"""
+        SELECT
+            sponsor,
+            COUNT(*) AS trial_count,
+            MAX(phase) AS best_phase,
+            SUM(CASE WHEN status IN ('RECRUITING','ACTIVE_NOT_RECRUITING','NOT_YET_RECRUITING','ENROLLING_BY_INVITATION') THEN 1 ELSE 0 END) AS active_count,
+            SUM(CASE WHEN results_posted = 1 THEN 1 ELSE 0 END) AS results_count,
+            SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed_count,
+            STRING_AGG(DISTINCT condition, ' | ' ORDER BY condition) AS conditions,
+            STRING_AGG(DISTINCT COALESCE(intervention,''), '; ' ORDER BY COALESCE(intervention,'')) AS drugs
+        FROM trials
+        WHERE condition IN ({placeholders})
+        AND sponsor IS NOT NULL
+        GROUP BY sponsor
+        ORDER BY
+            MAX(CASE phase
+                WHEN 'PHASE4' THEN 7 WHEN 'PHASE3' THEN 6 WHEN 'PHASE2; PHASE3' THEN 5
+                WHEN 'PHASE2' THEN 4 WHEN 'PHASE1; PHASE2' THEN 3 WHEN 'PHASE1' THEN 2
+                WHEN 'EARLY_PHASE1' THEN 1 ELSE 0 END) DESC,
+            COUNT(*) DESC
+        LIMIT 40
+    """, target_conditions)
+    comp_rows = cur.fetchall()
+
+    # Map sponsors to tickers
+    cur.execute("SELECT ticker, company_name, ctgov_sponsor_name FROM ticker_map WHERE company_name IS NOT NULL")
+    tm_rows = cur.fetchall()
+    cur.close(); c.close()
+
+    # Build sponsor → ticker map using fuzzy first-word match
+    sponsor_to_ticker = {}
+    for tm in tm_rows:
+        name = (tm["company_name"] or "").lower()
+        ctgov = (tm["ctgov_sponsor_name"] or "").lower()
+        first = name.split()[0] if name else ""
+        sponsor_to_ticker[first] = tm["ticker"]
+        if ctgov:
+            cfirst = ctgov.split()[0]
+            sponsor_to_ticker[cfirst] = tm["ticker"]
+
+    def resolve_ticker(sponsor):
+        if not sponsor:
+            return None
+        sl = sponsor.lower()
+        first = sl.split()[0]
+        return sponsor_to_ticker.get(first)
+
+    def clean_drugs(drugs_str):
+        if not drugs_str:
+            return []
+        filler = {'placebo','vehicle','sham','control','saline','standard of care','normal saline','dummy','comparator','background'}
+        seen, out = set(), []
+        for d in drugs_str.split(';'):
+            d = d.strip()
+            if d and not any(f in d.lower() for f in filler) and d not in seen:
+                seen.add(d)
+                out.append(d)
+        return out[:4]
+
+    results = []
+    for r in comp_rows:
+        t = resolve_ticker(r["sponsor"])
+        is_self = t == ticker or (r["sponsor"] in own_sponsors)
+        results.append({
+            "sponsor": r["sponsor"],
+            "ticker": t,
+            "is_self": is_self,
+            "trial_count": r["trial_count"],
+            "best_phase": r["best_phase"],
+            "active_count": r["active_count"],
+            "results_count": r["results_count"],
+            "completed_count": r["completed_count"],
+            "conditions": (r["conditions"] or "")[:120],
+            "drugs": clean_drugs(r["drugs"] or ""),
+        })
+
+    # Unique indications for filter UI
+    all_indications = []
+    seen_ind = set()
+    for cond in own_conditions:
+        for part in cond.split(";"):
+            p = part.strip()
+            if p and p not in seen_ind:
+                seen_ind.add(p)
+                all_indications.append(p)
+
+    return {
+        "ticker": ticker,
+        "indications": all_indications[:10],
+        "target_conditions": target_conditions[:5],
+        "competitors": results,
+    }
+
+
+SIC_DESCRIPTIONS = {
+    "2836":"Pharmaceutical Preparations","2835":"In Vitro Diagnostic Substances",
+    "2834":"Pharmaceutical Preparations","2833":"Medicinal Chemicals & Botanical Products",
+    "2830":"Drugs","8731":"Commercial Physical & Biological Research",
+    "5047":"Medical & Hospital Equipment","2860":"Industrial Chemicals",
+    "3841":"Surgical & Medical Instruments","3826":"Laboratory Analytical Instruments",
+    "7372":"Prepackaged Software","2860":"Industrial Chemicals",
+    "3825":"Instruments for Measuring","3827":"Optical Instruments",
+    "2819":"Industrial Inorganic Chemicals","2860":"Industrial Chemicals",
+}
+
+_company_cache: dict = {}
+
+@app.get("/api/company/{ticker}")
+def company_info(ticker: str):
+    import httpx
+    ticker = ticker.upper()
+
+    if ticker in _company_cache:
+        return _company_cache[ticker]
+
+    c = db()
+    cur = c.cursor()
+    cur.execute("SELECT ticker, company_name, cik FROM ticker_map WHERE ticker = %s", (ticker,))
+    row = cur.fetchone()
+    cur.close(); c.close()
+
+    if not row or not row["cik"]:
+        return JSONResponse({"error": f"{ticker} not found"}, status_code=404)
+
+    cik = str(row["cik"]).lstrip("0")
+    headers = {"User-Agent": os.environ.get("SEC_USER_AGENT", "BiotechTerminal contact@example.com")}
+
+    try:
+        url = f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json"
+        with httpx.Client(timeout=15) as client:
+            r = client.get(url, headers=headers)
+            r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=502)
+
+    addresses = data.get("addresses", {})
+    biz = addresses.get("business", {})
+    mail = addresses.get("mailing", {})
+
+    def fmt_addr(a):
+        parts = [a.get("street1",""), a.get("street2",""), a.get("city",""),
+                 a.get("stateOrCountry",""), a.get("zipCode","")]
+        return ", ".join(p for p in parts if p)
+
+    sic = data.get("sic", "")
+    sic_desc = data.get("sicDescription") or SIC_DESCRIPTIONS.get(str(sic), "Biotech / Pharma")
+
+    filings = data.get("filings", {}).get("recent", {})
+    forms = filings.get("form", [])
+    dates = filings.get("filingDate", [])
+
+    first_10k = next((dates[i] for i, f in enumerate(forms) if f == "10-K"), None)
+    first_s1   = next((dates[i] for i, f in enumerate(forms) if f in ("S-1","S-1/A")), None)
+    earliest   = min((d for d in [first_10k, first_s1] if d), default=None) if any([first_10k, first_s1]) else None
+
+    result = {
+        "ticker": ticker,
+        "name": data.get("name") or row["company_name"],
+        "cik": cik,
+        "sic": sic,
+        "sic_description": sic_desc,
+        "state_of_incorporation": data.get("stateOfIncorporation", ""),
+        "state_of_incorporation_description": data.get("stateOfIncorporationDescription", ""),
+        "fiscal_year_end": data.get("fiscalYearEnd", ""),
+        "ein": data.get("ein", ""),
+        "phone": data.get("phone", ""),
+        "address_business": fmt_addr(biz),
+        "address_mailing": fmt_addr(mail),
+        "exchange": data.get("exchanges", [""])[0] if data.get("exchanges") else "",
+        "category": data.get("category", ""),
+        "entity_type": data.get("entityType", ""),
+        "earliest_filing_date": earliest,
+        "total_filings": len(forms),
+        "website": "",
+    }
+    _company_cache[ticker] = result
+    return result
+
+
+@app.get("/api/entity/company/{ticker}")
+def entity_company(ticker: str):
+    """Get company entity data for dashboard pinning."""
+    ticker = ticker.upper()
+    c = db()
+    cur = c.cursor()
+    
+    cur.execute("SELECT * FROM ticker_map WHERE ticker = %s", (ticker,))
+    info = cur.fetchone()
+    if not info:
+        cur.close(); c.close()
+        return JSONResponse({"error": f"Company {ticker} not found"}, status_code=404)
+    info = dict(info)
+    
+    cur.execute("""
+        SELECT COUNT(*) as cnt FROM trials 
+        WHERE sponsor ILIKE %s
+    """, (f"%{info.get('company_name','').split()[0]}%",))
+    trial_count = cur.fetchone()["cnt"]
+    
+    cur.execute("""
+        SELECT COUNT(*) as cnt FROM filings WHERE ticker = %s
+    """, (ticker,))
+    filing_count = cur.fetchone()["cnt"]
+    
+    cur.close(); c.close()
+    
+    return {
+        "entity_type": "company",
+        "entity_id": ticker,
+        "name": info.get("company_name") or ticker,
+        "ticker": ticker,
+        "trial_count": trial_count,
+        "filing_count": filing_count,
+        "cik": info.get("cik"),
+    }
+
+
+@app.get("/api/entity/drug/{drug_name}")
+def entity_drug(drug_name: str):
+    """Get drug entity data for dashboard pinning."""
+    c = db()
+    cur = c.cursor()
+    
+    cur.execute("""
+        SELECT DISTINCT intervention FROM trials 
+        WHERE intervention ILIKE %s LIMIT 1
+    """, (f"%{drug_name}%",))
+    drug_row = cur.fetchone()
+    
+    if not drug_row:
+        cur.close(); c.close()
+        return JSONResponse({"error": f"Drug {drug_name} not found"}, status_code=404)
+    
+    cur.execute("""
+        SELECT COUNT(*) as cnt FROM trials 
+        WHERE intervention ILIKE %s
+    """, (f"%{drug_name}%",))
+    trial_count = cur.fetchone()["cnt"]
+    
+    cur.close(); c.close()
+    
+    return {
+        "entity_type": "drug",
+        "entity_id": drug_name,
+        "name": drug_name,
+        "trial_count": trial_count,
+    }
+
+
+@app.get("/api/entity/trial/{nct_id}")
+def entity_trial(nct_id: str):
+    """Get trial entity data for dashboard pinning."""
+    nct_id = nct_id.upper()
+    c = db()
+    cur = c.cursor()
+    
+    cur.execute("""
+        SELECT nct_id, title, sponsor, phase, status, condition, 
+               intervention, enrollment, primary_completion_date, 
+               results_posted FROM trials WHERE nct_id = %s
+    """, (nct_id,))
+    trial = cur.fetchone()
+    
+    if not trial:
+        cur.close(); c.close()
+        return JSONResponse({"error": f"Trial {nct_id} not found"}, status_code=404)
+    
+    trial = dict(trial)
+    cur.close(); c.close()
+    
+    return {
+        "entity_type": "trial",
+        "entity_id": nct_id,
+        "name": trial.get("title") or nct_id,
+        "nct_id": nct_id,
+        "sponsor": trial.get("sponsor"),
+        "phase": trial.get("phase"),
+        "status": trial.get("status"),
+        "condition": trial.get("condition"),
+        "intervention": trial.get("intervention"),
+        "trial_data": trial,
+    }
+
+
+@app.get("/api/earnings")
+def get_earnings_calendar(days: int = 90, ticker: str = None):
+    """Get upcoming earnings calendar for biotech companies."""
+    c = db()
+    cur = c.cursor()
+    
+    # Get Q1 2025 earnings estimates from SEC filings (10-K/10-Q dates)
+    # For now, we'll derive estimated earnings dates from typical biotech quarters
+    # Q1: April 15 - May 15, Q2: July 15 - Aug 15, Q3: Oct 15 - Nov 15, Q4: Feb 15 - Mar 15
+    
+    today = datetime.now()
+    future_date = today + timedelta(days=days)
+    
+    if ticker:
+        cur.execute("""
+            SELECT DISTINCT ticker, company_name FROM ticker_map
+            WHERE ticker = %s LIMIT 1
+        """, (ticker.upper(),))
+    else:
+        cur.execute("SELECT DISTINCT ticker, company_name FROM ticker_map ORDER BY ticker LIMIT 100")
+    
+    companies = cur.fetchall()
+    earnings = []
+    
+    # Quarters with estimated earnings windows
+    quarters = [
+        {"q": "Q1", "start": 4, "end": 5, "start_day": 15, "end_day": 15},  # Apr-May
+        {"q": "Q2", "start": 7, "end": 8, "start_day": 15, "end_day": 15},  # Jul-Aug
+        {"q": "Q3", "start": 10, "end": 11, "start_day": 15, "end_day": 15},  # Oct-Nov
+        {"q": "Q4", "start": 2, "end": 3, "start_day": 15, "end_day": 15},  # Feb-Mar (next year for Q4 current year)
+    ]
+    
+    for company in companies:
+        ticker_sym = company[0]
+        company_name = company[1]
+        
+        # Generate estimated earnings dates for the next year
+        current_year = today.year
+        
+        for q in quarters:
+            # For current/next quarters
+            for year_offset in [0, 1]:
+                try:
+                    year = current_year + year_offset
+                    if q["start"] > q["end"]:  # Spans year boundary
+                        if year_offset == 0 and today.month <= q["start"]:
+                            earnings_date = datetime(year, q["start"], q["start_day"])
+                        else:
+                            earnings_date = datetime(year + 1, q["end"], q["end_day"])
+                    else:
+                        earnings_date = datetime(year, q["start"], q["start_day"])
+                    
+                    # Only include future dates within range
+                    if today <= earnings_date <= future_date:
+                        earnings.append({
+                            "ticker": ticker_sym,
+                            "company_name": company_name,
+                            "quarter": f"{q['q']} {year}",
+                            "earnings_date": earnings_date.strftime("%Y-%m-%d"),
+                            "days_away": (earnings_date - today).days,
+                            "status": "estimated"
+                        })
+                except:
+                    pass
+    
+    # Sort by date
+    earnings = sorted(earnings, key=lambda x: x["earnings_date"])
+    
+    cur.close()
+    c.close()
+    
+    return earnings
+
+
+@app.get("/", response_class=HTMLResponse)
+def index():
+    with open(os.path.join(os.path.dirname(__file__), "static", "index.html")) as f:
+        return f.read()

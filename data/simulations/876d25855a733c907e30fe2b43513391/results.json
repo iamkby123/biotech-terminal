@@ -1,0 +1,203 @@
+{
+  "drug_name": "Oxylanthanum Carbonate",
+  "condition": "Chronic Kidney Disease Requiring Chronic Dialysis",
+  "disease_group": "renal",
+  "population": {
+    "population_size": 1000,
+    "avg_age": 58.0,
+    "age_range": [
+      35,
+      80
+    ],
+    "female_pct": 45.4,
+    "treatment_seeking_pct": 87.7,
+    "insured_pct": 89.5,
+    "adherent_pct": 76.7,
+    "avg_urgency": 0.75,
+    "avg_sentiment": 0.2,
+    "top_comorbidities": [
+      [
+        "cardiovascular",
+        220
+      ],
+      [
+        "bone_disease",
+        216
+      ],
+      [
+        "anemia",
+        206
+      ],
+      [
+        "diabetes",
+        193
+      ]
+    ],
+    "demand_estimate": 78.5
+  },
+  "demand": {
+    "demand_score": 49.5,
+    "sustained_demand_score": 37.9,
+    "demand_pool_pct": 79.0,
+    "competition_factor": 0.714,
+    "urgency_factor": 0.877,
+    "comorbidity_conflict_rate": 9.4,
+    "year1_penetration_pct": 7.4,
+    "year3_penetration_pct": 22.3,
+    "age_segments": {
+      "18-35": 0,
+      "35-50": 303,
+      "50-65": 351,
+      "65+": 346
+    },
+    "gender_split": {
+      "female": 454,
+      "male": 546
+    },
+    "alternative_therapies": 4,
+    "avg_treatment_duration_months": 60,
+    "epidemiology": {
+      "prevalence_per_100k": 1500,
+      "total_patients_global": 120000000,
+      "addressable_market": 67714285,
+      "mortality_rate": 0.1,
+      "unmet_need_score": 7
+    },
+    "market": {
+      "total_market_bn": 15,
+      "growth_rate_pct": 7.0,
+      "avg_treatment_cost_usd": 80000
+    },
+    "revenue_projections": {
+      "year1": {
+        "patients": 593634,
+        "revenue_m": 47490.7
+      },
+      "year3": {
+        "patients": 2968171,
+        "revenue_m": 237453.7
+      },
+      "year5": {
+        "patients": 7123610,
+        "revenue_m": 569888.8
+      }
+    },
+    "adoption_curve": [
+      {
+        "quarter": "Q1Y1",
+        "adoption_pct": 2.0
+      },
+      {
+        "quarter": "Q2Y1",
+        "adoption_pct": 2.4
+      },
+      {
+        "quarter": "Q3Y1",
+        "adoption_pct": 2.9
+      },
+      {
+        "quarter": "Q4Y1",
+        "adoption_pct": 3.5
+      },
+      {
+        "quarter": "Q1Y2",
+        "adoption_pct": 4.3
+      },
+      {
+        "quarter": "Q2Y2",
+        "adoption_pct": 5.2
+      },
+      {
+        "quarter": "Q3Y2",
+        "adoption_pct": 6.2
+      },
+      {
+        "quarter": "Q4Y2",
+        "adoption_pct": 7.5
+      },
+      {
+        "quarter": "Q1Y3",
+        "adoption_pct": 9.0
+      },
+      {
+        "quarter": "Q2Y3",
+        "adoption_pct": 10.8
+      },
+      {
+        "quarter": "Q3Y3",
+        "adoption_pct": 12.9
+      },
+      {
+        "quarter": "Q4Y3",
+        "adoption_pct": 15.3
+      },
+      {
+        "quarter": "Q1Y4",
+        "adoption_pct": 18.1
+      },
+      {
+        "quarter": "Q2Y4",
+        "adoption_pct": 21.2
+      },
+      {
+        "quarter": "Q3Y4",
+        "adoption_pct": 24.7
+      },
+      {
+        "quarter": "Q4Y4",
+        "adoption_pct": 28.7
+      },
+      {
+        "quarter": "Q1Y5",
+        "adoption_pct": 32.9
+      },
+      {
+        "quarter": "Q2Y5",
+        "adoption_pct": 37.5
+      },
+      {
+        "quarter": "Q3Y5",
+        "adoption_pct": 42.3
+      },
+      {
+        "quarter": "Q4Y5",
+        "adoption_pct": 47.2
+      }
+    ],
+    "price_sensitivity": [
+      {
+        "price_usd": 40000,
+        "patients": 4197627,
+        "revenue_m": 167905.1
+      },
+      {
+        "price_usd": 60000,
+        "patients": 3427348,
+        "revenue_m": 205640.9
+      },
+      {
+        "price_usd": 80000,
+        "patients": 2968171,
+        "revenue_m": 237453.7
+      },
+      {
+        "price_usd": 100000,
+        "patients": 2654812,
+        "revenue_m": 265481.2
+      },
+      {
+        "price_usd": 120000,
+        "patients": 2423501,
+        "revenue_m": 290820.1
+      },
+      {
+        "price_usd": 160000,
+        "patients": 2098813,
+        "revenue_m": 335810.1
+      }
+    ],
+    "source": "local_demand_model"
+  },
+  "simulation_type": "local_model",
+  "elapsed_seconds": 4.27
+}

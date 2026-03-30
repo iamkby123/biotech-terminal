@@ -1,0 +1,11 @@
+{
+  "drug": "Placebo Spiromax",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. J Aerosol Med Pulm Drug Deliv. 2015 Jun;28(3):182-8. doi: \n10.1089/jamp.2014.1157. Epub 2014 Aug 28.\n\nA Comparison of Short-Term Growth During Treatment with Two Dry Powder \nCombinations of Inhaled Corticosteroids and Long-Acting β₂-Agonists.\n\nWolthers OD(1), Shah T(2).\n\nAuthor information:\n(1)1Asthma and Allergy Clinic, Children's Clinic Randers, Randers, Denmark.\n(2)2TEVA, Global Respiratory Research and Development, Horsham, Pennsylvania.\n\nBACKGROUND: A combination of the inhaled corticosteroid budesonide and the \nlong-acting β2-agonist formoterol has been formulated in a novel dry powder \ninhaler, Spiromax(®). The objective was to compare lower leg growth in children \nwith asthma treated with inhaled budesonide+formoterol (BF) delivered from the \nSpiromax inhaler with BF from the Symbicort Turbohaler(®).\nMETHODS: Prepubescent children with persistent asthma (n=75, aged 6-11 years) \nwere included in a randomized, double-blind, double-dummy, placebo-controlled, \nthree-way crossover study with active treatment and placebo periods of 2 weeks \nduration. Lower leg length was measured every second week. As a secondary \noutcome parameter, 24-hr urine was collected for assessment of free cortisol. \nInterventions were dry powder BF 160+9 μg twice daily (b.i.d.; delivered dose) \nfrom the Spiromax inhaler and dry powder BF 200+12 μg b.i.d. (metered dose) from \nthe Symbicort Turbohaler.\nRESULTS: The least squares mean difference in lower leg growth rates (LLGR) \nbetween BF Spiromax and Symbicort Turbohaler was -0.086 mm/week [95% confidence \ninterval (CI) -0.203, 0.032]. The pre-specified non-inferiority margin was \n-0.200 mm/week, so the lower limit of the 95% CI was just outside this margin. \nThe difference between BF Spiromax and placebo was -0.20 mm/week (95% CI: \n-0.322, 0.086); p<0.001), between Symbicort Turbohaler and placebo \n-0.118 mm/week (95% CI: -0.236, -0.001; p=0.048). No statistically significant \ndifferences were seen in urine free cortisol assessments.\nC"
+      }
+    ]
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "pd-1": [
+    "pd-1",
+    "pd1",
+    "pdcd1",
+    "programmed death",
+    "programmed cell death"
+  ],
+  "pd-l1": [
+    "pd-l1",
+    "pdl1",
+    "b7-h1"
+  ],
+  "vegf": [
+    "vegf",
+    "vegfr",
+    "vascular endothelial"
+  ],
+  "her2": [
+    "her2",
+    "erbb2",
+    "her-2"
+  ],
+  "egfr": [
+    "egfr",
+    "erbb1",
+    "epidermal growth factor"
+  ],
+  "jak": [
+    "jak",
+    "janus kinase"
+  ],
+  "mtor": [
+    "mtor",
+    "mammalian target"
+  ],
+  "cdk4": [
+    "cdk4",
+    "cdk6",
+    "cyclin-dependent kinase"
+  ],
+  "braf": [
+    "braf",
+    "b-raf"
+  ],
+  "mek": [
+    "mek",
+    "mek1",
+    "mek2"
+  ],
+  "glp-1": [
+    "glp-1",
+    "glp1",
+    "glucagon-like peptide"
+  ],
+  "tnf": [
+    "tnf",
+    "tumor necrosis factor",
+    "tnf-alpha"
+  ],
+  "il-6": [
+    "il-6",
+    "il6",
+    "interleukin-6"
+  ],
+  "il-17": [
+    "il-17",
+    "il17",
+    "interleukin-17"
+  ],
+  "il-23": [
+    "il-23",
+    "il23",
+    "interleukin-23"
+  ],
+  "btk": [
+    "btk",
+    "bruton"
+  ],
+  "bcl-2": [
+    "bcl-2",
+    "bcl2"
+  ],
+  "pi3k": [
+    "pi3k",
+    "phosphoinositide"
+  ],
+  "alk": [
+    "alk",
+    "anaplastic lymphoma"
+  ],
+  "parp": [
+    "parp",
+    "poly adp"
+  ],
+  "ctla-4": [
+    "ctla-4",
+    "ctla4"
+  ],
+  "cd20": [
+    "cd20",
+    "rituximab target"
+  ],
+  "cd19": [
+    "cd19"
+  ],
+  "pcsk9": [
+    "pcsk9"
+  ],
+  "sglt2": [
+    "sglt2",
+    "sodium-glucose"
+  ],
+  "dpp-4": [
+    "dpp-4",
+    "dpp4",
+    "dipeptidyl"
+  ],
+  "amyloid": [
+    "amyloid",
+    "abeta",
+    "a-beta"
+  ],
+  "tau": [
+    "tau protein",
+    "tau phosph"
+  ],
+  "alpha-synuclein": [
+    "alpha-synuclein",
+    "a-synuclein"
+  ],
+  "dopamine": [
+    "dopamine",
+    "d2 receptor"
+  ],
+  "serotonin": [
+    "serotonin",
+    "5-ht",
+    "ssri"
+  ],
+  "gaba": [
+    "gaba",
+    "gamma-aminobutyric"
+  ],
+  "cgrp": [
+    "cgrp",
+    "calcitonin gene"
+  ],
+  "fgfr": [
+    "fgfr",
+    "fibroblast growth"
+  ],
+  "ret": [
+    "ret kinase",
+    "ret proto"
+  ],
+  "ar": [
+    "androgen receptor"
+  ],
+  "er": [
+    "estrogen receptor"
+  ]
+}

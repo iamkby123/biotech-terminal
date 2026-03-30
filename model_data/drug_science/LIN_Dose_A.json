@@ -1,0 +1,11 @@
+{
+  "drug": "LIN Dose A",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Nature. 2014 Aug 28;512(7515):449-52. doi: 10.1038/nature13415.\n\nComparative analysis of metazoan chromatin organization.\n\nHo JW(1), Jung YL(2), Liu T(3), Alver BH(4), Lee S(4), Ikegami K(5), Sohn KA(6), \nMinoda A(7), Tolstorukov MY(8), Appert A(9), Parker SC(10), Gu T(11), Kundaje \nA(12), Riddle NC(13), Bishop E(14), Egelhofer TA(15), Hu SS(16), Alekseyenko \nAA(17), Rechtsteiner A(15), Asker D(18), Belsky JA(19), Bowman SK(20), Chen \nQB(21), Chen RA(9), Day DS(22), Dong Y(9), Dose AC(23), Duan X(16), Epstein \nCB(24), Ercan S(25), Feingold EA(26), Ferrari F(4), Garrigues JM(15), Gehlenborg \nN(27), Good PJ(26), Haseley P(28), He D(29), Herrmann M(9), Hoffman MM(30), \nJeffers TE(5), Kharchenko PV(4), Kolasinska-Zwierz P(9), Kotwaliwale CV(31), \nKumar N(32), Langley SA(33), Larschan EN(34), Latorre I(9), Libbrecht MW(35), \nLin X(16), Park R(14), Pazin MJ(26), Pham HN(36), Plachetka A(17), Qin B(16), \nSchwartz YB(37), Shoresh N(24), Stempor P(9), Vielle A(9), Wang C(16), Whittle \nCM(31), Xue H(28), Kingston RE(20), Kim JH(38), Bernstein BE(39), Dernburg \nAF(36), Pirrotta V(40), Kuroda MI(17), Noble WS(41), Tullius TD(42), Kellis \nM(32), MacAlpine DM(19), Strome S(15), Elgin SC(11), Liu XS(43), Lieb JD(5), \nAhringer J(9), Karpen GH(33), Park PJ(44).\n\nAuthor information:\n(1)1] Center for Biomedical Informatics, Harvard Medical School, Boston, \nMassachusetts 02115, USA [2] Division of Genetics, Department of Medicine, \nBrigham and Women's Hospital, Harvard Medical School, Boston, Massachusetts \n02115, USA [3] [4] Victor Chang Cardiac Research Institute and The University of \nNew South Wales, Sydney, New South Wales 2052, Australia (J.W.K.H.); Department \nof Biochemistry, University at Buffalo, Buffalo, New York 14203, USA (T.L.); \nDepartment of Molecular Biology and Lewis Sigler Institute for Integrative \nGenomics, Princeton University, Princeton, New Jersey 08540, USA (K.I., T.E.J.); \nDepartment of Human Genetics, University of Chicago, Chicago, Illinois 06037, \nUSA (J"
+      }
+    ]
+  }
+}

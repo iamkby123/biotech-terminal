@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Biotech Terminal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script src="https://s3.tradingview.com/tv.js"></script>
+<style>
+  body { background:#0a0e1a; color:#e2e8f0; font-family:'JetBrains Mono','Fira Code',monospace; }
+  .card { background:#111827; border:1px solid #1f2937; border-radius:8px; }
+  .tag-phase3{background:#1d4ed8;color:#bfdbfe} .tag-phase2{background:#7c3aed;color:#ede9fe}
+  .tag-phase1{background:#374151;color:#9ca3af} .tag-recruiting{background:#065f46;color:#6ee7b7}
+  .tag-active{background:#1e3a5f;color:#93c5fd} .tag-completed{background:#1f2937;color:#6b7280}
+  .tag-terminated{background:#4c1d1d;color:#fca5a5} .tag-pdufa{background:#78350f;color:#fde68a}
+  .tag-adcom{background:#1e3a5f;color:#93c5fd} .tag-news{background:#1a2e1a;color:#86efac}
+  .tag-trial_results{background:#1d3a5f;color:#93c5fd} .tag-trial_update{background:#2a1f3d;color:#c4b5fd}
+  .tag-regulatory{background:#3b1f0f;color:#fdba74}
+  .news-card{background:#0f1623;border:1px solid #1f2937;border-radius:8px;padding:12px 14px;transition:border-color .15s}
+  .news-card:hover{border-color:#3b82f6} .news-card a{text-decoration:none;color:inherit}
+  .news-card a:hover .news-title{color:#60a5fa}
+  ::-webkit-scrollbar{width:4px;height:4px} ::-webkit-scrollbar-track{background:#111827}
+  ::-webkit-scrollbar-thumb{background:#374151;border-radius:2px}
+  .nav-btn{transition:all .15s} .nav-btn.active{background:#1d4ed8;color:white}
+  .nav-btn:hover:not(.active){background:#1f2937}
+  input,select{background:#1f2937;border:1px solid #374151;color:#e2e8f0;border-radius:6px;padding:6px 10px;font-size:13px}
+  input:focus,select:focus{outline:none;border-color:#3b82f6}
+  table{border-collapse:collapse;width:100%}
+  th{background:#0f172a;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:8px 12px;text-align:left;border-bottom:1px solid #1f2937}
+  td{padding:8px 12px;border-bottom:1px solid #1a2035;font-size:13px} tr:last-child td{border-bottom:none}
+
+  /* ── block-based widget dashboard ── */
+  #widget-grid{position:relative;width:100%;min-height:500px;height:calc(100vh - 200px);display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:16px;padding:16px}
+  #widget-grid:empty::before{content:'';display:block;height:100%}
+  #empty-state{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:10}
+  
+  /* Grid blocks - fixed positions */
+  .grid-block{position:relative;background:#0d1117;border:2px dashed #1f2937;border-radius:10px;min-height:200px;transition:all .2s}
+  .grid-block.drag-over{border-color:#3b82f6;background:rgba(59,130,246,0.1)}
+  .grid-block.occupied{border:none;background:transparent}
+  
+  .widget{position:absolute;top:0;left:0;right:0;bottom:0;background:#111827;border:1px solid #1f2937;border-radius:10px;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+  .widget:hover{border-color:#2d3f5a;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+  .widget-header{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #1e2a3a;cursor:grab;user-select:none;background:#0d1623}
+  .widget-header:active{cursor:grabbing}
+  .widget-drag-handle{color:#2d3f5a;font-size:14px;cursor:grab;flex-shrink:0}
+  .widget-drag-handle:hover{color:#64748b}
+  .widget-type-label{font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.07em;font-weight:600;flex-shrink:0}
+  /* Resize handles on widget */
+  .widget-resize-handle{position:absolute;width:12px;height:12px;background:#2d3f5a;border-radius:2px;cursor:se-resize;z-index:100}
+  .widget-resize-handle.br{right:4px;bottom:4px}
+  .widget-resize-handle.bl{left:4px;bottom:4px;cursor:sw-resize}
+  .widget-resize-handle.tr{right:4px;top:4px;cursor:ne-resize}
+  .widget-resize-handle.tl{left:4px;top:4px;cursor:nw-resize}
+  /* Ticker pill in header */
+  .ticker-pill{display:flex;align-items:center;gap:4px;background:#1a2535;border:1px solid #2d4060;border-radius:6px;padding:3px 8px;cursor:pointer;transition:all .15s;flex-shrink:0}
+  .ticker-pill:hover{border-color:#3b82f6;background:#1e3050}
+  .ticker-pill-label{font-size:12px;font-weight:700;color:#60a5fa;letter-spacing:.05em}
+  .ticker-pill-edit{font-size:10px;color:#374151}
+  .ticker-input-inline{background:transparent;border:none;color:#60a5fa;font-size:12px;font-weight:700;width:70px;padding:0;letter-spacing:.05em;outline:none}
+  .widget-remove{cursor:pointer;color:#2d3f5a;font-size:15px;line-height:1;padding:2px 5px;border-radius:3px;margin-left:auto;flex-shrink:0}
+  .widget-remove:hover{color:#ef4444;background:#2d1a1a}
+  .widget-body{padding:14px;overflow:auto;height:calc(100% - 45px)}
+  .widget-add-btn{background:#0d1117;border:2px dashed #1e2a3a;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;
+    cursor:pointer;color:#2d3f5a;font-size:13px;transition:all .15s;position:absolute;right:20px;bottom:20px;width:140px;height:60px;z-index:100}
+  .widget-add-btn:hover{border-color:#3b82f6;color:#60a5fa;background:#0f1623}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<div class="flex items-center justify-between px-6 py-3 border-b border-gray-800" style="background:#0d1117">
+  <div class="flex items-center gap-3">
+    <span class="text-blue-400 font-bold text-lg tracking-wider">⬡ BIOTECH TERMINAL</span>
+    <span class="text-xs text-gray-600 border border-gray-700 rounded px-2 py-0.5">ALPHA</span>
+  </div>
+  <div class="flex items-center gap-4 text-xs text-gray-500">
+    <span id="last-refresh">—</span>
+    <button onclick="refreshAll()" class="text-blue-400 hover:text-blue-300 border border-blue-900 rounded px-3 py-1">↻ Refresh</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="flex gap-1 px-6 pt-4 pb-2">
+  <button class="nav-btn active rounded px-4 py-1.5 text-sm" onclick="showTab('dashboard')" id="tab-dashboard">Dashboard</button>
+  <button class="nav-btn rounded px-4 py-1.5 text-sm" onclick="showTab('trials')" id="tab-trials">Trials</button>
+  <button class="nav-btn rounded px-4 py-1.5 text-sm" onclick="showTab('catalysts')" id="tab-catalysts">Catalysts</button>
+  <button class="nav-btn rounded px-4 py-1.5 text-sm" onclick="showTab('filings')" id="tab-filings">Filings</button>
+  <button class="nav-btn rounded px-4 py-1.5 text-sm" onclick="showTab('pipeline')" id="tab-pipeline">Pipeline</button>
+  <button class="nav-btn rounded px-4 py-1.5 text-sm" onclick="showTab('news')" id="tab-news">News <span id="news-badge" class="ml-1 text-xs bg-blue-800 text-blue-200 rounded px-1.5 hidden"></span></button>
+  <button class="nav-btn rounded px-4 py-1.5 text-sm" onclick="showTab('earnings')" id="tab-earnings">Earnings</button>
+</div>
+
+<!-- DASHBOARD TAB -->
+<div id="view-dashboard" class="px-6 pb-8">
+  <!-- Toolbar -->
+  <div class="flex items-center gap-3 mt-4 mb-4">
+    <span class="text-xs text-gray-600">Drag <span class="text-gray-500">⠿</span> to reorder • click ticker to change • <span class="text-red-500">×</span> to remove</span>
+    <button onclick="showAddWidgetModal()" class="ml-2 text-xs bg-blue-900 hover:bg-blue-800 text-blue-300 rounded px-3 py-1">+ Add Widget</button>
+    <button onclick="resetLayout()" class="ml-auto text-xs border border-gray-800 text-gray-600 hover:text-gray-400 rounded px-3 py-1">↺ Reset</button>
+  </div>
+  <!-- Widget grid -->
+  <div id="widget-grid">
+    <!-- Empty state -->
+    <div id="empty-state" class="hidden">
+    <div class="text-gray-600 text-sm mb-4">Your dashboard is empty.</div>
+    <div id="suggestion-banner" class="inline-flex items-center gap-5 border border-blue-900 bg-blue-950 bg-opacity-50 rounded-xl px-8 py-5 mb-4">
+      <div class="text-left">
+        <div class="text-xs text-blue-400 uppercase tracking-wider mb-1">Suggested from latest news</div>
+        <div id="suggestion-ticker" class="text-white font-bold text-xl">—</div>
+        <div id="suggestion-company" class="text-gray-400 text-xs mt-0.5">Loading...</div>
+      </div>
+      <button onclick="applySuggestion()" id="suggestion-btn" class="bg-blue-700 hover:bg-blue-600 text-white text-sm px-5 py-2.5 rounded-lg whitespace-nowrap">
+        Set up dashboard
+      </button>
+    </div>
+    <div class="flex justify-center gap-3">
+      <button onclick="showAddWidgetModal()" class="text-xs border border-gray-700 text-gray-400 hover:text-gray-200 rounded px-4 py-2">+ Add Widget</button>
+    </div>
+  </div>
+    </div>
+  
+  <!-- Add widget modal -->
+  <div id="add-widget-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+    <div class="bg-gray-900 border border-gray-700 rounded-xl p-6 w-96 shadow-2xl">
+      <div class="text-sm font-semibold text-white mb-4">Add Widget</div>
+      <div class="mb-3">
+        <label class="text-xs text-gray-500 uppercase tracking-wider mb-1 block">Widget Type</label>
+        <select id="new-widget-type" class="w-full">
+          <option value="pipeline">Pipeline — trial list</option>
+          <option value="news_ticker">News — news for a ticker</option>
+          <option value="filings_ticker">Filings — SEC filings</option>
+          <option value="catalysts_ticker">Catalysts — upcoming events</option>
+          <option value="earnings">Earnings — earnings calendar</option>
+          <option value="stock_chart">Stock Chart — price performance</option>
+          <option value="overview">Overview — company/trial summary</option>
+          <option value="drugs">Drugs — all drugs with drill-down</option>
+          <option value="competitors">Competitors — competitive landscape</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="text-xs text-gray-500 uppercase tracking-wider mb-1 block">Entity Type</label>
+        <div class="flex gap-2">
+          <button onclick="selectEntityType('company')" id="etype-company" class="entity-type-btn flex-1 text-xs border border-blue-600 bg-blue-900 rounded py-1.5 text-blue-300">Company</button>
+          <button onclick="selectEntityType('drug')" id="etype-drug" class="entity-type-btn flex-1 text-xs border border-gray-700 rounded py-1.5 text-gray-400 hover:border-blue-500">Drug</button>
+          <button onclick="selectEntityType('trial')" id="etype-trial" class="entity-type-btn flex-1 text-xs border border-gray-700 rounded py-1.5 text-gray-400 hover:border-blue-500">Trial</button>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="text-xs text-gray-500 uppercase tracking-wider mb-1 block" id="entity-label">Ticker / Entity</label>
+        <input id="new-widget-entity" placeholder="e.g. MRNA, BNTX, NCT07098330" class="w-full uppercase" />
+      </div>
+      <div class="mb-4">
+        <label class="text-xs text-gray-500 uppercase tracking-wider mb-1 block">Width</label>
+        <div class="flex gap-2">
+          <button onclick="selectSpan(4)"  id="span-4"  class="span-btn flex-1 text-xs border border-gray-700 rounded py-1.5 text-gray-400 hover:border-blue-500">Narrow</button>
+          <button onclick="selectSpan(6)"  id="span-6"  class="span-btn flex-1 text-xs border border-blue-600 bg-blue-900 rounded py-1.5 text-blue-300">Half</button>
+          <button onclick="selectSpan(8)"  id="span-8"  class="span-btn flex-1 text-xs border border-gray-700 rounded py-1.5 text-gray-400 hover:border-blue-500">Wide</button>
+          <button onclick="selectSpan(12)" id="span-12" class="span-btn flex-1 text-xs border border-gray-700 rounded py-1.5 text-gray-400 hover:border-blue-500">Full</button>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="confirmAddWidget()" class="flex-1 bg-blue-700 hover:bg-blue-600 text-white text-sm py-2 rounded-lg">Add</button>
+        <button onclick="closeAddWidgetModal()" class="flex-1 border border-gray-700 text-gray-400 hover:text-gray-200 text-sm py-2 rounded-lg">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- News detail modal -->
+  <div id="news-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full shadow-2xl max-h-96 overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex-1">
+            <div class="text-xs text-gray-500 uppercase tracking-wider mb-2" id="news-detail-category"></div>
+            <h2 class="text-lg font-bold text-white mb-2" id="news-detail-title"></h2>
+            <div class="flex items-center gap-3 text-xs text-gray-600">
+              <span id="news-detail-date"></span>
+              <div id="news-detail-tickers" class="flex gap-1"></div>
+            </div>
+          </div>
+          <button onclick="closeNewsDetailModal()" class="text-gray-500 hover:text-gray-300 text-xl">✕</button>
+        </div>
+        <div class="border-t border-gray-700 pt-4 mb-4">
+          <p class="text-sm text-gray-300 leading-relaxed mb-4" id="news-detail-summary"></p>
+          <div class="text-xs text-gray-600 mb-3">
+            <strong>Source:</strong> <span id="news-detail-source"></span>
+          </div>
+          <a id="news-detail-link" href="#" target="_blank" rel="noopener" class="inline-block text-blue-400 hover:text-blue-300 text-sm font-medium">Read Full Article →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRIALS TAB -->
+<div id="view-trials" class="px-6 pb-6 hidden">
+  <div class="flex gap-3 mt-3 mb-3">
+    <input id="filter-phase" placeholder="Phase (e.g. PHASE3)" oninput="loadTrials()" />
+    <input id="filter-status" placeholder="Status (e.g. RECRUITING)" oninput="loadTrials()" />
+    <input id="filter-sponsor" placeholder="Sponsor name" oninput="loadTrials()" />
+    <select id="filter-limit" onchange="loadTrials()">
+      <option value="50">50 rows</option><option value="100" selected>100 rows</option><option value="250">250 rows</option>
+    </select>
+  </div>
+  <div class="card overflow-auto">
+    <table><thead><tr><th>NCT ID</th><th>Phase</th><th>Status</th><th>Sponsor</th><th>Condition</th><th>Enrollment</th><th>Completion</th><th>Results</th></tr></thead>
+    <tbody id="trials-body"></tbody></table>
+  </div>
+</div>
+
+<!-- CATALYSTS TAB -->
+<div id="view-catalysts" class="px-6 pb-6 hidden">
+  <div class="flex gap-3 mt-3 mb-3">
+    <select id="catalyst-days" onchange="loadCatalysts()">
+      <option value="30">Next 30 days</option><option value="90">Next 90 days</option>
+      <option value="180" selected>Next 180 days</option><option value="365">Next 365 days</option>
+    </select>
+  </div>
+  <div class="card overflow-auto">
+    <table><thead><tr><th>Date</th><th>Type</th><th>Ticker</th><th>Company</th><th>Drug</th><th>Indication</th></tr></thead>
+    <tbody id="catalysts-body"></tbody></table>
+  </div>
+  <div id="catalysts-empty" class="hidden text-center text-gray-600 py-12 text-sm">No upcoming catalyst events in this window.</div>
+</div>
+
+<!-- FILINGS TAB -->
+<div id="view-filings" class="px-6 pb-6 hidden">
+  <div class="mt-3 mb-3 text-xs text-gray-500">Most recent SEC 10-K and 8-K filings</div>
+  <div class="card overflow-auto">
+    <table><thead><tr><th>Ticker</th><th>Form</th><th>Filed</th><th>Link</th></tr></thead>
+    <tbody id="filings-body"></tbody></table>
+  </div>
+</div>
+
+<!-- PIPELINE TAB -->
+<div id="view-pipeline" class="px-6 pb-6 hidden">
+  <div class="flex gap-3 mt-3 mb-4 items-center">
+    <input id="pipeline-ticker" placeholder="Enter ticker (e.g. IONS)" class="w-48 uppercase" />
+    <button onclick="loadPipeline()" class="bg-blue-700 hover:bg-blue-600 text-white text-sm px-4 py-1.5 rounded">Load</button>
+    <div class="flex flex-wrap gap-2 ml-4" id="quick-tickers"></div>
+  </div>
+  <div id="pipeline-content" class="hidden">
+    <div class="card p-4 mb-4">
+      <div class="flex gap-8 text-sm">
+        <div><span class="text-gray-500">Company:</span> <span class="font-semibold text-white" id="pl-company">—</span></div>
+        <div><span class="text-gray-500">CIK:</span> <span class="text-gray-400" id="pl-cik">—</span></div>
+        <div><span class="text-gray-500">Trials:</span> <span class="text-blue-400 font-bold" id="pl-trial-count">—</span></div>
+        <div><span class="text-gray-500">Filings:</span> <span class="text-purple-400 font-bold" id="pl-filing-count">—</span></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-3 gap-4">
+      <div class="card col-span-2 p-4">
+        <div class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Clinical Pipeline</div>
+        <table><thead><tr><th>NCT ID</th><th>Phase</th><th>Status</th><th>Condition</th><th>Completion</th><th>Results</th></tr></thead>
+        <tbody id="pl-trials-body"></tbody></table>
+      </div>
+      <div class="flex flex-col gap-4">
+        <div class="card p-4"><div class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Catalysts</div><div id="pl-catalysts"></div></div>
+        <div class="card p-4"><div class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Recent Filings</div><div id="pl-filings"></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="pipeline-empty" class="text-center text-gray-600 py-12 text-sm">Enter a ticker above to view its pipeline.</div>
+</div>
+
+<!-- NEWS TAB -->
+<div id="view-news" class="px-6 pb-6 hidden">
+  <div class="flex flex-wrap gap-3 mt-3 mb-4 items-center">
+    <div class="flex gap-1">
+      <button onclick="setNewsFilter('all')" id="nf-all" class="news-filter-btn active text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-300">All</button>
+      <button onclick="setNewsFilter('news')" id="nf-news" class="news-filter-btn text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-500">Outlets</button>
+      <button onclick="setNewsFilter('trial_results')" id="nf-trial_results" class="news-filter-btn text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-500">Trial Results</button>
+      <button onclick="setNewsFilter('trial_update')" id="nf-trial_update" class="news-filter-btn text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-500">Trial Updates</button>
+      <button onclick="setNewsFilter('regulatory')" id="nf-regulatory" class="news-filter-btn text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-500">Regulatory</button>
+    </div>
+    <input id="news-ticker-filter" placeholder="Filter by ticker" class="w-36" oninput="loadNews()" />
+    <button onclick="triggerNewsIngest()" id="news-ingest-btn" class="ml-auto text-xs border border-blue-800 text-blue-400 hover:bg-blue-900 rounded px-3 py-1.5">↻ Fetch Latest</button>
+  </div>
+  <div class="grid grid-cols-3 gap-4">
+    <div class="col-span-2">
+      <div id="news-feed" class="flex flex-col gap-3"></div>
+      <div id="news-empty" class="hidden text-center text-gray-600 py-12 text-sm">No news items found.</div>
+    </div>
+    <div class="flex flex-col gap-3">
+      <div class="card p-4"><div class="text-xs text-gray-500 mb-3 uppercase tracking-wider">Sources</div><div id="news-sources"></div></div>
+      <div class="card p-4"><div class="text-xs text-gray-500 mb-3 uppercase tracking-wider">Tickers Mentioned</div><div id="news-tickers"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- EARNINGS TAB -->
+<div id="view-earnings" class="px-6 pb-6 hidden">
+  <div class="flex items-center gap-3 mt-4 mb-4">
+    <input id="earnings-ticker-filter" placeholder="Filter by ticker" class="w-40" oninput="loadEarnings()" />
+    <select id="earnings-days-filter" class="text-xs" onchange="loadEarnings()">
+      <option value="30">Next 30 days</option>
+      <option value="60">Next 60 days</option>
+      <option value="90" selected>Next 90 days</option>
+      <option value="180">Next 6 months</option>
+    </select>
+    <button onclick="triggerEarningsRefresh()" class="ml-auto text-xs border border-blue-800 text-blue-400 hover:bg-blue-900 rounded px-3 py-1.5">↻ Refresh</button>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="border-b border-gray-700 text-gray-500 text-xs uppercase tracking-wider">
+        <tr>
+          <th class="text-left py-3 px-3">Ticker</th>
+          <th class="text-left py-3 px-3">Company</th>
+          <th class="text-left py-3 px-3">Quarter</th>
+          <th class="text-left py-3 px-3">Earnings Date</th>
+          <th class="text-center py-3 px-3">Days Away</th>
+          <th class="text-left py-3 px-3">Status</th>
+        </tr>
+      </thead>
+      <tbody id="earnings-body"></tbody>
+    </table>
+  </div>
+  <div id="earnings-empty" class="hidden text-center text-gray-600 py-12 text-sm">No earnings scheduled in this period.</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// ── TAG HELPERS ───────────────────────────────────────────────────────────────
+function phaseTag(p) {
+  if (!p) return `<span class="text-gray-600">—</span>`;
+  const cls = p.includes('3') ? 'tag-phase3' : p.includes('2') ? 'tag-phase2' : 'tag-phase1';
+  return `<span class="text-xs px-2 py-0.5 rounded ${cls}">${p.replace('PHASE','P').replace('; ','/')}</span>`;
+}
+function statusTag(s) {
+  if (!s) return `<span class="text-gray-600">—</span>`;
+  let cls = 'tag-completed';
+  if (s.includes('RECRUITING')||s.includes('NOT_YET')) cls = 'tag-recruiting';
+  else if (s.includes('ACTIVE')) cls = 'tag-active';
+  else if (s.includes('TERMINAT')||s.includes('WITHDRAWN')) cls = 'tag-terminated';
+  const short = s.replace('NOT_YET_RECRUITING','ENROLLING SOON').replace('ACTIVE_NOT_RECRUITING','ACTIVE').replace('ENROLLING_BY_INVITATION','BY INVITE').replace(/_/g,' ');
+  return `<span class="text-xs px-2 py-0.5 rounded ${cls}">${short}</span>`;
+}
+function eventTag(t) {
+  return `<span class="text-xs px-2 py-0.5 rounded ${t==='PDUFA'?'tag-pdufa':'tag-adcom'}">${t}</span>`;
+}
+function catTag(cat) {
+  const labels = {news:['tag-news','OUTLET'],trial_results:['tag-trial_results','RESULTS'],trial_update:['tag-trial_update','TRIAL'],regulatory:['tag-regulatory','FDA']};
+  const [cls,label] = labels[cat]||['tag-completed',cat.toUpperCase()];
+  return `<span class="text-xs px-2 py-0.5 rounded ${cls}">${label}</span>`;
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+let activeTab = 'dashboard';
+function showTab(name) {
+  document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  $(`view-${name}`).classList.remove('hidden');
+  $(`tab-${name}`).classList.add('active');
+  activeTab = name;
+  if (name==='trials') loadTrials();
+  if (name==='catalysts') loadCatalysts();
+  if (name==='filings') loadFilings();
+  if (name==='news') loadNews();
+  if (name==='earnings') loadEarnings();
+}
+
+// ── WIDGET SYSTEM ─────────────────────────────────────────────────────────────
+// Each widget: { id, type, entity_type, entity_id, span }
+// entity_type: 'company' | 'drug' | 'trial'
+// entity_id: ticker / drug_name / nct_id
+// Types: pipeline | news_ticker | filings_ticker | catalysts_ticker | overview | drugs | competitors
+
+const WIDGET_TYPE_META = {
+  pipeline:         { label:'Pipeline',   icon:'🔬', defaultSpan:6 },
+  news_ticker:      { label:'News',       icon:'📰', defaultSpan:6 },
+  filings_ticker:   { label:'Filings',    icon:'📄', defaultSpan:4 },
+  catalysts_ticker: { label:'Catalysts',  icon:'⚡', defaultSpan:4 },
+  overview:         { label:'Overview',   icon:'◈',  defaultSpan:4 },
+  drugs:            { label:'Drugs',      icon:'💊', defaultSpan:6 },
+  competitors:      { label:'Competitors',icon:'⚔️', defaultSpan:12 },
+  earnings:         { label:'Earnings',   icon:'📊', defaultSpan:6 },
+  stock_chart:      { label:'Stock Chart',icon:'📈', defaultSpan:6 },
+};
+
+const STORAGE_KEY = 'bt_widgets_v2';
+let currentLayout = [];  // array of {id, type, entity_type, entity_id, span}
+let sortable = null;
+let chartInstances = {};
+let _newWidgetSpan = 6;
+let _newWidgetEntityType = 'company';
+
+function genId() { return 'w' + Math.random().toString(36).slice(2,8); }
+function saveLayout() { localStorage.setItem(STORAGE_KEY, JSON.stringify(currentLayout)); }
+function loadLayout() {
+  try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; }
+  catch { return null; }
+}
+
+// ── RENDER GRID ───────────────────────────────────────────────────────────────
+let activeDragWidget = null;
+
+function renderGrid() {
+  const grid = $('widget-grid');
+  grid.innerHTML = '';
+  const emptyState = $('empty-state');
+
+  if (!currentLayout.length) {
+    grid.appendChild(emptyState);
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  emptyState.classList.add('hidden');
+  
+  // Create 2x2 grid blocks
+  const blocks = [];
+  for (let y = 0; y < 2; y++) {
+    for (let x = 0; x < 2; x++) {
+      const block = document.createElement('div');
+      block.className = 'grid-block';
+      block.dataset.blockX = x;
+      block.dataset.blockY = y;
+      grid.appendChild(block);
+      blocks.push({ el: block, x, y, occupied: false });
+    }
+  }
+
+  // Place widgets in blocks
+  currentLayout.forEach((w) => {
+    const meta = WIDGET_TYPE_META[w.type] || WIDGET_TYPE_META.overview;
+    
+    // Get block position (default to 0,0 if not set)
+    const blockX = w.blockX !== undefined ? w.blockX : 0;
+    const blockY = w.blockY !== undefined ? w.blockY : 0;
+    const blockW = w.blockW !== undefined ? w.blockW : 1;
+    const blockH = w.blockH !== undefined ? w.blockH : 1;
+    
+    // Find the target block(s)
+    const targetBlocks = blocks.filter(b => 
+      b.x >= blockX && b.x < blockX + blockW &&
+      b.y >= blockY && b.y < blockY + blockH
+    );
+    
+    if (targetBlocks.length === 0) return;
+    
+    // Use the first block as the container
+    const containerBlock = targetBlocks[0];
+    containerBlock.el.classList.add('occupied');
+    
+    // Create widget
+    const el = document.createElement('div');
+    el.className = 'widget';
+    el.dataset.wid = w.id;
+    el.innerHTML = buildWidgetShell(w, meta) + `
+      <div class="widget-resize-handle br" data-resize="br"></div>
+    `;
+    containerBlock.el.appendChild(el);
+    
+    // Make draggable between blocks
+    makeWidgetDraggable(el, w);
+    
+    // Make resizable
+    const resizeHandle = el.querySelector('.widget-resize-handle');
+    if (resizeHandle) {
+      makeWidgetResizable(el, resizeHandle, w, blocks);
+    }
+  });
+
+  // + Add button
+  const addBtn = document.createElement('div');
+  addBtn.className = 'widget-add-btn';
+  addBtn.onclick = showAddWidgetModal;
+  addBtn.innerHTML = `<span class="text-xl font-light">+</span><span>Add Widget</span>`;
+  grid.appendChild(addBtn);
+
+  currentLayout.forEach(w => loadWidgetContent(w));
+}
+
+function makeWidgetDraggable(el, widgetData) {
+  const header = el.querySelector('.widget-header');
+  if (!header) return;
+  
+  let isDragging = false;
+  let dragEl = null;
+  
+  header.addEventListener('mousedown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.closest('.ticker-pill')) return;
+    
+    isDragging = true;
+    el.style.opacity = '0.5';
+    
+    // Create drag ghost
+    dragEl = el.cloneNode(true);
+    dragEl.style.position = 'fixed';
+    dragEl.style.zIndex = '9999';
+    dragEl.style.opacity = '0.8';
+    dragEl.style.pointerEvents = 'none';
+    document.body.appendChild(dragEl);
+    
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+  
+  function onMouseMove(e) {
+    if (!isDragging) return;
+    dragEl.style.left = (e.clientX - dragEl.offsetWidth / 2) + 'px';
+    dragEl.style.top = (e.clientY - dragEl.offsetHeight / 2) + 'px';
+    
+    // Highlight blocks under cursor
+    document.querySelectorAll('.grid-block').forEach(b => b.classList.remove('drag-over'));
+    const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+    const block = elemBelow?.closest('.grid-block');
+    if (block) block.classList.add('drag-over');
+  }
+  
+  function onMouseUp(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    el.style.opacity = '';
+    
+    // Find block under cursor
+    const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+    const block = elemBelow?.closest('.grid-block');
+    
+    if (block && !block.querySelector('.widget')) {
+      // Move widget to new block
+      block.appendChild(el);
+      block.classList.add('occupied');
+      
+      // Update widget data
+      widgetData.blockX = parseInt(block.dataset.blockX);
+      widgetData.blockY = parseInt(block.dataset.blockY);
+      widgetData.blockW = 1;
+      widgetData.blockH = 1;
+      saveLayout();
+    }
+    
+    // Cleanup
+    document.querySelectorAll('.grid-block').forEach(b => b.classList.remove('drag-over'));
+    if (dragEl) dragEl.remove();
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  }
+}
+
+function makeWidgetResizable(el, handle, widgetData, blocks) {
+  let isResizing = false;
+  let startX, startY, startW, startH;
+  
+  handle.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    isResizing = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    startW = widgetData.blockW || 1;
+    startH = widgetData.blockH || 1;
+    
+    document.addEventListener('mousemove', onResizeMove);
+    document.addEventListener('mouseup', onResizeUp);
+  });
+  
+  function onResizeMove(e) {
+    if (!isResizing) return;
+    
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const blockSize = 200; // approximate block size
+    
+    const newW = Math.max(1, Math.min(2, startW + Math.round(dx / blockSize)));
+    const newH = Math.max(1, Math.min(2, startH + Math.round(dy / blockSize)));
+    
+    // Visual feedback
+    el.style.boxShadow = '0 0 0 2px #3b82f6';
+  }
+  
+  function onResizeUp(e) {
+    if (!isResizing) return;
+    isResizing = false;
+    el.style.boxShadow = '';
+    
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const blockSize = 200;
+    
+    const newW = Math.max(1, Math.min(2 - widgetData.blockX, startW + Math.round(dx / blockSize)));
+    const newH = Math.max(1, Math.min(2 - widgetData.blockY, startH + Math.round(dy / blockSize)));
+    
+    // Check if target blocks are available
+    const targetBlocks = blocks.filter(b => 
+      b.x >= widgetData.blockX && b.x < widgetData.blockX + newW &&
+      b.y >= widgetData.blockY && b.y < widgetData.blockY + newH
+    );
+    
+    // Check if all target blocks are empty or occupied by this widget
+    const canResize = targetBlocks.every(b => 
+      !b.el.querySelector('.widget') || b.el.contains(el)
+    );
+    
+    if (canResize && (newW !== widgetData.blockW || newH !== widgetData.blockH)) {
+      widgetData.blockW = newW;
+      widgetData.blockH = newH;
+      saveLayout();
+      renderGrid(); // Re-render to apply new size
+    }
+    
+    document.removeEventListener('mousemove', onResizeMove);
+    document.removeEventListener('mouseup', onResizeUp);
+  }
+}
+
+function buildWidgetShell(w, meta) {
+  const entityId = w.entity_id || '';
+  const entityType = w.entity_type || 'company';
+  const displayLabel = entityId; // Display entity_id directly (ticker/drug/nct_id)
+  return `
+    <div class="widget-header">
+      <span class="widget-drag-handle">⠿</span>
+      <span class="widget-type-label">${meta.icon} ${meta.label}</span>
+      <div class="ticker-pill" onclick="focusEntityEdit('${w.id}')" title="Click to change entity">
+        <input class="ticker-input-inline" id="ti-${w.id}"
+          value="${displayLabel}" placeholder="ENTITY"
+          onblur="commitEntityChange('${w.id}', this)"
+          onkeydown="if(event.key==='Enter'){this.blur()}else if(event.key==='Escape'){this.value='${displayLabel}';this.blur()}"
+          onclick="event.stopPropagation()"
+          style="width:${Math.max(50, displayLabel.length*9+16)}px" />
+        <span class="ticker-pill-edit">✎</span>
+      </div>
+      <button class="widget-remove" onclick="removeWidget('${w.id}')">×</button>
+    </div>
+    <div class="widget-body" id="wb-${w.id}">
+      <div class="text-xs text-gray-600 animate-pulse">Loading...</div>
+    </div>`;
+}
+
+function focusEntityEdit(wid) {
+  const input = $(`ti-${wid}`);
+  if (input) { input.select(); input.focus(); }
+}
+
+function commitEntityChange(wid, input) {
+  const newEntity = input.value.trim().toUpperCase();
+  const w = currentLayout.find(x => x.id === wid);
+  if (!w) return;
+  if (newEntity === w.entity_id) return;
+  input.value = newEntity;
+  input.style.width = Math.max(50, newEntity.length*9+16) + 'px';
+  w.entity_id = newEntity;
+  saveLayout();
+  const body = $(`wb-${wid}`);
+  if (body) body.innerHTML = `<div class="text-xs text-gray-600 animate-pulse">Loading ${newEntity}...</div>`;
+  loadWidgetContent(w);
+}
+
+function removeWidget(wid) {
+  currentLayout = currentLayout.filter(x => x.id !== wid);
+  saveLayout();
+  renderGrid();
+}
+
+function resetLayout() {
+  currentLayout = [];
+  saveLayout();
+  renderGrid();
+  loadSuggestion();
+}
+
+// ── WIDGET CONTENT ────────────────────────────────────────────────────────────
+async function loadWidgetContent(w) {
+  const body = $(`wb-${w.id}`);
+  if (!body) return;
+  
+  const entityId = (w.entity_id || '').toUpperCase();
+  const entityType = w.entity_type || 'company';
+  
+  try {
+    // For company/trial/drug widgets, always use ticker/nct_id/drug_name
+    switch (w.type) {
+      case 'pipeline':         
+        if (entityType === 'company') await renderPipelineWidget(body, entityId);
+        else if (entityType === 'drug') await renderDrugDetailsWidget(body, entityId);
+        else if (entityType === 'trial') await renderTrialDetailsWidget(body, entityId);
+        break;
+      case 'news_ticker':      
+        if (entityType === 'company') await renderNewsTickerWidget(body, entityId);
+        else body.innerHTML = `<div class="text-xs text-gray-600">News widget only supports companies</div>`;
+        break;
+      case 'filings_ticker':   
+        if (entityType === 'company') await renderFilingsTickerWidget(body, entityId);
+        else body.innerHTML = `<div class="text-xs text-gray-600">Filings widget only supports companies</div>`;
+        break;
+      case 'catalysts_ticker': 
+        if (entityType === 'company') await renderCatalystsTickerWidget(body, entityId);
+        else body.innerHTML = `<div class="text-xs text-gray-600">Catalysts widget only supports companies</div>`;
+        break;
+      case 'earnings':
+        if (entityType === 'company') await renderEarningsWidget(body, entityId);
+        else body.innerHTML = `<div class="text-xs text-gray-600">Earnings widget only supports companies</div>`;
+        break;
+      case 'stock_chart':
+        if (entityType === 'company') await renderStockChartWidget(body, entityId);
+        else body.innerHTML = `<div class="text-xs text-gray-600">Stock chart widget only supports companies</div>`;
+        break;
+      case 'overview':         
+        if (entityType === 'company') await renderOverviewWidget(body, entityId);
+        else if (entityType === 'trial') await renderTrialDetailsWidget(body, entityId);
+        else body.innerHTML = `<div class="text-xs text-gray-600">Overview widget only supports companies/trials</div>`;
+        break;
+      case 'drugs':            
+        if (entityType === 'company') await renderDrugsWidget(body, entityId);
+        else body.innerHTML = `<div class="text-xs text-gray-600">Drugs widget only supports companies</div>`;
+        break;
+      case 'competitors':      
+        if (entityType === 'company') await renderCompetitorsWidget(body, entityId);
+        else body.innerHTML = `<div class="text-xs text-gray-600">Competitors widget only supports companies</div>`;
+        break;
+      default:                 body.innerHTML = `<div class="text-xs text-gray-600">Unknown widget type</div>`;
+    }
+  } catch(e) {
+    body.innerHTML = `<div class="text-xs text-red-500">Error: ${e.message||'failed to load'}</div>`;
+  }
+}
+
+async function renderPipelineWidget(body, ticker) {
+  if (!ticker) { body.innerHTML = emptyTickerMsg(); return; }
+  const data = await fetch(`/api/pipeline/${ticker}`).then(r=>r.json());
+  if (data.error) { body.innerHTML = `<div class="text-xs text-red-400">${data.error}</div>`; return; }
+  const co = data.info?.company_name || ticker;
+  const trials = data.trials || [];
+  body.innerHTML = `
+    <div class="text-xs text-gray-500 mb-3">${co} · <span class="text-blue-400">${trials.length} trials</span> · <span class="text-purple-400">${data.filings?.length||0} filings</span></div>
+    ${trials.length === 0 ? '<div class="text-xs text-gray-600">No trials found for this ticker.</div>' :
+      trials.slice(0,8).map(t=>`
+        <div class="flex items-center gap-2 mb-2 text-xs">
+          <a href="https://clinicaltrials.gov/study/${t.nct_id}" target="_blank" class="text-blue-400 font-mono hover:underline shrink-0 w-28">${t.nct_id}</a>
+          ${phaseTag(t.phase)}
+          ${statusTag(t.status)}
+          <span class="text-gray-500 truncate">${(t.condition||'').slice(0,30)}</span>
+          ${t.results_posted?'<span class="text-green-400 ml-auto shrink-0">✓</span>':''}
+        </div>`).join('')
+    }
+    ${trials.length > 8 ? `<div class="text-xs text-gray-600 mt-2">+${trials.length-8} more trials</div>` : ''}`;
+}
+
+async function renderNewsTickerWidget(body, ticker) {
+  const url = ticker ? `/api/news?limit=8&ticker=${encodeURIComponent(ticker)}` : '/api/news?limit=8';
+  const rows = await fetch(url).then(r=>r.json());
+  if (!rows.length) { body.innerHTML = `<div class="text-xs text-gray-600">${ticker?`No news for ${ticker}`:'No news available'}</div>`; return; }
+  body.innerHTML = rows.map((item, idx) => {
+    const t = item.tickers ? item.tickers.split(',').slice(0,2).map(t=>`<span class="text-xs bg-blue-900 text-blue-300 px-1.5 py-0.5 rounded">${t}</span>`).join(' ') : '';
+    return `<div onclick="openNewsDetail(${idx}, this.closest('.widget-body'))" style="cursor:pointer" class="block mb-3 group hover:bg-gray-800 -mx-2 px-2 py-1.5 rounded transition-colors">
+      <div class="flex items-start gap-2">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-0.5">${catTag(item.category)}<span class="text-xs text-gray-700">${(item.published_at||'').slice(0,10)}</span>${t}</div>
+          <div class="text-xs text-gray-300 group-hover:text-blue-400 leading-snug line-clamp-2">${item.title}</div>
+        </div>
+        <span class="text-gray-700 text-xs shrink-0">↗</span>
+      </div>
+    </div>`;
+  }).join('');
+  
+  // Store news items for modal access
+  body._newsItems = rows;
+}
+
+async function renderFilingsTickerWidget(body, ticker) {
+  const url = ticker ? `/api/filings?limit=8&ticker=${encodeURIComponent(ticker)}` : '/api/filings?limit=8';
+  const rows = await fetch(url).then(r=>r.json());
+  if (!rows.length) { body.innerHTML = `<div class="text-xs text-gray-600">${ticker?`No filings for ${ticker}`:'No filings'}</div>`; return; }
+  body.innerHTML = rows.map(f=>`
+    <div class="flex items-center gap-2 mb-2 text-xs">
+      <span class="text-blue-400 font-bold w-14 shrink-0">${f.ticker||'—'}</span>
+      <span class="px-1.5 py-0.5 rounded ${f.form_type==='8-K'?'bg-orange-900 text-orange-300':'bg-indigo-900 text-indigo-300'}">${f.form_type}</span>
+      <span class="text-gray-500">${f.filed_date||'—'}</span>
+      <a href="${f.filing_url}" target="_blank" class="text-blue-500 ml-auto shrink-0">→</a>
+    </div>`).join('');
+}
+
+async function renderCatalystsTickerWidget(body, ticker) {
+  if (!ticker) { body.innerHTML = emptyTickerMsg(); return; }
+  
+  // Get all trials for this ticker and filter for upcoming completion dates
+  const trials = await fetch(`/api/pipeline/${encodeURIComponent(ticker)}`).then(r=>r.json()).then(d => d.trials || []);
+  
+  // Filter trials with future completion dates, sort by date
+  const today = new Date();
+  const upcoming = trials
+    .filter(t => t.primary_completion_date && new Date(t.primary_completion_date) > today)
+    .sort((a, b) => new Date(a.primary_completion_date) - new Date(b.primary_completion_date))
+    .slice(0, 12);
+  
+  if (!upcoming.length) { 
+    body.innerHTML = `<div class="text-xs text-gray-600">No upcoming trial completions for ${ticker}</div>`; 
+    return; 
+  }
+  
+  body.innerHTML = upcoming.map(t=>`
+    <div class="flex items-start gap-2 mb-2 text-xs">
+      <span class="text-yellow-300 font-mono shrink-0 w-24">${t.primary_completion_date}</span>
+      ${phaseTag(t.phase)}
+      <a href="https://clinicaltrials.gov/study/${t.nct_id}" target="_blank" class="text-blue-400 font-mono hover:underline shrink-0">${t.nct_id}</a>
+      <span class="text-gray-400 truncate flex-1">${(t.condition||'').slice(0,20)}</span>
+    </div>`).join('');
+}
+
+async function renderOverviewWidget(body, ticker) {
+  if (!ticker) { body.innerHTML = emptyTickerMsg(); return; }
+
+  const [pipeData, coData, newsData] = await Promise.all([
+    fetch(`/api/pipeline/${ticker}`).then(r=>r.json()),
+    fetch(`/api/company/${ticker}`).then(r=>r.json()).catch(()=>({})),
+    fetch(`/api/news?limit=3&ticker=${encodeURIComponent(ticker)}`).then(r=>r.json()).catch(()=>[]),
+  ]);
+  if (pipeData.error) { body.innerHTML = `<div class="text-xs text-red-400">${pipeData.error}</div>`; return; }
+
+  const co = coData.name || pipeData.info?.company_name || ticker;
+  const trials  = pipeData.trials  || [];
+  const filings = pipeData.filings || [];
+  const cats    = pipeData.catalysts || [];
+
+  const recruiting  = trials.filter(t => t.status?.includes('RECRUITING')).length;
+  const withResults = trials.filter(t => t.results_posted).length;
+  const phase3      = trials.filter(t => t.phase?.includes('3')).length;
+  const phase2      = trials.filter(t => t.phase?.includes('2') && !t.phase?.includes('3')).length;
+  const latestFiling = filings[0];
+  const nextCat = cats[0];
+
+  function row(label, value, cls='text-gray-300') {
+    if (!value) return '';
+    return `<div class="flex justify-between items-start py-1.5 border-b border-gray-800 last:border-0">
+      <span class="text-gray-600 text-xs shrink-0 mr-3">${label}</span>
+      <span class="text-xs ${cls} text-right leading-snug">${value}</span>
+    </div>`;
+  }
+
+  function fmtFiscalYearEnd(s) {
+    if (!s) return '';
+    const str = String(s).padStart(4, '0');
+    const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const month = parseInt(str.slice(0, 2));
+    const day   = parseInt(str.slice(2));
+    const mName = months[month] || str.slice(0,2);
+    return `${mName} ${day}`;
+  }
+
+  const fyEnd = coData.fiscal_year_end ? fmtFiscalYearEnd(coData.fiscal_year_end) : '';
+  const stateDesc = coData.state_of_incorporation_description || coData.state_of_incorporation || '';
+  const exchange = coData.exchange || '';
+  const phone = coData.phone ? coData.phone.replace(/(\d{3})(\d{3})(\d{4})/,'($1) $2-$3') : '';
+
+  body.innerHTML = `
+    <!-- Company name + exchange -->
+    <div class="mb-3 pb-3 border-b border-gray-800">
+      <div class="text-white font-bold text-base leading-tight mb-0.5">${co}</div>
+      <div class="flex items-center gap-2 flex-wrap mt-1">
+        ${exchange ? `<span class="text-xs bg-blue-950 border border-blue-800 text-blue-300 rounded px-2 py-0.5">${exchange}: ${ticker}</span>` : `<span class="text-xs text-gray-500">${ticker}</span>`}
+        ${coData.sic_description ? `<span class="text-xs bg-gray-800 text-gray-400 rounded px-2 py-0.5">${coData.sic_description}</span>` : ''}
+      </div>
+    </div>
+
+    <!-- Trial stats -->
+    <div class="grid grid-cols-4 gap-2 mb-3">
+      <div class="bg-gray-800 rounded p-2 text-center"><div class="text-blue-400 font-bold text-base">${trials.length}</div><div class="text-gray-600 text-xs">Trials</div></div>
+      <div class="bg-gray-800 rounded p-2 text-center"><div class="text-green-400 font-bold text-base">${recruiting}</div><div class="text-gray-600 text-xs">Recruiting</div></div>
+      <div class="bg-gray-800 rounded p-2 text-center"><div class="text-indigo-400 font-bold text-base">${phase3}</div><div class="text-gray-600 text-xs">Phase 3</div></div>
+      <div class="bg-gray-800 rounded p-2 text-center"><div class="text-purple-400 font-bold text-base">${phase2}</div><div class="text-gray-600 text-xs">Phase 2</div></div>
+    </div>
+
+    <!-- Company details -->
+    <div class="mb-3">
+      ${row('Field', coData.sic_description)}
+      ${row('Address', coData.address_business || coData.address_mailing)}
+      ${row('Phone', phone)}
+      ${row('Incorporated', stateDesc)}
+      ${row('Entity type', coData.entity_type)}
+      ${row('Fiscal year end', fyEnd)}
+      ${row('First SEC filing', coData.earliest_filing_date, 'text-gray-400')}
+      ${row('Total SEC filings', coData.total_filings ? coData.total_filings.toLocaleString() : '')}
+      ${row('CIK', coData.cik || pipeData.info?.cik)}
+      ${withResults ? row('Results posted', `${withResults} trial${withResults>1?'s':''}`, 'text-green-400') : ''}
+      ${latestFiling ? row('Latest filing', `${latestFiling.form_type} · ${latestFiling.filed_date||''}`, latestFiling.form_type==='8-K'?'text-orange-300':'text-indigo-300') : ''}
+      ${nextCat ? row('Next catalyst', `${nextCat.event_date} ${nextCat.event_type}${nextCat.drug_name?' · '+nextCat.drug_name:''}`, 'text-yellow-300') : ''}
+    </div>
+
+    <!-- Recent news -->
+    ${newsData.length ? `
+    <div class="border-t border-gray-800 pt-2">
+      <div class="text-xs text-gray-600 uppercase tracking-wider mb-2">Recent News</div>
+      ${newsData.map(n=>`<a href="${n.url||'#'}" target="_blank" class="block text-xs text-gray-500 hover:text-blue-400 mb-1.5 leading-snug line-clamp-2">↗ ${n.title}</a>`).join('')}
+    </div>` : ''}`;
+}
+
+async function renderCompetitorsWidget(body, ticker) {
+  if (!ticker) { body.innerHTML = emptyTickerMsg(); return; }
+
+  body.innerHTML = `<div class="text-xs text-gray-600 animate-pulse">Loading competitive landscape for ${ticker}...</div>`;
+
+  const data = await fetch(`/api/competitors/${encodeURIComponent(ticker)}`).then(r=>r.json());
+  if (data.error) { body.innerHTML = `<div class="text-xs text-red-400">${data.error}</div>`; return; }
+
+  const comps = data.competitors || [];
+  if (!comps.length) {
+    body.innerHTML = `<div class="text-xs text-gray-600">No competitors found in the same indications as ${ticker}.</div>`;
+    return;
+  }
+
+  const indications = data.indications || [];
+  body._compData = data;
+  body._compTicker = ticker;
+
+  function phaseOrder(p) {
+    if (!p) return 0;
+    if (p.includes('4')) return 7;
+    if (p.includes('3') && p.includes('2')) return 5;
+    if (p.includes('3')) return 6;
+    if (p.includes('2') && p.includes('1')) return 3;
+    if (p.includes('2')) return 4;
+    if (p.includes('1')) return 2;
+    return 1;
+  }
+
+  function phaseBar(phase) {
+    const order = phaseOrder(phase);
+    const max = 7;
+    const pct = Math.round((order / max) * 100);
+    let color = '#374151';
+    if (order >= 6) color = '#1d4ed8';
+    else if (order >= 4) color = '#7c3aed';
+    else if (order >= 2) color = '#374151';
+    const label = phase ? phase.replace('PHASE','P').replace('; ','/') : '?';
+    return `<div class="flex items-center gap-2 min-w-0">
+      <div class="w-16 bg-gray-800 rounded h-1.5 overflow-hidden shrink-0">
+        <div style="width:${pct}%;background:${color}" class="h-full rounded"></div>
+      </div>
+      <span class="text-xs" style="color:${color}">${label}</span>
+    </div>`;
+  }
+
+  const indicationFilter = indications.length > 1
+    ? `<div class="flex flex-wrap gap-1.5 mb-3">
+        <button onclick="filterCompetitors(this,'',event)" data-ind="" class="comp-ind-btn active text-xs px-2.5 py-1 rounded border border-blue-700 bg-blue-950 text-blue-300">All indications</button>
+        ${indications.map(ind => `<button onclick="filterCompetitors(this,'${encodeURIComponent(ind)}',event)" data-ind="${encodeURIComponent(ind)}" class="comp-ind-btn text-xs px-2.5 py-1 rounded border border-gray-700 text-gray-500 hover:border-blue-600 hover:text-blue-400">${ind}</button>`).join('')}
+      </div>`
+    : indications.length === 1
+      ? `<div class="text-xs text-gray-600 mb-3">Indication: <span class="text-gray-400">${indications[0]}</span></div>`
+      : '';
+
+  function renderRows(list) {
+    return list.map(c => {
+      const isSelf = c.is_self;
+      const tickerLink = c.ticker
+        ? `<span class="text-xs font-bold ${isSelf ? 'text-yellow-300' : 'text-blue-400'} cursor-pointer hover:underline" onclick="openCompetitorPipeline('${c.ticker}')">${c.ticker}</span>`
+        : `<span class="text-xs text-gray-600">—</span>`;
+      const resultsFlag = c.results_count > 0
+        ? `<span class="text-green-400 text-xs" title="${c.results_count} trials with results">✓ ${c.results_count}</span>`
+        : `<span class="text-gray-700 text-xs">—</span>`;
+      const activeBadge = c.active_count > 0
+        ? `<span class="text-xs bg-green-900 text-green-400 rounded px-1.5 py-0.5">${c.active_count} active</span>`
+        : '';
+      const drugs = c.drugs.length
+        ? `<div class="text-xs text-gray-600 mt-0.5 truncate">${c.drugs.join(' · ')}</div>`
+        : '';
+      const selfBg = isSelf ? 'bg-yellow-950 bg-opacity-20 border border-yellow-900 border-opacity-30' : 'hover:bg-gray-800';
+      return `
+        <div class="flex items-start gap-3 px-3 py-2.5 rounded-lg ${selfBg} transition-colors">
+          <div class="w-20 shrink-0">${tickerLink}${isSelf ? ' <span class="text-xs text-yellow-600">you</span>' : ''}</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-xs text-gray-300 font-medium truncate">${c.sponsor}</div>
+            ${drugs}
+          </div>
+          <div class="shrink-0 w-32">${phaseBar(c.best_phase)}</div>
+          <div class="shrink-0 w-12 text-right">${resultsFlag}</div>
+          <div class="shrink-0">${activeBadge}</div>
+          <div class="shrink-0 text-xs text-gray-600 w-10 text-right">${c.trial_count}t</div>
+        </div>`;
+    }).join('');
+  }
+
+  body.innerHTML = `
+    ${indicationFilter}
+    <div class="flex items-center gap-4 px-3 mb-1 text-xs text-gray-600 uppercase tracking-wider">
+      <span class="w-20 shrink-0">Ticker</span>
+      <span class="flex-1">Sponsor · Drug</span>
+      <span class="w-32 shrink-0">Phase</span>
+      <span class="w-12 text-right shrink-0">Results</span>
+      <span class="w-16 shrink-0"></span>
+      <span class="w-10 text-right shrink-0">Trials</span>
+    </div>
+    <div id="comp-rows-${ticker}" class="flex flex-col gap-0.5">
+      ${renderRows(comps)}
+    </div>
+    <div class="mt-3 text-xs text-gray-700">
+      ${comps.length} sponsors · ${data.target_conditions?.map(c=>c.slice(0,40)).join(', ')||''}
+    </div>`;
+
+  body._renderRows = renderRows;
+}
+
+async function renderEarningsWidget(body, ticker) {
+  if (!ticker) { body.innerHTML = emptyTickerMsg(); return; }
+  
+  body.innerHTML = `<div class="text-xs text-gray-600 animate-pulse">Loading earnings schedule for ${ticker}...</div>`;
+  
+  const data = await fetch(`/api/earnings?days=180&ticker=${encodeURIComponent(ticker)}`).then(r=>r.json());
+  if (!data || !data.length) { 
+    body.innerHTML = `<div class="text-xs text-gray-600">No earnings scheduled for ${ticker} in the next 6 months</div>`; 
+    return; 
+  }
+  
+  body.innerHTML = data.map(e => {
+    const daysStyle = e.days_away <= 7 ? 'text-red-400 font-bold' : e.days_away <= 30 ? 'text-yellow-400' : 'text-gray-400';
+    const statusStyle = e.status === 'estimated' ? 'bg-gray-800 text-gray-400' : 'bg-green-900 text-green-400';
+    return `
+      <div class="flex items-center justify-between mb-2.5 pb-2.5 border-b border-gray-800 last:border-b-0">
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold text-white">${e.quarter}</div>
+          <div class="text-xs text-gray-500 mt-0.5">${e.earnings_date}</div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="${daysStyle} text-sm">${e.days_away}d</span>
+          <span class="text-xs px-2 py-0.5 rounded ${statusStyle}">${e.status}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function renderStockChartWidget(body, ticker) {
+  if (!ticker) { body.innerHTML = emptyTickerMsg(); return; }
+  
+  body.style.minHeight = '420px';
+  const containerId = `tv-chart-${Math.random().toString(36).slice(2,8)}`;
+  
+  body.innerHTML = `<div id="${containerId}" style="height:400px;width:100%;background:#131722"></div>`;
+  
+  // Destroy previous widget if exists
+  if (body._tvWidget) {
+    try { body._tvWidget.remove(); } catch(e) {}
+    body._tvWidget = null;
+  }
+  
+  // Create TradingView widget
+  body._tvWidget = new TradingView.widget({
+    container_id: containerId,
+    symbol: `NASDAQ:${ticker.toUpperCase()}`,
+    interval: 'D',
+    timezone: 'America/New_York',
+    theme: 'dark',
+    style: '1',
+    locale: 'en',
+    toolbar_bg: '#131722',
+    enable_publishing: false,
+    allow_symbol_change: false,
+    hide_top_toolbar: false,
+    hide_legend: false,
+    hide_side_toolbar: false,
+    autosize: true,
+    save_image: true,
+    details: true,
+    hotlist: false,
+    calendar: false,
+    stocktwits: false,
+    referrals: false
+  });
+}
+
+async function filterCompetitors(btn, encodedInd, event) {
+  event.stopPropagation();
+  const body = btn.closest('.widget-body');
+  if (!body || !body._compData) return;
+  const ticker = body._compTicker;
+
+  // Update button styles
+  body.querySelectorAll('.comp-ind-btn').forEach(b => {
+    b.className = b.className.replace('border-blue-700 bg-blue-950 text-blue-300','border-gray-700 text-gray-500');
+    b.classList.add('border-gray-700','text-gray-500');
+  });
+  btn.className = btn.className.replace('border-gray-700 text-gray-500','border-blue-700 bg-blue-950 text-blue-300');
+
+  const ind = decodeURIComponent(encodedInd);
+  const url = ind
+    ? `/api/competitors/${encodeURIComponent(ticker)}?indication=${encodeURIComponent(ind)}`
+    : `/api/competitors/${encodeURIComponent(ticker)}`;
+
+  const rowsContainer = body.querySelector(`#comp-rows-${ticker}`);
+  if (rowsContainer) rowsContainer.innerHTML = `<div class="text-xs text-gray-600 animate-pulse py-4 text-center">Loading...</div>`;
+
+  const data = await fetch(url).then(r=>r.json());
+  body._compData = data;
+  if (rowsContainer && body._renderRows) {
+    rowsContainer.innerHTML = body._renderRows(data.competitors || []);
+  }
+}
+
+function openCompetitorPipeline(ticker) {
+  // Navigate to pipeline tab and load that ticker
+  showTab('pipeline');
+  const input = document.getElementById('pipeline-ticker');
+  if (input) { input.value = ticker; loadPipeline(); }
+}
+
+async function renderDrugsWidget(body, ticker) {
+  if (!ticker) { body.innerHTML = emptyTickerMsg(); return; }
+  const data = await fetch(`/api/pipeline/${ticker}`).then(r=>r.json());
+  if (data.error) { body.innerHTML = `<div class="text-xs text-red-400">${data.error}</div>`; return; }
+
+  const trials = data.trials || [];
+  if (!trials.length) { body.innerHTML = `<div class="text-xs text-gray-600">No trials found for ${ticker}</div>`; return; }
+
+  // Build drug → trials map (filter out controls/fillers)
+  const FILLER_TERMS = [
+    'placebo','vehicle','sham','control','standard of care','best supportive care',
+    'usual care','observation','watchful waiting','no treatment','normal saline',
+    'saline','sugar pill','dummy','comparator','active comparator','wait list',
+    'waitlist','background therapy','background treatment','open label','blinded',
+  ];
+  function isFiller(name) {
+    const n = name.toLowerCase();
+    return FILLER_TERMS.some(t => n.includes(t));
+  }
+
+  const drugMap = {};
+  trials.forEach(t => {
+    const drugs = (t.intervention || '').split(';').map(d => d.trim()).filter(d => d && !isFiller(d));
+    drugs.forEach(drug => {
+      const key = drug.length > 60 ? drug.slice(0,60)+'…' : drug;
+      if (!drugMap[key]) drugMap[key] = [];
+      drugMap[key].push(t);
+    });
+  });
+
+  if (!Object.keys(drugMap).length) {
+    body.innerHTML = `<div class="text-xs text-gray-600">No investigational drugs found for ${ticker}</div>`;
+    return;
+  }
+
+  const widgetBodyId = body.id || ('drug-body-' + ticker);
+  body.setAttribute('data-ticker', ticker);
+
+  function renderDrugList() {
+    const sorted = Object.entries(drugMap).sort((a,b) => b[1].length - a[1].length);
+    body.innerHTML = `
+      <div class="text-xs text-gray-600 mb-3">${Object.keys(drugMap).length} drugs · ${trials.length} trials total</div>
+      <div class="flex flex-col gap-1.5">
+        ${sorted.map(([drug, dtrials]) => {
+          const recruiting = dtrials.filter(t=>t.status?.includes('RECRUITING')).length;
+          const phase3 = dtrials.filter(t=>t.phase?.includes('3')).length;
+          const hasResults = dtrials.some(t=>t.results_posted);
+          return `<div class="drug-row flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+                       data-drug="${encodeURIComponent(drug)}" data-ticker="${ticker}">
+            <div class="flex-1 min-w-0 cursor-pointer" onclick="showDrugTrials(this.closest('.drug-row'), '${encodeURIComponent(drug)}')">
+              <div class="text-sm text-gray-200 font-medium truncate">${drug}</div>
+              <div class="text-xs text-gray-600 mt-0.5">${dtrials.length} trial${dtrials.length!==1?'s':''} ${recruiting?`· <span class="text-green-500">${recruiting} recruiting</span>`:''} ${phase3?`· <span class="text-blue-400">P3</span>`:''}</div>
+            </div>
+            ${hasResults ? '<span class="text-green-400 text-xs shrink-0" title="Results posted">✓ results</span>' : ''}
+            <button onclick="event.stopPropagation(); pinEntity('drug', '${encodeURIComponent(drug)}', 'pipeline')" 
+                    class="text-xs text-gray-600 hover:text-blue-400 px-2 py-1 rounded border border-gray-700 hover:border-blue-500 shrink-0"
+                    title="Pin as widget">📌</button>
+            <span class="text-gray-700 text-xs shrink-0">›</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+    body._drugMap = drugMap;
+  }
+
+  renderDrugList();
+  body._renderDrugList = renderDrugList;
+}
+
+function showDrugTrials(rowEl, encodedDrug) {
+  const drug = decodeURIComponent(encodedDrug);
+  const body = rowEl.closest('.widget-body');
+  if (!body || !body._drugMap) return;
+  const trials = body._drugMap[drug] || [];
+  const savedDrugMap = body._drugMap;
+  const savedRender = body._renderDrugList;
+
+  body.innerHTML = `
+    <div class="text-xs text-gray-500 hover:text-blue-400 mb-3 flex items-center gap-1 cursor-pointer" id="drug-back-btn">
+      ‹ Back to all drugs
+    </div>
+    <div class="text-sm font-semibold text-white mb-1 truncate">${drug}</div>
+    <div class="text-xs text-gray-600 mb-3">${trials.length} trial${trials.length!==1?'s':''}</div>
+    ${trials.map(t => `
+      <div class="flex items-center gap-2 mb-2 text-xs">
+        <a href="https://clinicaltrials.gov/study/${t.nct_id}" target="_blank"
+           class="text-blue-400 font-mono hover:underline shrink-0 w-28">${t.nct_id}</a>
+        ${phaseTag(t.phase)}
+        ${statusTag(t.status)}
+        <span class="text-gray-500 truncate">${(t.condition||'').slice(0,30)}</span>
+        ${t.results_posted ? '<span class="text-green-400 ml-auto shrink-0">✓</span>' : ''}
+      </div>`).join('')}`;
+
+  body._drugMap = savedDrugMap;
+  body._renderDrugList = savedRender;
+  const backBtn = body.querySelector('#drug-back-btn');
+  if (backBtn) backBtn.onclick = () => savedRender && savedRender();
+}
+
+function emptyTickerMsg() {
+  return `<div class="text-xs text-gray-600 text-center py-4">Click the entity above to set a symbol</div>`;
+}
+
+async function renderDrugDetailsWidget(body, drugName) {
+  if (!drugName) { body.innerHTML = emptyTickerMsg(); return; }
+  const data = await fetch(`/api/entity/drug/${encodeURIComponent(drugName)}`).then(r=>r.json());
+  if (data.error) { body.innerHTML = `<div class="text-xs text-red-400">${data.error}</div>`; return; }
+  
+  const trials = await fetch(`/api/trials?limit=500&limit=500`).then(r=>r.json()).then(all =>
+    all.filter(t => t.intervention && t.intervention.includes(drugName))
+  );
+  
+  body.innerHTML = `
+    <div class="text-sm font-semibold text-white mb-2">${drugName}</div>
+    <div class="text-xs text-gray-600 mb-3">${trials.length} trials</div>
+    ${trials.slice(0,10).map(t=>`
+      <div class="flex items-center gap-2 mb-2 text-xs">
+        <a href="https://clinicaltrials.gov/study/${t.nct_id}" target="_blank" class="text-blue-400 font-mono hover:underline shrink-0 w-28">${t.nct_id}</a>
+        ${phaseTag(t.phase)}
+        ${statusTag(t.status)}
+        <span class="text-gray-500 truncate">${(t.sponsor||'').slice(0,20)}</span>
+      </div>`).join('')}
+    ${trials.length > 10 ? `<div class="text-xs text-gray-600 mt-2">+${trials.length-10} more trials</div>` : ''}`;
+}
+
+async function renderTrialDetailsWidget(body, nctId) {
+  if (!nctId) { body.innerHTML = emptyTickerMsg(); return; }
+  const data = await fetch(`/api/entity/trial/${encodeURIComponent(nctId)}`).then(r=>r.json());
+  if (data.error) { body.innerHTML = `<div class="text-xs text-red-400">${data.error}</div>`; return; }
+  
+  const t = data.trial_data;
+  body.innerHTML = `
+    <div class="mb-2">
+      <a href="https://clinicaltrials.gov/study/${nctId}" target="_blank" class="text-blue-400 font-mono hover:underline text-sm">${nctId}</a>
+    </div>
+    <div class="text-xs text-gray-300 mb-2 line-clamp-2">${t.title||''}</div>
+    <div class="flex flex-wrap gap-1.5 mb-3">
+      ${phaseTag(t.phase)}
+      ${statusTag(t.status)}
+      ${t.results_posted ? '<span class="text-xs bg-green-900 text-green-400 px-2 py-0.5 rounded">Results ✓</span>' : ''}
+    </div>
+    <div class="text-xs text-gray-500">
+      <div><strong>Sponsor:</strong> ${(t.sponsor||'').slice(0,40)}</div>
+      <div><strong>Condition:</strong> ${(t.condition||'').slice(0,40)}</div>
+      ${t.enrollment ? `<div><strong>Enrollment:</strong> ${t.enrollment}</div>` : ''}
+      ${t.primary_completion_date ? `<div><strong>Est. completion:</strong> ${t.primary_completion_date}</div>` : ''}
+    </div>`;
+}
+
+
+// ── ADD WIDGET MODAL ──────────────────────────────────────────────────────────
+function showAddWidgetModal() {
+  $('add-widget-modal').classList.remove('hidden');
+  $('new-widget-entity').focus();
+}
+function closeAddWidgetModal() {
+  $('add-widget-modal').classList.add('hidden');
+}
+function selectEntityType(type) {
+  _newWidgetEntityType = type;
+  document.querySelectorAll('.entity-type-btn').forEach(b => {
+    b.className = b.className.replace(/border-blue-600 bg-blue-900 text-blue-300/g,'border-gray-700 text-gray-400');
+  });
+  $(`etype-${type}`).className = $(`etype-${type}`).className.replace('border-gray-700 text-gray-400','border-blue-600 bg-blue-900 text-blue-300');
+  
+  const label = type === 'company' ? 'Ticker Symbol' : type === 'drug' ? 'Drug Name' : 'NCT ID';
+  $('entity-label').textContent = label;
+  const input = $('new-widget-entity');
+  const placeholders = { company: 'e.g. MRNA, BNTX, IONS', drug: 'e.g. Remdesivir, Comirnaty', trial: 'e.g. NCT07098330' };
+  input.placeholder = placeholders[type];
+}
+function selectSpan(n) {
+  _newWidgetSpan = n;
+  document.querySelectorAll('.span-btn').forEach(b => {
+    b.className = b.className.replace(/border-blue-600 bg-blue-900 text-blue-300/g,'border-gray-700 text-gray-400');
+  });
+  $(`span-${n}`).className = $(`span-${n}`).className.replace('border-gray-700 text-gray-400','border-blue-600 bg-blue-900 text-blue-300');
+}
+function confirmAddWidget() {
+  const type = $('new-widget-type').value;
+  const entity = $('new-widget-entity').value.trim().toUpperCase();
+  
+  // Find first available block position
+  let blockX = 0, blockY = 0;
+  const occupied = new Set(currentLayout.map(w => `${w.blockX || 0},${w.blockY || 0}`));
+  for (let y = 0; y < 2; y++) {
+    for (let x = 0; x < 2; x++) {
+      if (!occupied.has(`${x},${y}`)) {
+        blockX = x;
+        blockY = y;
+        break;
+      }
+    }
+  }
+  
+  currentLayout.push({ 
+    id: genId(), 
+    type, 
+    entity_type: _newWidgetEntityType, 
+    entity_id: entity, 
+    span: _newWidgetSpan,
+    blockX: blockX,
+    blockY: blockY,
+    blockW: 1,
+    blockH: 1
+  });
+  saveLayout();
+  renderGrid();
+  closeAddWidgetModal();
+  $('new-widget-entity').value = '';
+}
+$('add-widget-modal').addEventListener('click', e => { if (e.target === $('add-widget-modal')) closeAddWidgetModal(); });
+
+// ── NEWS DETAIL MODAL ─────────────────────────────────────────────────────────
+function openNewsDetail(idx, body) {
+  if (!body || !body._newsItems || !body._newsItems[idx]) return;
+  const item = body._newsItems[idx];
+  
+  const modal = $('news-detail-modal');
+  $('news-detail-category').textContent = (item.category || '').toUpperCase();
+  $('news-detail-title').textContent = item.title || '';
+  $('news-detail-date').textContent = item.published_at ? item.published_at.slice(0, 10) : '';
+  
+  const tickerDiv = $('news-detail-tickers');
+  if (item.tickers) {
+    tickerDiv.innerHTML = item.tickers.split(',').map(t => 
+      `<span class="text-xs bg-blue-900 text-blue-300 px-1.5 py-0.5 rounded">${t.trim()}</span>`
+    ).join('');
+  } else {
+    tickerDiv.innerHTML = '';
+  }
+  
+  $('news-detail-summary').textContent = item.summary || item.title || 'No summary available.';
+  $('news-detail-source').textContent = item.source || 'Unknown source';
+  $('news-detail-link').href = item.url || '#';
+  
+  modal.classList.remove('hidden');
+}
+
+function closeNewsDetailModal() {
+  $('news-detail-modal').classList.add('hidden');
+}
+
+function openNewsDetailFromTab(idx) {
+  if (!_newsTabItems || !_newsTabItems[idx]) {
+    console.error('News item not found at index', idx);
+    return;
+  }
+  const item = _newsTabItems[idx];
+  
+  const modal = $('news-detail-modal');
+  $('news-detail-category').textContent = (item.category || '').toUpperCase();
+  $('news-detail-title').textContent = item.title || '';
+  $('news-detail-date').textContent = item.published_at ? item.published_at.slice(0, 10) : '';
+  
+  const tickerDiv = $('news-detail-tickers');
+  if (item.tickers) {
+    tickerDiv.innerHTML = item.tickers.split(',').map(t => 
+      `<span class="text-xs bg-blue-900 text-blue-300 px-1.5 py-0.5 rounded">${t.trim()}</span>`
+    ).join('');
+  } else {
+    tickerDiv.innerHTML = '';
+  }
+  
+  $('news-detail-summary').textContent = item.summary || item.title || 'No summary available.';
+  $('news-detail-source').textContent = item.source || 'Unknown source';
+  $('news-detail-link').href = item.url || '#';
+  
+  modal.classList.remove('hidden');
+}
+
+$('news-detail-modal').addEventListener('click', e => { if (e.target === $('news-detail-modal')) closeNewsDetailModal(); });
+
+// ── PIN FUNCTIONS ─────────────────────────────────────────────────────────────
+function pinEntity(entityType, entityId, widgetType = 'overview') {
+  const widget = {
+    id: genId(),
+    type: widgetType,
+    entity_type: entityType,
+    entity_id: entityId,
+    span: widgetType === 'competitors' ? 12 : widgetType === 'drugs' ? 6 : widgetType === 'chart' ? 4 : 6
+  };
+  currentLayout.push(widget);
+  saveLayout();
+  renderGrid();
+  alert(`Pinned ${entityId} (${entityType}) as ${widgetType} widget`);
+}
+
+// ── SUGGESTION ────────────────────────────────────────────────────────────────
+let _suggestedTicker = null;
+const DEFAULT_TICKERS = ['MRNA', 'PFE', 'JNJ', 'LLY', 'NVO', 'AZN', 'BMY', 'GILD', 'AMGN', 'REGN'];
+
+async function getMostActiveTicker() {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 1500); // 1.5 second timeout
+    const rows = await fetch('/api/news?limit=20', { signal: controller.signal }).then(r=>r.json());
+    clearTimeout(timeout);
+    const counts = {};
+    rows.forEach(r => { if (r.tickers) r.tickers.split(',').forEach(t => { counts[t]=(counts[t]||0)+1; }); });
+    const mostActive = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0];
+    return mostActive || DEFAULT_TICKERS[Math.floor(Math.random() * DEFAULT_TICKERS.length)];
+  } catch { 
+    return DEFAULT_TICKERS[Math.floor(Math.random() * DEFAULT_TICKERS.length)];
+  }
+}
+
+async function loadSuggestion() {
+  // Show loading state immediately
+  $('suggestion-ticker').textContent = '—';
+  $('suggestion-company').textContent = 'Finding most active ticker...';
+  $('suggestion-btn').textContent = 'Set up dashboard';
+  
+  const ticker = await getMostActiveTicker();
+  _suggestedTicker = ticker;
+  if (!ticker) {
+    $('suggestion-company').textContent = 'Click + Add Widget to get started';
+    return;
+  }
+
+  // Show ticker immediately — don't wait for pipeline
+  $('suggestion-ticker').textContent = ticker;
+  $('suggestion-company').textContent = 'Most mentioned in recent news';
+  $('suggestion-btn').textContent = `Set up dashboard for ${ticker}`;
+
+  // Enrich with company + trial count in background (non-blocking)
+  fetch(`/api/pipeline/${ticker}`).then(r => r.json()).then(data => {
+    const co = data.info?.company_name || ticker;
+    const n = data.trials?.length || 0;
+    $('suggestion-company').textContent = `${co} · ${n} trials · Most mentioned in recent news`;
+  }).catch(() => {});
+}
+
+async function applySuggestion() {
+  const ticker = _suggestedTicker;
+  if (!ticker) return;
+  currentLayout = [
+    { id:genId(), type:'overview',       entity_type:'company', entity_id:ticker, blockX:0, blockY:0, blockW:1, blockH:1 },
+    { id:genId(), type:'news_ticker',    entity_type:'company', entity_id:ticker, blockX:1, blockY:0, blockW:1, blockH:1 },
+    { id:genId(), type:'stock_chart',    entity_type:'company', entity_id:ticker, blockX:0, blockY:1, blockW:1, blockH:1 },
+    { id:genId(), type:'filings_ticker', entity_type:'company', entity_id:ticker, blockX:1, blockY:1, blockW:1, blockH:1 },
+  ];
+  saveLayout();
+  renderGrid();
+}
+
+// ── FILINGS API TICKER FILTER ─────────────────────────────────────────────────
+// /api/filings already supports ?ticker= param but we need to check the api
+// It uses limit only; we handle ticker client-side or via URL param
+
+// ── STATS BAR ─────────────────────────────────────────────────────────────────
+async function loadStatsBar() {
+  const sum = await fetch('/api/summary').then(r=>r.json());
+  Object.entries(sum.counts).forEach(([k,v]) => {
+    const el = $(`stat-${k}`);
+    if (el) el.textContent = v.toLocaleString();
+  });
+  const nc = $('stat-news-count');
+  if (nc) nc.textContent = (sum.counts.news||0).toLocaleString();
+  $('last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+}
+
+// ── OTHER TABS ────────────────────────────────────────────────────────────────
+let trialsTimer;
+async function loadTrials() {
+  clearTimeout(trialsTimer);
+  trialsTimer = setTimeout(async () => {
+    const p = new URLSearchParams({ limit: $('filter-limit').value });
+    const ph=$('filter-phase').value.trim(); if(ph) p.set('phase',ph);
+    const st=$('filter-status').value.trim(); if(st) p.set('status',st);
+    const sp=$('filter-sponsor').value.trim(); if(sp) p.set('sponsor',sp);
+    const rows = await fetch('/api/trials?'+p).then(r=>r.json());
+    $('trials-body').innerHTML = rows.map(t=>`
+      <tr>
+        <td><a href="https://clinicaltrials.gov/study/${t.nct_id}" target="_blank" class="text-blue-400 hover:underline font-mono text-xs">${t.nct_id}</a></td>
+        <td>${phaseTag(t.phase)}</td><td>${statusTag(t.status)}</td>
+        <td class="text-gray-300 max-w-xs truncate">${(t.sponsor||'').slice(0,30)}</td>
+        <td class="text-gray-400 max-w-xs truncate">${(t.condition||'').slice(0,35)}</td>
+        <td class="text-right text-gray-400">${t.enrollment!=null?t.enrollment.toLocaleString():'—'}</td>
+        <td class="text-gray-500">${t.primary_completion_date||'—'}</td>
+        <td class="flex gap-2 items-center">
+          ${t.results_posted?'<span class="text-green-400 text-xs">✓</span>':'<span class="text-gray-700">—</span>'}
+          <button onclick="pinEntity('trial', '${t.nct_id}', 'overview')" class="text-xs text-gray-600 hover:text-blue-400" title="Pin trial">📌</button>
+        </td>
+      </tr>`).join('');
+  }, 300);
+}
+
+async function loadCatalysts() {
+  const rows = await fetch(`/api/catalysts?days=${$('catalyst-days').value}`).then(r=>r.json());
+  const body=$('catalysts-body'), empty=$('catalysts-empty');
+  if (!rows.length) { body.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  body.innerHTML = rows.map(c=>`
+    <tr>
+      <td class="font-mono text-yellow-300">${c.event_date||'—'}</td>
+      <td>${eventTag(c.event_type||'')}</td>
+      <td class="text-blue-400 font-bold">${c.ticker||'?'}</td>
+      <td class="text-gray-300">${(c.company||'').slice(0,35)}</td>
+      <td class="text-white">${(c.drug_name||'').slice(0,25)}</td>
+      <td class="text-gray-400">${(c.indication||'').slice(0,40)}</td>
+    </tr>`).join('');
+}
+
+async function loadFilings() {
+  const rows = await fetch('/api/filings?limit=50').then(r=>r.json());
+  $('filings-body').innerHTML = rows.map(f=>`
+    <tr>
+      <td class="text-blue-400 font-bold">${f.ticker||'—'}</td>
+      <td><span class="text-xs px-2 py-0.5 rounded ${f.form_type==='8-K'?'bg-orange-900 text-orange-300':'bg-indigo-900 text-indigo-300'}">${f.form_type}</span></td>
+      <td class="text-gray-400 font-mono">${f.filed_date||'—'}</td>
+      <td><a href="${f.filing_url}" target="_blank" class="text-blue-500 hover:underline text-xs">SEC →</a></td>
+    </tr>`).join('');
+}
+
+async function loadEarnings() {
+  const ticker = $('earnings-ticker-filter').value.trim();
+  const days = $('earnings-days-filter').value;
+  const params = new URLSearchParams({ days });
+  if (ticker) params.set('ticker', ticker);
+  
+  const rows = await fetch('/api/earnings?' + params).then(r=>r.json());
+  const body = $('earnings-body'), empty = $('earnings-empty');
+  
+  if (!rows.length) { body.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  
+  body.innerHTML = rows.map(e => {
+    const daysStyle = e.days_away <= 7 ? 'text-red-400 font-bold' : e.days_away <= 30 ? 'text-yellow-400' : 'text-gray-400';
+    const statusStyle = e.status === 'estimated' ? 'bg-gray-800 text-gray-400' : 'bg-green-900 text-green-400';
+    return `
+      <tr>
+        <td><span class="text-blue-400 font-bold hover:text-blue-300 cursor-pointer" onclick="filterEarningsByTicker('${e.ticker}')">${e.ticker}</span></td>
+        <td class="text-gray-300">${(e.company_name || '').slice(0, 30)}</td>
+        <td class="text-gray-400 text-xs">${e.quarter}</td>
+        <td class="text-gray-300 font-mono">${e.earnings_date}</td>
+        <td class="text-center"><span class="${daysStyle}">${e.days_away}d</span></td>
+        <td><span class="text-xs px-2 py-0.5 rounded ${statusStyle}">${e.status}</span></td>
+      </tr>`;
+  }).join('');
+}
+
+function triggerEarningsRefresh() {
+  loadEarnings();
+}
+
+function filterEarningsByTicker(ticker) {
+  $('earnings-ticker-filter').value = ticker;
+  loadEarnings();
+}
+
+async function loadQuickTickers() {
+  const tickers = await fetch('/api/tickers').then(r=>r.json());
+  $('quick-tickers').innerHTML = tickers.slice(0,10).map(t=>
+    `<button onclick="quickPipeline('${t.ticker}')" class="text-xs border border-gray-700 rounded px-2 py-1 text-gray-400 hover:border-blue-500 hover:text-blue-400">${t.ticker}</button>`
+  ).join('');
+}
+function quickPipeline(ticker) { $('pipeline-ticker').value=ticker; loadPipeline(); }
+
+async function loadPipeline() {
+  const ticker=$('pipeline-ticker').value.trim().toUpperCase();
+  if (!ticker) return;
+  const data = await fetch(`/api/pipeline/${ticker}`).then(r=>r.json());
+  if (data.error) { $('pipeline-empty').textContent=data.error; $('pipeline-content').classList.add('hidden'); $('pipeline-empty').classList.remove('hidden'); return; }
+  $('pipeline-content').classList.remove('hidden'); $('pipeline-empty').classList.add('hidden');
+  const company = data.info.company_name||ticker;
+  $('pl-company').innerHTML = `${company} <button onclick="pinEntity('company', '${ticker}', 'overview')" class="text-xs text-gray-600 hover:text-blue-400 ml-2 align-middle" title="Pin company">📌</button>`;
+  $('pl-cik').textContent=data.info.cik||'—';
+  $('pl-trial-count').textContent=data.trials.length;
+  $('pl-filing-count').textContent=data.filings.length;
+  $('pl-trials-body').innerHTML=data.trials.map(t=>`
+    <tr>
+      <td><a href="https://clinicaltrials.gov/study/${t.nct_id}" target="_blank" class="text-blue-400 hover:underline font-mono text-xs">${t.nct_id}</a></td>
+      <td>${phaseTag(t.phase)}</td><td>${statusTag(t.status)}</td>
+      <td class="text-gray-400 text-xs">${(t.condition||'').slice(0,30)}</td>
+      <td class="text-gray-500 text-xs">${t.primary_completion_date||'—'}</td>
+      <td>${t.results_posted?'<span class="text-green-400">✓</span>':'<span class="text-gray-700">—</span>'}</td>
+    </tr>`).join('')||'<tr><td colspan="6" class="text-gray-600 text-center py-4">No trials</td></tr>';
+  $('pl-catalysts').innerHTML=data.catalysts.length?data.catalysts.map(c=>`<div class="text-xs mb-2"><span class="text-yellow-300 font-mono">${c.event_date}</span> ${eventTag(c.event_type)} <span class="text-gray-300 ml-1">${(c.drug_name||'').slice(0,20)}</span></div>`).join(''):'<div class="text-gray-600 text-xs">No catalysts</div>';
+  $('pl-filings').innerHTML=data.filings.length?data.filings.map(f=>`<div class="text-xs mb-2"><span class="text-gray-500 font-mono">${f.filed_date||'—'}</span> <span class="ml-2 ${f.form_type==='8-K'?'text-orange-300':'text-indigo-300'}">${f.form_type}</span><a href="${f.filing_url}" target="_blank" class="text-blue-500 ml-2">→</a></div>`).join(''):'<div class="text-gray-600 text-xs">No filings</div>';
+}
+
+let activeNewsFilter='all';
+function setNewsFilter(cat) {
+  activeNewsFilter=cat;
+  document.querySelectorAll('.news-filter-btn').forEach(b=>{b.classList.remove('active','text-gray-300','border-blue-600');b.classList.add('text-gray-500','border-gray-700');});
+  const btn=$(`nf-${cat}`);
+  if(btn){btn.classList.add('active','text-gray-300','border-blue-600');btn.classList.remove('text-gray-500','border-gray-700');}
+  loadNews();
+}
+
+let _newsTabItems = [];  // Global store for news tab items
+
+async function loadNews() {
+  const ticker=$('news-ticker-filter').value.trim();
+  const params=new URLSearchParams({limit:80});
+  if(activeNewsFilter!=='all') params.set('category',activeNewsFilter);
+  if(ticker) params.set('ticker',ticker);
+  const [items,sources]=await Promise.all([fetch('/api/news?'+params).then(r=>r.json()),fetch('/api/news/sources').then(r=>r.json())]);
+  _newsTabItems = items;  // Store in global
+  const feed=$('news-feed'),empty=$('news-empty'),badge=$('news-badge');
+  if(items.length){badge.textContent=items.length;badge.classList.remove('hidden');}
+  if(!items.length){feed.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  feed.innerHTML=items.map((item, idx)=>{
+    const tBadges=item.tickers?item.tickers.split(',').map(t=>`<span class="text-xs px-1.5 py-0.5 rounded bg-blue-900 text-blue-300 mr-1">${t}</span>`).join(''):'';
+    const nctBadge=item.nct_id?`<a href="https://clinicaltrials.gov/study/${item.nct_id}" target="_blank" onclick="event.stopPropagation()" class="text-xs px-1.5 py-0.5 rounded bg-indigo-900 text-indigo-300 mr-1 hover:underline">${item.nct_id}</a>`:'';
+    return `<a href="${item.url||'#'}" target="_blank" rel="noopener" class="news-card block cursor-pointer hover:bg-gray-800 -mx-3 px-3 py-2 rounded transition-colors">
+      <div class="flex items-start gap-3"><div class="flex-1 min-w-0">
+        <div class="flex flex-wrap items-center gap-2 mb-1.5">${catTag(item.category)}<span class="text-xs text-gray-600">${item.source||''}</span><span class="text-xs text-gray-700">${(item.published_at||'').slice(0,10)}</span>${tBadges}${nctBadge}</div>
+        <div class="news-title text-sm font-medium text-gray-200 leading-snug mb-1 hover:text-blue-300">${item.title}</div>
+        ${item.summary?`<div class="text-xs text-gray-500 leading-relaxed line-clamp-2">${item.summary}</div>`:''}
+      </div><span class="text-gray-700 text-xs mt-0.5 shrink-0">↗</span></div>
+    </a>`;
+  }).join('');
+  $('news-sources').innerHTML=sources.map(s=>`<div class="flex items-center justify-between text-xs mb-2 cursor-pointer hover:text-blue-400" onclick="filterBySource('${s.source}')"><span class="text-gray-400 truncate mr-2">${s.source}</span><span class="text-gray-600">${s.count}</span></div>`).join('')||'<div class="text-gray-600 text-xs">No sources yet</div>';
+  const tm={};
+  items.forEach(item=>{if(item.tickers)item.tickers.split(',').forEach(t=>{tm[t]=(tm[t]||0)+1;});});
+  $('news-tickers').innerHTML=Object.entries(tm).sort((a,b)=>b[1]-a[1]).slice(0,15).map(([t,n])=>`<div class="flex items-center justify-between text-xs mb-1.5 cursor-pointer hover:text-blue-400" onclick="filterNewsByTicker('${t}')"><span class="text-blue-400 font-bold">${t}</span><span class="text-gray-600">${n}</span></div>`).join('')||'<div class="text-gray-600 text-xs">No tickers</div>';
+}
+function filterBySource(src){fetch('/api/news?limit=80&source='+encodeURIComponent(src)).then(r=>r.json()).then(items=>{$('news-feed').innerHTML=items.map(item=>`<div class="news-card"><a href="${item.url||'#'}" target="_blank" rel="noopener"><div class="news-title text-sm font-medium text-gray-200">${item.title}</div><div class="text-xs text-gray-600 mt-1">${(item.published_at||'').slice(0,10)}</div></a></div>`).join('');});}
+function filterNewsByTicker(ticker){$('news-ticker-filter').value=ticker;loadNews();}
+async function triggerNewsIngest(){
+  const btn=$('news-ingest-btn');btn.textContent='⟳ Fetching...';btn.disabled=true;
+  try{const r=await fetch('/api/news/ingest').then(r=>r.json());btn.textContent=`✓ ${r.upserted} items`;setTimeout(()=>loadNews(),500);}
+  catch{btn.textContent='✗ Error';}
+  setTimeout(()=>{btn.textContent='↻ Fetch Latest';btn.disabled=false;},3000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function refreshAll() {
+  await loadStatsBar();
+  if (activeTab==='dashboard') currentLayout.forEach(w=>loadWidgetContent(w));
+  else if (activeTab==='trials') loadTrials();
+  else if (activeTab==='catalysts') loadCatalysts();
+  else if (activeTab==='filings') loadFilings();
+  else if (activeTab==='news') loadNews();
+}
+
+async function initDashboard() {
+  await loadStatsBar();
+  const saved = loadLayout();
+  currentLayout = saved && saved.length ? saved : [];
+  
+  // Wait for DOM layout to stabilize before rendering widgets
+  requestAnimationFrame(() => {
+    renderGrid();
+    if (!currentLayout.length) {
+      loadSuggestion();
+    }
+  });
+}
+
+// Add filings ticker filter support
+const origFilings = window.fetch;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await initDashboard();
+  loadQuickTickers();
+  setInterval(loadStatsBar, 30000);
+});
+</script>
+</body>
+</html>

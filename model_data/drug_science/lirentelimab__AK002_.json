@@ -1,0 +1,11 @@
+{
+  "drug": "lirentelimab (AK002)",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Allergy. 2024 Jan;79(1):37-51. doi: 10.1111/all.15850. Epub 2023 Aug 22.\n\nMast cell silencing: A novel therapeutic approach for urticaria and other mast \ncell-mediated diseases.\n\nMetz M(1)(2)(3), Kolkhir P(1)(2)(3), Altrichter S(1)(2)(3)(4), Siebenhaar \nF(1)(2)(3), Levi-Schaffer F(5), Youngblood BA(6), Church MK(1)(2)(3), Maurer \nM(1)(2)(3).\n\nAuthor information:\n(1)Institute of Allergology, Charité-Universitätsmedizin Berlin (corporate \nmember of Freie Universität Berlin, Humboldt-Universität zu Berlin), Berlin, \nGermany.\n(2)Berlin Institute of Health, Berlin, Germany.\n(3)Fraunhofer Institute for Translational Medicine and Pharmacology ITMP, \nImmunology and Allergology IA, Berlin, Germany.\n(4)Department of Dermatology and Venerology, Kepler University Hospital, Linz, \nAustria.\n(5)Pharmacology and Experimental Therapeutics Unit, Institute for Drug Research, \nSchool of Pharmacy, Faculty of Medicine, The Hebrew University of Jerusalem, \nJerusalem, Israel.\n(6)Allakos Inc., San Carlos, California, USA.\n\nChronic urticaria (CU) is a mast cell (MC)-dependent disease with limited \ntherapeutic options. Current management strategies are directed at inhibiting \nIgE-mediated activation of MCs and antagonizing effects of released mediators. \nDue to the complexity and heterogeneity of CU and other MC diseases and \nmechanisms of MC activation-including multiple activating receptors and ligands, \ndiverse signaling pathways, and a menagerie of mediators-strategies of MC \ndepletion or MC silencing (i.e., inhibition of MC activation via binding of \ninhibitory receptors) have been developed to overcome limitations of singularly \ntargeted agents. MC silencers, such as agonist monoclonal antibodies that engage \ninhibitory receptors (e.g., sialic acid-binding immunoglobulin-like lectin8 \n-[Siglec-8] [lirentelimab/AK002], Siglec-6 [AK006], and CD200R [LY3454738]), \nhave reached preclinical and clinical stages of development. In this review, we \n(1) describe the role of MCs in the pathoge"
+      }
+    ]
+  }
+}

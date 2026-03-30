@@ -1,0 +1,11 @@
+{
+  "drug": "JNJ-64281802",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Molecules. 2024 Aug 27;29(17):4047. doi: 10.3390/molecules29174047.\n\nOrthoflaviviral Inhibitors in Clinical Trials, Preclinical In Vivo Efficacy \nTargeting NS2B-NS3 and Cellular Antiviral Activity via Competitive Protease \nInhibition.\n\nCavina L(1), Bouma MJ(1), Gironés D(1)(2), Feiters MC(1).\n\nAuthor information:\n(1)Institute for Molecules and Materials, Faculty of Science, Radboud \nUniversity, Heyendaalseweg 135, 6525 AJ Nijmegen, The Netherlands.\n(2)Protinhi Therapeutics, Transistorweg 5, 6534 AT Nijmegen, The Netherlands.\n\nOrthoflaviviruses, including zika (ZIKV), West Nile (WNV), and dengue (DENV) \nvirus, induce severely debilitating infections and contribute significantly to \nthe global disease burden, yet no clinically approved antiviral treatments \nexist. This review offers a comprehensive analysis of small-molecule drug \ndevelopment targeting orthoflaviviral infections, with a focus on NS2B-NS3 \ninhibition. We systematically examined clinical trials, preclinical efficacy \nstudies, and modes of action for various viral replication inhibitors, \nemphasizing allosteric and orthosteric drugs inhibiting NS2B-NS3 protease with \nin vivo efficacy and in vitro-tested competitive NS2B-NS3 inhibitors with \ncellular efficacy. Our findings revealed that several compounds with in vivo \npreclinical efficacy failed to show clinical antiviral efficacy. NS3-NS4B \ninhibitors, such as JNJ-64281802 and EYU688, show promise, recently entering \nclinical trials, underscoring the importance of developing novel viral \nreplication inhibitors targeting viral machinery. To date, the only NS2B-NS3 \ninhibitor that has undergone clinical trials is doxycycline, however, its \nmechanism of action and clinical efficacy as viral growth inhibitor require \nadditional investigation. SYC-1307, an allosteric inhibitor, exhibits high in \nvivo efficacy, while temoporfin and methylene blue represent promising \northosteric non-competitive inhibitors. Compound 71, a competitive NS2B-NS3 \ninhibitor, eme"
+      }
+    ]
+  }
+}

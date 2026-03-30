@@ -1,0 +1,11 @@
+{
+  "drug": "Efgartigimod PH20 SC",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Adv Ther. 2024 Dec;41(12):4628-4647. doi: 10.1007/s12325-024-03014-5. Epub\n2024  Oct 29.\n\nRisk-Benefit Analysis of Novel Treatments for Patients with Generalized \nMyasthenia Gravis.\n\nSmith AG(1), Wolfe GI(2), Habib AA(3), Qi CZ(4), Yang H(5), Du M(5), Chen X(5), \nGelinas D(6), Brauer E(6), Phillips G(6), Saccà F(7).\n\nAuthor information:\n(1)Department of Neurology, Virginia Commonwealth University, Richmond, VA, USA.\n(2)Department of Neurology, University at Buffalo/SUNY, Buffalo, NY, USA.\n(3)Department of Neurology, University of California-Irvine Medical Center, \nIrvine, CA, USA.\n(4)Argenx, Inc., Boston, MA, USA. cqi@argenx.com.\n(5)Analysis Group, Inc., Boston, MA, USA.\n(6)Argenx, Inc., Boston, MA, USA.\n(7)GENESIS Department, University of Naples Federico II, Naples, Campania, \nItaly.\n\nINTRODUCTION: This study used network meta-analysis (NMA) to inform and compare \nthe number needed to treat (NNT), number needed to harm (NNH), and cost per \nimproved outcome (CPIO) associated with more recently approved treatments for \nanti-acetylcholine receptor antibody-positive (anti-AChR Ab+) generalized \nmyasthenia gravis (gMG).\nMETHODS: Clinical trials of neonatal Fc receptor (FcRn) inhibitors, efgartigimod \nintravenous (IV) and rozanolixizumab, and complement inhibitors, ravulizumab and \nzilucoplan, versus placebo (with background conventional treatment) were \nincluded in the primary NMA to compare efficacy and safety outcomes. The outputs \nfrom the NMAs were used to estimate NNT and NNH of each treatment versus \nplacebo. CPIO (2024 USD) was estimated for a ≥ 3- or ≥ 5-point reduction from \nbaseline in Quantitative Myasthenia Gravis (QMG) and Myasthenia \nGravis-Activities of Daily Living (MG-ADL) scores. Sensitivity analyses were \nperformed adding efgartigimod PH20 subcutaneous (SC) and eculizumab to the NMA.\nRESULTS: Efgartigimod IV had the lowest NNT versus placebo for achieving a ≥ 3- \nand ≥ 5-point reduction in QMG, as well as a ≥ 5-point reduction in MG-ADL, \nwhereas "
+      }
+    ]
+  }
+}

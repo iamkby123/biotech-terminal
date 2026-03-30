@@ -1,0 +1,11 @@
+{
+  "drug": "Any short-acting β agonist as prescribed by treating physician as standard of care",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Ir Med J. 2009 Mar;102(3):73-6.\n\nAn analysis of the utilisation and expenditure of medicines dispensed for the \nmanagement of severe asthma.\n\nMcGowan B(1), Bennett K, Barry M, Owens M, O'Connor M.\n\nAuthor information:\n(1)Department of Pharmacology and Therapeutics, Trinity Centre for Health \nSciences, St James's Hospital, James's St, Dublin 8. mcgowab@tcd.ie\n\nThere are approximately 6,300 people in Ireland with a diagnosis of Chronic \nObstructive Pulmonary Disease (COPD) and with a fast growing elderly population \nthe incidence of COPD is likely to increase. This study examines the prescribing \npatterns of medicines dispensed for the management Asthma/COPD in patients over \nthe age of 35 years using the HSE-Primary Care Reimbursement Services (PCRS) \nprescribing databases. The HSE-PCRS pharmacy claims data, which covers all those \nover 70 years of age and means tested for those less than 70 years, was analysed \nfor the years 2005/2006. Approximately 26,548 (17.9%) of patients who were \nprescribed a respiratory drug received inhaled short-acting beta2 agonists in \ncombination with a regular standard-dose inhaled corticosteroid. A further 5,044 \n(3.4%) were also prescribed a regular inhaled long-acting beta2 agonist \n(salmeterol or formoterol). A total of 2506 patients (6.2%) on combination \ntherapy were co-prescribed four different anti-asthmatic treatments inclusive of \noral prednisolone. A small proportion of the patients prescribed a respiratory \ndrug were co-prescribed nicotine replacement therapy (n = 5177, 3.5%). In total \nthere were 9,728 (6.2%) patients prescribed a mucolytic drug in combination with \na respiratory drug and the rate of co-prescribing with antibiotics was 22%. COPD \nis a debilitating disease that is primarily caused by smoking and is therefore \nlargely preventable. The HSE-PCRS pharmacy claims data is a valuable tool for \nhelping to assess the burden of this disease in the Irish context.\n\nPMID: 19489193 [Indexed for MEDLINE]"
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "drug": "Insulin Lispro low mixture",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Diabetes Res Clin Pract. 2018 Jan;135:134-142. doi: \n10.1016/j.diabres.2017.10.006. Epub 2017 Nov 16.\n\nBaseline factors associated with better response to insulin lispro low mixture \nor insulin glargine: A post hoc analysis of the DURABLE study.\n\nJia N(1), Kindracki Z(2), Rodriguez A(3).\n\nAuthor information:\n(1)Eli Lilly and Company, Inpolis, IN, USA. Electronic address: \njia_nan2@lilly.com.\n(2)Eli Lilly and Company, Warsaw, Poland. Electronic address: \nkindracki_zbigniew@lilly.com.\n(3)Eli Lilly and Company, Alcobendas, Spain. Electronic address: \nrodriguez_angel@lilly.com.\n\nAIMS: To identify baseline characteristics associated with better efficacy and \nsafety responses to twice-daily insulin lispro low mixture (LM) or once-daily \ninsulin glargine (IG) in insulin-naïve patients with type 2 diabetes (T2D).\nMETHODS: This post hoc analysis of the DURABLE study used the gradient-boosting \nmethod to generate hypothetical outcomes with the alternative treatment to \nassigned study drug to evaluate the potential additional benefit of one insulin \nover the other in association with influential baseline covariates in the same \npatient. The magnitude of additional benefit was further quantified by the \ngeneralized linear model and recursive partitioning regression tree method.\nRESULTS: Baseline characteristics with the highest relative influence on 24-week \noutcomes in the overall population (LM, n = 1045; IG, n = 1046) were: for HbA1c \nchange: fasting plasma glucose (FPG) (29.31%), age (28.57%); for reaching target \nHbA1c <7% (<53 mmol/mol): weight (22.41%); for weight change: weight (18.54%); \nfor FPG: FPG (43.66%), age (20.8%); for 30-day hypoglycemia: FPG (57.09%), \nweight (10.1%). LM showed superiority over IG for HbA1c reduction and reaching \nHbA1c <7% overall, with clinically significant differences in HbA1c reduction \n(>0.4%) in some subpopulations. IG was superior over LM in most patients for \nless weight gain and hypoglycemia and lower FPG.\nCONCLUSIONS: Difference"
+      }
+    ]
+  }
+}

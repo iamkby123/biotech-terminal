@@ -1,0 +1,11 @@
+{
+  "drug": "Enteric Coated Mycophenolate Sodium (EC-MPS)",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. J Clin Pharmacol. 2019 Apr;59(4):578-589. doi: 10.1002/jcph.1352. Epub 2018\nDec  10.\n\nPopulation Pharmacokinetics and Bayesian Estimation of Mycophenolic Acid \nExposure in Chinese Renal Allograft Recipients After Administration of EC-MPS.\n\nChen B(1), Shao K(2), An HM(2), Shi HQ(1), Lu JQ(1), Zhai XH(1), Liu XX(1), Wang \nXH(2), Xu D(2), Zhou PJ(2).\n\nAuthor information:\n(1)Department of Pharmacy, Ruijin Hospital, Shanghai Jiao Tong University School \nof Medicine, Shanghai, China.\n(2)Organ Transplantation Center, Ruijin Hospital, Shanghai Jiao Tong University \nSchool of Medicine, Shanghai, China.\n\nThe aim of the present study is to establish a population pharmacokinetic (PPK) \nmodel of mycophenolic acid (MPA) and limited sampling strategy models for the \nestimation of MPA exposure in Chinese adult renal allograft recipients following \noral administration of enteric coated mycophenolate sodium (EC-MPS). A total of \n74 sets of full pharmacokinetic profiles and 47 sets of MPA-sparing samples were \ncollected from 102 renal transplant recipients who received oral EC-MPS. The MPA \nconcentration was determined by an enzyme-multiplied immunoassay technique, and \nthe pathophysiologic data were recorded. The PPK model was constructed using \nnonlinear mixed-effects modeling, and the limited sampling strategy models for \nMPA were established by using multiple regression analysis and the maximum a \nposteriori Bayesian assay based on 2 to 4 sampling time points following EC-MPS \nadministration. The pharmacokinetics of MPA were best described by a \n2-compartment model with a first-order absorption process and a lag time of \nabsorption. The clearance of MPA was 12.3 ± 1.14 L/h. Comedicating with \ncyclosporine A was found to have a significant impact on the \nclearance/bioavailability of MPA (P < .01). Sampling strategies consisted of \nplasma concentration at 1.5, 2, 4 (C1.5-C2-C4) hours and 1.5, 2, 4, 6 \n(C1.5-C2-C4-C6) hours after EC-MPS administration were shown to be suitable for"
+      }
+    ]
+  }
+}

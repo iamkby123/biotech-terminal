@@ -1,0 +1,11 @@
+{
+  "drug": "recombinant human BNP(1-32)",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Pharm Res. 2004 Nov;21(11):2105-11. doi: 10.1023/b:pham.0000048203.30568.81.\n\nAlbuBNP, a recombinant B-type natriuretic peptide and human serum albumin fusion \nhormone, as a long-term therapy of congestive heart failure.\n\nWang W(1), Ou Y, Shi Y.\n\nAuthor information:\n(1)Human Genome Sciences, Inc, Rockville, Maryland 20850, USA.\n\nPURPOSE: B-type natriuretic peptide (BNP) has been in clinical use for the \ntreatment of decompensated congestive heart failure. However, BNP has a very \nshort half-life in circulation, which limits its application to acute CHF and \nrequires continuous i.v. infusion. To provide superior pharmacological benefits \nof BNP to other stages of chronic congestive heart failure and to eliminate \nproblems associated with drug delivery via continuous i.v. infusion, we have \ndesigned and evaluated AlbuBNP, a long-acting form of BNP by recombinant fusion \nto human serum albumin for use in chronic congestive heart failure, post-acute \nfollow-up, and postmyocardial infarction.\nMETHODS: Human BNP (1-32) was seamlessly fused to mature human serum albumin at \nN-terminus to create AlbuBNP. The bioactivities of AlbuBNP were evaluated by \nnatriuretic peptide receptor-A mediated cGMP activation assay, hemodynamic \nresponses, and plasma cGMP elevation. The pharmacokinetic properties were \ndetermined after single i.v. or s.c. bolus injection in C57/BL6 mice.\nRESULTS: AlbuBNP had approxiamtely the same maximal bioactivity as BNP to \nactivate cGMP in the in vitro NPRA/cGMP assay. The EC50s were 28.4+/-1.2 and \n0.46+/-1.1 nM for AlbuBNP and BNP, respectively. In spontaneously hypertensive \nrats, AlbuBNP lowered both systolic and diastolic blood pressure, having \nsustainable mean arterial pressure reduction for more than 2 days. Six nmol/kg \nAlbuBNP i.v. bolus in mice increased plasma cGMP level 5.6-fold over the \nbaseline. The elimination half-life in mice was dramatically increased from 3 \nmin for BNP to 12-19 h for AlbuBNP.\nCONCLUSIONS: AlbuBNP is bioactive and "
+      }
+    ]
+  }
+}

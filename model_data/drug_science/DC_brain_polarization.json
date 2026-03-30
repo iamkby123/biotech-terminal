@@ -1,0 +1,11 @@
+{
+  "drug": "DC brain polarization",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Neurology. 2005 Mar 8;64(5):872-5. doi: 10.1212/01.WNL.0000152986.07469.E9.\n\nSafety and cognitive effect of frontal DC brain polarization in healthy \nindividuals.\n\nIyer MB(1), Mattu U, Grafman J, Lomarev M, Sato S, Wassermann EM.\n\nAuthor information:\n(1)Brain Stimulation Unit and Cognitive Neuroscience, National Institute of \nNeurological Disorders and Stroke, National Institutes of Health, Bethesda, MD, \nUSA.\n\nBACKGROUND: Data from the human motor cortex suggest that, depending on \npolarity, direct current (DC) brain polarization can depress or activate \ncortical neurons. Activating effects on the frontal lobe might be beneficial for \npatients with frontal lobe disorders. This phase 1 study tested the safety of \nfrontal DC, including its effects on frontal and other brain functions.\nMETHODS: The authors applied 20 minutes of anodal, cathodal, or sham DC to the \nleft prefrontal cortex in three groups of right-handed subjects and looked for \neffects on global measures of processing and psychomotor speed, emotion, and \nverbal fluency, a measure of local cortical function. In one experiment (n = \n30), the authors tested before and after 1 mA DC and monitored EEG in 9 \nsubjects. In two other experiments using 1 mA (n = 43) and 2 mA (n = 30), the \nauthors tested before and then starting 5 minutes after the onset of DC.\nRESULTS: All subjects tolerated DC well. There were no significant effects on \nperformance with 1 mA DC. At 2 mA, verbal fluency improved significantly with \nanodal and decreased mildly with cathodal DC. There were no clinically \nsignificant effects on the other measures.\nCONCLUSIONS: Limited exposure to direct current polarization of the prefrontal \ncortex is safe and can enhance verbal fluency selectively in healthy subjects. \nAs such, it deserves consideration as a procedure to improve frontal lobe \nfunction in patients.\n\nDOI: 10.1212/01.WNL.0000152986.07469.E9\nPMID: 15753425 [Indexed for MEDLINE]"
+      }
+    ]
+  }
+}

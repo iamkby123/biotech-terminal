@@ -1,0 +1,11 @@
+{
+  "drug": "SCH 900435",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Br J Clin Pharmacol. 2013 Jun;75(6):1455-67. doi: 10.1111/bcp.12015.\n\nEarly stage development of the glycine-1 re-uptake inhibitor SCH 900435: central \nnervous system effects compared with placebo in healthy men.\n\nLiem-Moolenaar M(1), Peeters P, Kamerling IM, Hogg C, Holder G, Kleijn HJ, \nSpaans E, Udo De Haes J, de Kam ML, Franson KL, Cohen AF, van Gerven JM.\n\nAuthor information:\n(1)Centre for Human Drug Research, Zernikedreef 10, Leiden, The Netherlands. \nmariekemoolenaar@me.com\n\nAIMS: To report the first three studies with SCH 900435, a selective glycine-1 \nre-uptake inhibitor in development for treating schizophrenia, using systematic \nevaluations of pharmacodynamics to understand the observed effects.\nMETHODS: Three double-blind, placebo-controlled studies (single, visual effect \nand multiple dose) were performed. In the single and multiple dose study SCH \n900435 (0.5-30 mg) was given to healthy males and frequent pharmacokinetic and \npharmacodynamic measurements were performed. The visual effects study \nincorporated visual electrophysiological measures of macular, retinal and \nintracranial visual pathway function.\nRESULTS: In the single dose study (highest difference, 95% CI, P) increases in \nsmooth pursuit eye movements (8, 12 mg (-6.09, 10.14, -2.04, 0.013), 30 mg), \npupil : iris ratio (20 and 30 mg (-0.065, 0.09, -0.04, <0.0001)), VAS colour \nperception (30 mg (-9.48, 13.05, -5.91, <0.0001)) and changes in spontaneous \nreports of visual disturbance were found, while FSH (8 mg (0.42, 0.18, 0.66, \n0.0015), 12, 20 mg), LH (8-30 mg (1.35, 0.65, 2.05, 0.0003)) and EEG alpha2 \nactivity decreased (12, 20, 30 mg (0.27, 0.14, 0.41, 0.0002)). A subsequent \ndedicated visual effects study demonstrated that visual effects were transient \nwithout underlying electrophysiological changes. This provided enough safety \ninformation for starting a multiple ascending dose study, showing less visual \nsymptoms after twice daily dosing and titration, possibly due to tolerance.\n"
+      }
+    ]
+  }
+}

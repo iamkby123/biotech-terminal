@@ -1,0 +1,20 @@
+{
+  "accuracy": 0.8559322033898306,
+  "f1_macro": 0.8520976185209762,
+  "f1_failure": 0.8282828282828283,
+  "mcc": 0.7146640377465397,
+  "log_loss": 0.24005135218350948,
+  "train_size": 667,
+  "test_size": 118,
+  "n_features": 51,
+  "best_params": {
+    "subsample": 0.8,
+    "n_estimators": 500,
+    "min_child_weight": 3,
+    "max_depth": 4,
+    "learning_rate": 0.01,
+    "gamma": 0.1,
+    "colsample_bytree": 0.7
+  },
+  "v9_comparison": "V9 had 33 features, MCC=0.641"
+}

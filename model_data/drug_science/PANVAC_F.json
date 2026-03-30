@@ -1,0 +1,11 @@
+{
+  "drug": "PANVAC-F",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. J Transl Med. 2007 Nov 26;5:60. doi: 10.1186/1479-5876-5-60.\n\nPoxvirus-based vaccine therapy for patients with advanced pancreatic cancer.\n\nKaufman HL(1), Kim-Schulze S, Manson K, DeRaffele G, Mitcham J, Seo KS, Kim DW, \nMarshall J.\n\nAuthor information:\n(1)The Tumor Immunology Laboratory, Division of Surgical Oncology, Columbia \nUniversity, New York, NY, USA. hlk2003@columbia.edu\n\nPURPOSE: An open-label Phase 1 study of recombinant prime-boost poxviruses \ntargeting CEA and MUC-1 in patients with advanced pancreatic cancer was \nconducted to determine safety, tolerability and obtain preliminary data on \nimmune response and survival.\nPATIENTS AND METHODS: Ten patients with advanced pancreatic cancer were treated \non a Phase I clinical trial. The vaccination regimen consisted of vaccinia virus \nexpressing tumor antigens carcinoembryonic antigen (CEA) and mucin-1 (MUC-1) \nwith three costimulatory molecules B7.1, ICAM-1 and LFA-3 (TRICOM) (PANVAC-V) \nand fowlpox virus expressing the same antigens and costimulatory molecules \n(PANVAC-F). Patients were primed with PANVAC-V followed by three booster \nvaccinations using PANVAC-F. Granulocyte-macrophage colony-stimulating factor \n(GM-CSF) was used as a local adjuvant after each vaccination and for 3 \nconsecutive days thereafter. Monthly booster vaccinations for up to 12 months \nwere provided for patients without progressive disease. Peripheral blood was \ncollected before, during and after vaccinations for immune analysis.\nRESULTS: The most common treatment-related adverse events were mild \ninjection-site reactions. Antibody responses against vaccinia virus was observed \nin all 10 patients and antigen-specific T cell responses were observed in 5 out \nof 8 evaluable patients (62.5%). Median overall survival was 6.3 months and a \nsignificant increase in overall survival was noted in patients who generated \nanti CEA- and/or MUC-1-specific immune responses compared with those who did not \n(15.1 vs 3.9 months, respectively; P = ."
+      }
+    ]
+  }
+}

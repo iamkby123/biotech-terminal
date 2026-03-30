@@ -1,0 +1,11 @@
+{
+  "drug": "TEV-50717",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Clin Transl Sci. 2020 Jul;13(4):707-717. doi: 10.1111/cts.12754. Epub 2020 Mar\n 10.\n\nPharmacokinetic and Metabolic Profile of Deutetrabenazine (TEV-50717) Compared \nWith Tetrabenazine in Healthy Volunteers.\n\nSchneider F(1), Bradbury M(2), Baillie TA(3), Stamler D(2), Hellriegel E(4), Cox \nDS(5), Loupe PS(6), Savola JM(7), Rabinovich-Guilatt L(8).\n\nAuthor information:\n(1)Teva Pharmaceutical Industries, Ratiopharm GmbH, Ulm, Germany.\n(2)Formerly of Teva Pharmaceuticals, Alterity Therapeutics Limited, Newark, \nCalifornia, USA.\n(3)Department of Medicinal Chemistry, School of Pharmacy, University of \nWashington, Seattle, Washington, USA.\n(4)Teva Pharmaceutical Products R&D, Inc., West Chester, Pennsylvania, USA.\n(5)Formerly of Teva Pharmaceuticals, Pfizer Corporation, Norristown, \nPennsylvania, USA.\n(6)Teva Pharmaceuticals Industries, New Orleans, Louisiana, USA.\n(7)Teva Pharmaceuticals International GmbH, Basel, Switzerland.\n(8)Teva Pharmaceutical Industries, Netanya, Israel.\n\nDeutetrabenazine (Austedo, Teva Pharmaceuticals) is a deuterated form of \ntetrabenazine. It is the first deuterated drug to receive US regulatory approval \nand is approved for treatment of chorea in Huntington's disease and tardive \ndyskinesia. Two oral single dose studies comparing deutetrabenazine (25 mg) with \ntetrabenazine (25 mg) in healthy volunteers evaluated the impact of deuteration \non pharmacokinetics of the active metabolites, alpha-dihydrotetrabenazine \n(α-HTBZ) and beta-dihydrotetrabenazine (β-HTBZ), metabolite profile, safety, and \ntolerability. In the two-way, cross-over study, the mean elimination half-life \nof deuterated total (α + β)-HTBZ was doubled compared with nondeuterated total \n(α + β)-HTBZ, with a twofold increase in overall mean exposure (area under the \nconcentration-time curve from zero to infinity (AUC0-inf )) and a marginal \nincrease in mean peak plasma concentration (Cmax ). In the mass balance and \nmetabolite profiling study, there were no novel plasma or urina"
+      }
+    ]
+  }
+}

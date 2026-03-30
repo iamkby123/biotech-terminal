@@ -1,0 +1,23 @@
+{
+  "version": "v2",
+  "training_size": 4250,
+  "test_size": 750,
+  "optimist": {
+    "acc": 0.6507,
+    "f1m": 0.6171,
+    "mcc": 0.2677,
+    "n_features": 16
+  },
+  "pessimist": {
+    "acc": 0.6173,
+    "f1m": 0.6124,
+    "mcc": 0.2259,
+    "n_features": 16
+  },
+  "combined": {
+    "acc": 0.664,
+    "f1m": 0.6463,
+    "mcc": 0.3015
+  },
+  "agreement_rate": 0.6627
+}

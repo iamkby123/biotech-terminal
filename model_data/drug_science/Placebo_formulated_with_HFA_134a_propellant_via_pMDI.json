@@ -1,0 +1,11 @@
+{
+  "drug": "Placebo formulated with HFA-134a propellant via pMDI",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Chest. 2002 Sep;122(3):806-11. doi: 10.1378/chest.122.3.806.\n\nFluticasone propionate via the Diskhaler or hydrofluoroalkane-134a metered-dose \ninhaler on methacholine-induced airway hyperresponsiveness.\n\nLangley SJ(1), Holden J, Derham A, Hedgeland P, Sharma RK, Woodcock A.\n\nAuthor information:\n(1)Medicines Evaluation Unit, Wythenshawe Hospital, Manchester.\n\nSTUDY OBJECTIVE: s: To compare the effect of 4 weeks of treatment with \nfluticasone propionate (FP), 100 micro g bid, delivered either via the Diskhaler \n(GlaxoSmithKline; Middlesex, UK) or a hydrofluoroalkane (HFA)-134a pressurized \nmetered-dose inhaler (pMDI) on airway responsiveness.\nDESIGN: A single-center, randomized, double-blind, double-dummy, \nplacebo-controlled crossover study.\nSETTING: Outpatients.\nPATIENTS: Patients with mild asthma who had not received corticosteroids for 4 \nweeks prior to the study.\nINTERVENTIONS: FP, 100 micro g bid, via the Diskhaler, HFA-134a pMDI, or placebo \nfor periods of 4 weeks.\nMEASUREMENTS AND RESULTS: The primary efficacy variable was the provocative dose \nof methacholine causing a 20% fall in FEV(1) (PD(20)) at the end of each 4-week \ntreatment period. The FP formulations were defined as equivalent if the \ntreatment difference was within +/- 1 doubling dose of methacholine. Forty-seven \npatients were included in the per-protocol population. The baseline PD(20) \ngeometric mean was 0.21 mg, which increased to 0.55 mg with FP via the HFA-134a \npMDI and to 0.68 mg with FP via the Diskhaler. The treatment difference between \nadjusted means was - 0.16 doubling doses (95% confidence interval, - 0.62 to \n0.31 doubling doses; p = 0.503). Both significantly decreased airway \nresponsiveness compared to placebo (p < 0.001), and also significantly increased \nlung function with no difference between the two active groups. FP was well \ntolerated with few adverse events and no effect on serum cortisol levels.\nCONCLUSIONS: FP delivered via the HFA-134a pMDI is equivalent to FP via the"
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "drug": "MSTT1041A",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. J Allergy Clin Immunol. 2021 Sep;148(3):790-798. doi: \n10.1016/j.jaci.2021.03.044. Epub 2021 Apr 16.\n\nAstegolimab (anti-ST2) efficacy and safety in adults with severe asthma: A \nrandomized clinical trial.\n\nKelsen SG(1), Agache IO(2), Soong W(3), Israel E(4), Chupp GL(5), Cheung DS(6), \nTheess W(6), Yang X(6), Staton TL(6), Choy DF(6), Fong A(6), Dash A(6), Dolton \nM(6), Pappu R(6), Brightling CE(7).\n\nAuthor information:\n(1)Department of Thoracic Medicine and Surgery, Lewis Katz School of Medicine at \nTemple University, Philadelphia, Pa.\n(2)Allergy and Clinical Immunology, Faculty of Medicine, Transylvania \nUniversity, Brasov, Romania.\n(3)Alabama Allergy and Asthma Center and Clinical Research Center of Alabama, \nBirmingham, Ala.\n(4)Divisions of Pulmonary and Critical Care Medicine and Allergy and Immunology, \nBrigham and Women's Hospital, and Harvard Medical School, Boston, Mass.\n(5)Division of Pulmonary and Critical Care and Sleep Medicine, Yale School of \nMedicine, New Haven, Conn.\n(6)Genentech, Inc., South San Francisco, Calif.\n(7)Department of Respiratory Sciences, University of Leicester, Leicestershire, \nUnited Kingdom. Electronic address: ceb17@leicester.ac.uk.\n\nComment in\n    J Allergy Clin Immunol. 2021 Sep;148(3):719-721. doi: \n10.1016/j.jaci.2021.07.008.\n\nBACKGROUND: The IL-33/ST2 pathway is linked with asthma susceptibility. Inhaled \nallergens, pollutants, and respiratory viruses, which trigger asthma \nexacerbations, induce release of IL-33, an epithelial-derived \"alarmin.\" \nAstegolimab, a human IgG2 mAb, selectively inhibits the IL-33 receptor, ST2. \nApproved biologic therapies for severe asthma mainly benefit patients with \nelevated blood eosinophils (type 2-high), but limited options are available for \npatients with low blood eosinophils (type 2-low). Inhibiting IL-33 signaling may \ntarget pathogenic pathways in a wider spectrum of asthmatics.\nOBJECTIVES: This study evaluated astegolimab efficacy and safety in patients \nwith severe asthma.\nMETHODS:"
+      }
+    ]
+  }
+}

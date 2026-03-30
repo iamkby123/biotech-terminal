@@ -1,0 +1,11 @@
+{
+  "drug": "Suboxone Remote Observed Dosing",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. J Am Assoc Lab Anim Sci. 2010 Nov;49(6):845-51.\n\nA model for clinical evaluation of perioperative analgesia in rabbits \n(Oryctolagus cuniculus).\n\nWeaver LA(1), Blaze CA, Linder DE, Andrutis KA, Karas AZ.\n\nAuthor information:\n(1)Division of Teaching and Research Resources, Tufts University Cummings School \nof Veterinary Medicine, North Grafton, Massachusetts, USA. lara.weaver@tufts.edu\n\nAssessment of pain in rabbits is challenging, and studies of effective surgical \nanalgesia are lacking for this species. Seeking potential indicators of \npostoperative pain, we performed ovariohysterectomy and telemeter placement as a \nform of moderate surgical injury in 20 female rabbits. Rabbits were assigned to \n1 of 4 treatment groups (5 per group): buprenorphine (0.02 mg/kg SC every 12 h \nfor 3 d); fentanyl (25-μg patch placed 24 h preoperatively); ketoprofen (1 mg/kg \nSC every 24 h for 3 d), and control (no treatment given). Various physiologic \nand behavioral variables were recorded by blinded observers, including food and \nwater consumption, fecal output, and remotely recorded behaviors during daily \nexercise in 1.2 × 1.8 m floor pens. Compared with preoperative values, \nsignificant declines occurred in: food consumption (days 1 to 7), water \nconsumption (days 1 to 4), fecal output (days 1 to 2), mean travel distance, and \nrearing (days 1 to 3 and day 7). No single treatment proved significantly better \nthan another. Our results demonstrate substantial inappetance and reduction of \nnormal activity levels in rabbits after surgery. Although results from rabbits \ntreated with empirical doses (those typically recommended) of analgesics did not \nappear substantially better than those from the untreated control group, \ncomparison of other doses and multimodal analgesic techniques by using these \nbehavioral monitoring strategies may prove useful in future studies aimed at \noptimizing postoperative analgesia in rabbits.\n\nPMCID: PMC2994053\nPMID: 21205451 [Indexed for MEDLINE]"
+      }
+    ]
+  }
+}

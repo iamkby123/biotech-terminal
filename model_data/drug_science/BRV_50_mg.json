@@ -1,0 +1,11 @@
+{
+  "drug": "BRV 50 mg",
+  "science": {
+    "prior_results": [
+      {
+        "title": "1",
+        "abstract": "1. Epilepsia. 2016 Feb;57(2):210-21. doi: 10.1111/epi.13275. Epub 2015 Dec 15.\n\nBrivaracetam in Unverricht-Lundborg disease (EPM1): Results from two randomized, \ndouble-blind, placebo-controlled studies.\n\nKälviäinen R(1), Genton P(2), Andermann E(3)(4), Andermann F(5)(6), Magaudda \nA(7), Frucht SJ(8), Schlit AF(9), Gerard D(9), de la Loge C(9), von Rosenstiel \nP(10).\n\nAuthor information:\n(1)Kuopio Epilepsy Center, Kuopio University Hospital and Institute of Clinical \nMedicine, School of Medicine, Faculty of Health Sciences, University of Eastern \nFinland, Kuopio, Finland.\n(2)Henri Gastaut-Centre Saint Paul Hospital, Marseille, France.\n(3)Neurogenetics Unit and Epilepsy Research Group, Montreal Neurological \nHospital and Institute, Montreal, Quebec, Canada.\n(4)Department of Neurology & Neurosurgery and Human Genetics, McGill University, \nMontreal, Quebec, Canada.\n(5)Seizure Clinic and Epilepsy Research Group, Montreal Neurological Hospital \nand Institute, Montreal, Quebec, Canada.\n(6)Departments of Neurology & Neurosurgery and Pediatrics, McGill University, \nMontreal, Quebec, Canada.\n(7)Department of Neurosciences, Epilepsy Center, University of Messina, Messina, \nItaly.\n(8)Department of Neurology, Columbia University Medical Center, New York, New \nYork, USA.\n(9)UCB Pharma, Braine-l'Alleud, Belgium.\n(10)UCB Pharma, Smyrna, Georgia, U.S.A.\n\nOBJECTIVE: To evaluate efficacy, tolerability, and safety of adjunctive \nbrivaracetam (BRV) in patients with Unverricht-Lundborg disease (EPM1).\nMETHODS: Two prospective, multicenter, double-blind, phase III trials \n(N01187/NCT00357669; N01236/NCT00368251) in patients (≥16 years) with \ngenetically ascertained EPM1, showing moderate-severe myoclonus (action \nmyoclonus score ≥30/160), randomized (1:1:1) to twice-daily BRV (N01187: 50 or \n150 mg/day; N01236: 5 or 150 mg/day), or placebo. Both studies comprised a \nbaseline period (2 weeks), 2-week up-titration period, 12-week stable-dose \nmaintenance period, and down-titration or entry"
+      }
+    ]
+  }
+}

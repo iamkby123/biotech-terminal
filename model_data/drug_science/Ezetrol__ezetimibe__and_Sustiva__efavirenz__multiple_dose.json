@@ -1,0 +1,11 @@
+{
+  "drug": "Ezetrol (ezetimibe) and Sustiva (efavirenz) multiple dose",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Clin Pharmacol Ther. 2012 Mar;91(3):506-13. doi: 10.1038/clpt.2011.255. Epub \n2012 Feb 1.\n\nImpact of efavirenz on intestinal metabolism and transport: insights from an \ninteraction study with ezetimibe in healthy volunteers.\n\nOswald S(1), Meyer zu Schwabedissen HE, Nassif A, Modess C, Desta Z, Ogburn ET, \nMostertz J, Keiser M, Jia J, Hubeny A, Ulrich A, Runge D, Marinova M, Lütjohann \nD, Kroemer HK, Siegmund W.\n\nAuthor information:\n(1)Department of Clinical Pharmacology, Ernst-Moritz-Arndt-University, \nGreifswald, Germany. stefan.oswald@uni-greifswald.de\n\nHypercholesterolemia frequently occurs in patients treated with efavirenz who \ncannot be treated adequately with statins because of drug interactions. These \npatients may benefit from cholesterol-lowering therapy with ezetimibe. This \nstudy determined the influence of single-dose and multiple-dose efavirenz (400 \nmg/day for 9 days) on the pharmacokinetics and sterol-lowering of ezetimibe (10 \nmg) in 12 healthy subjects. In addition, the influence of efavirenz on \ngenome-wide intestinal expression and in vitro function of ABCB1, ABCC2, UGT1A1, \nand OATP1B1 was studied. Efavirenz (multiple dose) had no influence on the \npharmacokinetics and lipid-lowering functions of ezetimibe. Intestinal \nexpression of enzymes and transporters (e.g., ABCB1, ABCC2, and UGT1A1) was not \naffected by chronic efavirenz. Efavirenz (single dose) slightly increased \nezetimibe absorption and markedly decreased exposure to ezetimibe-glucuronide \n(single dose and multiple dose), which may be explained by inhibition of UGT1A1 \nand ABCB1 (in vitro data). Ezetimibe had no effect on the disposition of \nefavirenz. Consequently, ezetimibe may be a safe and efficient therapeutic \noption in patients with HIV infection.\n\nDOI: 10.1038/clpt.2011.255\nPMCID: PMC3667671\nPMID: 22297387 [Indexed for MEDLINE]\n\nConflict of interest statement: CONFLICT OF INTEREST The authors declared no \nconflict of interest."
+      }
+    ]
+  }
+}

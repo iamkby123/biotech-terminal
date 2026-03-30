@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biotech Terminal - Company</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <style>
+    /* ── base ── */
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0e1a;color:#e2e8f0}
+    a{color:#60a5fa;text-decoration:none}
+    a:hover{text-decoration:underline}
+    
+    /* ── sticky header ── */
+    .header{position:sticky;top:0;z-index:100;background:#0d1117;border-bottom:1px solid #1e2a3a;padding:12px 20px;display:flex;align-items:center;gap:16px}
+    .header-search{position:relative}
+    .header-search input{background:#111827;border:1px solid #1f2937;border-radius:8px;padding:8px 12px;color:#e2e8f0;font-size:14px;width:200px}
+    .header-search input:focus{outline:none;border-color:#3b82f6}
+    
+    /* ── company tabs ── */
+    .company-tabs{display:flex;gap:4px;flex:1;overflow-x:auto}
+    .company-tab{background:#1a2535;border:1px solid #2d4060;border-radius:8px;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
+    .company-tab:hover{background:#1e3050}
+    .company-tab.active{background:#1e3a5f;border-color:#3b82f6}
+    .company-tab .close{margin-left:4px;color:#6b7280;font-size:16px;line-height:1}
+    .company-tab .close:hover{color:#ef4444}
+    .add-tab{background:transparent;border:2px dashed #2d3f5a;color:#2d3f5a;font-size:18px;padding:6px 12px;border-radius:8px;cursor:pointer}
+    .add-tab:hover{border-color:#3b82f6;color:#60a5fa}
+    
+    /* ── main content ── */
+    .main-content{max-width:1400px;margin:0 auto;padding:24px}
+    
+    /* ── section cards ── */
+    .section{background:#111827;border:1px solid #1f2937;border-radius:12px;margin-bottom:24px;overflow:hidden}
+    .section-header{padding:16px 20px;border-bottom:1px solid #1e2a3a;background:#0d1623}
+    .section-title{font-size:14px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em}
+    .section-body{padding:20px}
+    
+    /* ── grid layouts ── */
+    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+    @media (max-width:1024px){.grid-2,.grid-3{grid-template-columns:1fr}}
+    
+    /* ── stock chart ── */
+    .chart-container{height:450px;background:#0d1117}
+    
+    /* ── stats cards ── */
+    .stat-card{background:#0d1623;border:1px solid #1e2a3a;border-radius:8px;padding:16px}
+    .stat-label{font-size:12px;color:#64748b;margin-bottom:4px}
+    .stat-value{font-size:24px;font-weight:700;color:#e2e8f0}
+    .stat-change{font-size:14px;margin-top:4px}
+    .stat-positive{color:#10b981}
+    .stat-negative{color:#ef4444}
+    
+    /* ── news items ── */
+    .news-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #1e2a3a;transition:background .12s}
+    .news-item:last-child{border-bottom:none}
+    .news-item:hover{background:#0d1623;border-radius:8px;padding-left:8px;padding-right:8px}
+    .news-thumb{width:100px;min-width:100px;height:68px;border-radius:6px;object-fit:cover;background:#1e2a3a}
+    .news-body{flex:1;min-width:0}
+    .news-title{font-size:14px;font-weight:500;color:#e2e8f0;margin-bottom:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .news-summary{font-size:12px;color:#64748b;line-height:1.4;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .news-meta{font-size:11px;color:#475569;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .news-badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
+    .news-badge-positive{background:#052e16;color:#4ade80;border:1px solid #16a34a}
+    .news-badge-negative{background:#2d0a0a;color:#f87171;border:1px solid #dc2626}
+    .news-badge-neutral{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+    .news-badge-catalyst{background:#1e293b;color:#60a5fa;border:1px solid #1e3a5f}
+    
+    /* ── pipeline items ── */
+    .pipeline-item{display:flex;align-items:center;gap:12px;padding:12px;background:#0d1623;border-radius:8px;margin-bottom:8px}
+    .phase-badge{padding:4px 12px;border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase}
+    .phase-4{background:#1d4ed8;color:#fff}
+    .phase-3{background:#3b82f6;color:#fff}
+    .phase-2{background:#7c3aed;color:#fff}
+    .phase-1{background:#a855f7;color:#fff}
+    
+    /* ── loading ── */
+    .loading{display:flex;align-items:center;justify-content:center;height:200px;color:#64748b}
+
+    /* ── source transparency badges ── */
+    .source-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;cursor:default;position:relative;flex-shrink:0}
+    .source-badge-data{background:#052e16;color:#4ade80;border:1px solid #16a34a}
+    .source-badge-ai{background:#1e1b4b;color:#a78bfa;border:1px solid #6d28d9}
+    .source-tooltip{position:absolute;top:100%;right:0;margin-top:6px;background:#1a1f2e;border:1px solid #2d3f5a;border-radius:8px;padding:10px 14px;font-size:12px;font-weight:400;color:#94a3b8;white-space:nowrap;z-index:50;pointer-events:none;opacity:0;transition:opacity .15s;text-transform:none;letter-spacing:normal}
+    .source-badge:hover .source-tooltip{opacity:1}
+    .section-header{display:flex;align-items:center;justify-content:space-between}
+    .ai-summary-container{border-left:3px solid #6d28d9!important}
+    .ai-disclaimer{padding:8px 20px 12px;font-size:11px;color:#64748b;font-style:italic;border-top:1px solid #1e2a3a}
+    .pred-card{background:#0d1623;border:1px solid #1e3a5f;border-radius:10px;padding:16px;text-align:center}
+    .pred-outcome{font-size:28px;font-weight:700;margin:4px 0}
+    .pred-success{color:#4ade80}
+    .pred-failure{color:#f87171}
+    .pred-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.05em}
+    .evidence-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #1e2a3a;font-size:13px}
+    .evidence-item:last-child{border-bottom:none}
+    .evidence-score{min-width:40px;text-align:center;font-weight:600;color:#60a5fa}
+    .source-badge-evidence{background:#0c2d1a;color:#34d399;border:1px solid #059669}
+    /* chatbox */
+    .chatbox{position:fixed;right:20px;bottom:20px;width:380px;max-height:520px;background:#111827;border:1px solid #1f2937;border-radius:12px;display:flex;flex-direction:column;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+    .chatbox.hidden{display:none}
+    .chat-header{padding:12px 16px;background:#0d1623;border-bottom:1px solid #1e2a3a;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center}
+    .chat-header span{font-size:13px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em}
+    .chat-messages{flex:1;overflow-y:auto;padding:12px;max-height:360px}
+    .chat-msg{margin-bottom:10px;font-size:13px;line-height:1.5}
+    .chat-msg-user{color:#60a5fa}
+    .chat-msg-ai{color:#c4b5fd}
+    .chat-msg-meta{font-size:10px;color:#475569;margin-top:2px}
+    .chat-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #1e2a3a}
+    .chat-input{flex:1;background:#0d1623;border:1px solid #1e2a3a;border-radius:6px;padding:8px 10px;color:#e2e8f0;font-size:13px;resize:none}
+    .chat-input:focus{outline:none;border-color:#3b82f6}
+    .chat-send{background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer}
+    .chat-send:hover{background:#2563eb}
+    .chat-toggle{position:fixed;right:20px;bottom:20px;width:48px;height:48px;border-radius:50%;background:#3b82f6;color:#fff;border:none;font-size:20px;cursor:pointer;z-index:199;box-shadow:0 4px 16px rgba(59,130,246,.4);display:flex;align-items:center;justify-content:center}
+    .chat-toggle:hover{background:#2563eb}
+    .ai-loading-pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:#a78bfa;animation:pulse 1.2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+    .source-badge-hybrid{background:#451a03;color:#fbbf24;border:1px solid #d97706}
+    .intel-block{padding:12px 16px;border-bottom:1px solid #1e2a3a}
+    .intel-block:last-child{border-bottom:none}
+    .intel-block-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .intel-block-header span:first-child{font-size:13px;font-weight:600;color:#e2e8f0}
+    .intel-block-content{font-size:13px;color:#94a3b8;line-height:1.6}
+
+    /* ── exec bio modal ── */
+    #exec-modal.hidden{display:none!important}
+    .exec-card{cursor:pointer;transition:border-color .15s,transform .1s}
+    .exec-card:hover{border-color:#3b82f6!important;transform:translateY(-1px)}
+    .exec-stat{background:#0d1623;border:1px solid #1e2a3a;border-radius:8px;padding:12px;text-align:center}
+    .exec-stat-label{font-size:11px;color:#64748b;margin-bottom:2px}
+    .exec-stat-value{font-size:16px;font-weight:600;color:#e2e8f0}
+    .exec-bio-section{border-top:1px solid #1e2a3a;padding-top:16px;margin-top:16px}
+    .timeline{position:relative;padding-left:24px}
+    .timeline::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:#1e3a5f}
+    .tl-item{position:relative;padding-bottom:18px}
+    .tl-item:last-child{padding-bottom:0}
+    .tl-dot{position:absolute;left:-21px;top:5px;width:12px;height:12px;border-radius:50%;border:2px solid #3b82f6;background:#0a0e1a}
+    .tl-dot.tl-edu{border-color:#a78bfa}
+    .tl-dot.tl-current{background:#3b82f6;border-color:#3b82f6}
+    .tl-year{font-size:11px;color:#64748b;font-weight:600;margin-bottom:2px}
+    .tl-role{font-size:13px;color:#e2e8f0;font-weight:500}
+    .tl-org{font-size:12px;color:#60a5fa}
+    .tl-detail{font-size:11px;color:#64748b;margin-top:2px}
+
+    /* ── sidebar + breadcrumb ── */
+    .breadcrumb{padding:6px 20px;background:#0d1117;border-bottom:1px solid #1e2a3a;font-size:12px;color:#64748b}
+    .breadcrumb a{color:#60a5fa;font-weight:600;text-decoration:none}.breadcrumb a:hover{text-decoration:underline}
+    .breadcrumb .sep{color:#475569;margin:0 6px}
+    .page-wrap{display:flex;height:calc(100vh - 78px);overflow:hidden}
+    .sidebar{width:220px;min-width:220px;background:#0d1117;border-right:1px solid #1e2a3a;display:flex;flex-direction:column;overflow:hidden}
+    .sb-ticker{padding:12px 16px;font-size:16px;font-weight:700;color:#e2e8f0;border-bottom:1px solid #1e2a3a}
+    .sb-price{padding:6px 16px 10px;font-size:13px;border-bottom:1px solid #1e2a3a}
+    .sb-section-hdr{padding:8px 16px 4px;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em}
+    .sb-list{overflow-y:auto;flex:1}
+    .sb-item{display:block;padding:5px 16px;font-size:12px;color:#94a3b8;text-decoration:none;border-left:3px solid transparent;transition:all .1s}
+    .sb-item:hover{background:#111827;color:#e2e8f0;text-decoration:none;border-left-color:#3b82f6}
+    .sb-item.active{color:#60a5fa;border-left-color:#60a5fa;background:#0d1623}
+    .main-scroll{flex:1;overflow-y:auto}
+    @media(max-width:900px){.sidebar{display:none}.page-wrap{height:auto}}
+
+    /* ── scrollbar ── */
+    ::-webkit-scrollbar{width:8px;height:8px}
+    ::-webkit-scrollbar-track{background:#0d1117}
+    ::-webkit-scrollbar-thumb{background:#1f2937;border-radius:4px}
+    ::-webkit-scrollbar-thumb:hover{background:#2d3f5a}
+  </style>
+</head>
+<body>
+  <!-- Sticky Header -->
+  <header class="header">
+    <a href="/" style="font-size:18px;font-weight:700;color:#60a5fa">🧬 Biotech Terminal</a>
+    <a href="/news" style="font-size:13px;color:#94a3b8;padding:6px 14px;border-radius:6px;margin-left:8px;background:#1a2535">News</a>
+    <a href="/recent" style="font-size:13px;color:#4ade80;padding:6px 14px;border-radius:6px;margin-left:4px;background:#052e16;border:1px solid #14532d">Recent Trials</a>
+    <a href="/workspace" style="font-size:13px;color:#a78bfa;padding:6px 14px;border-radius:6px;margin-left:4px;background:#1e1b4b;border:1px solid #3730a3">AI Workspace</a>
+
+    <div class="header-search">
+      <input type="text" id="ticker-search" placeholder="Search ticker..." autocomplete="off">
+    </div>
+    
+    <div class="company-tabs" id="company-tabs">
+      <!-- Tabs injected here -->
+    </div>
+    
+    <button class="add-tab" onclick="showSearchModal()">+</button>
+  </header>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb" id="breadcrumb">
+    <a href="/">Home</a><span class="sep">›</span><span id="bc-ticker">Loading...</span>
+  </div>
+
+  <!-- Page layout: sidebar + main -->
+  <div class="page-wrap">
+    <div class="sidebar" id="sidebar">
+      <div class="sb-ticker" id="sb-ticker">--</div>
+      <div class="sb-price" id="sb-price">--</div>
+      <div class="sb-section-hdr">Drugs</div>
+      <div class="sb-list" id="sb-drugs" style="max-height:40%">Loading...</div>
+      <div class="sb-section-hdr">Trials</div>
+      <div class="sb-list" id="sb-trials">Loading...</div>
+    </div>
+    <div class="main-scroll">
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+    <!-- Content injected here -->
+  </main>
+
+    </div><!-- /main-scroll -->
+  </div><!-- /page-wrap -->
+
+  <script>
+    // ── STATE ────────────────────────────────────────────────────────────────────
+    let openCompanies = JSON.parse(localStorage.getItem('openCompanies') || '["MRNA"]');
+    let currentTicker = new URLSearchParams(window.location.search).get('ticker') || openCompanies[0] || 'MRNA';
+    let companyData = null;
+
+    // ── UTILS ────────────────────────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    
+    function saveOpenCompanies() {
+      localStorage.setItem('openCompanies', JSON.stringify(openCompanies));
+    }
+
+    function switchCompany(ticker) {
+      currentTicker = ticker;
+      window.history.pushState({}, '', `?ticker=${ticker}`);
+      renderTabs();
+      loadCompanyData();
+    }
+
+    function closeCompany(ticker, event) {
+      event.stopPropagation();
+      openCompanies = openCompanies.filter(t => t !== ticker);
+      if (openCompanies.length === 0) openCompanies = ['MRNA'];
+      saveOpenCompanies();
+      if (currentTicker === ticker) {
+        switchCompany(openCompanies[0]);
+      } else {
+        renderTabs();
+      }
+    }
+
+    function addCompany(ticker) {
+      ticker = ticker.toUpperCase();
+      if (!openCompanies.includes(ticker)) {
+        openCompanies.push(ticker);
+        saveOpenCompanies();
+      }
+      switchCompany(ticker);
+    }
+
+    // ── RENDER ───────────────────────────────────────────────────────────────────
+    function renderTabs() {
+      const container = $('company-tabs');
+      container.innerHTML = openCompanies.map(ticker => `
+        <div class="company-tab ${ticker === currentTicker ? 'active' : ''}" onclick="switchCompany('${ticker}')">
+          ${ticker}
+          <span class="close" onclick="closeCompany('${ticker}', event)">×</span>
+        </div>
+      `).join('');
+    }
+
+    function renderContent() {
+      console.log('renderContent called, companyData:', companyData);
+      
+      if (!companyData) {
+        console.log('No companyData, showing loading');
+        $('main-content').innerHTML = '<div class="loading">Loading...</div>';
+        return;
+      }
+
+      const data = companyData;
+      console.log('Rendering with data:', {
+        news: data.news?.length || 0,
+        trials: data.trials?.length || 0,
+        filings: data.filings?.length || 0,
+        drugs: data.drugs?.length || 0,
+        insider: data.insider_trades?.length || 0,
+        holdings: data.institutional_holdings?.length || 0,
+        competitors: data.competitors?.length || 0
+      });
+      
+      const exchange = EXCHANGE_MAP[currentTicker] || 'NASDAQ';
+
+      $('main-content').innerHTML = `
+        <!-- Stock Chart -->
+        <div class="section">
+          <div class="section-header">
+            <span class="section-title">📈 Stock Chart - ${currentTicker}</span>${srcBadge('chart')}
+          </div>
+          <div class="section-body" style="padding:0">
+            <div class="chart-container" id="tradingview-chart"></div>
+          </div>
+        </div>
+
+        <!-- Overview & Stats -->
+        <div class="grid-2">
+          <div class="section">
+            <div class="section-header">
+              <span class="section-title">🏢 Company Overview</span>${srcBadge('overview')}
+            </div>
+            <div class="section-body">
+              <h2 style="font-size:24px;margin:0 0 8px">${data.info?.company_name || currentTicker}</h2>
+              <p style="color:#64748b;margin:0" id="company-sector">Loading...</p>
+              <div style="margin-top:16px;display:flex;gap:16px;flex-wrap:wrap">
+                <span style="font-size:13px;color:#64748b" id="company-location">Loading...</span>
+                <span style="font-size:13px;color:#64748b" id="company-employees">Loading...</span>
+                <span style="font-size:13px;color:#64748b" id="company-exchange">Loading...</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <span class="section-title">📊 Quick Stats</span>${srcBadge('stats')}
+            </div>
+            <div class="section-body">
+              <div class="grid-2" style="gap:12px">
+                <div class="stat-card">
+                  <div class="stat-label">Stock Price</div>
+                  <div class="stat-value" id="stock-price">Loading...</div>
+                  <div class="stat-change" id="stock-change"></div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Market Cap</div>
+                  <div class="stat-value" id="market-cap">Loading...</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Volume</div>
+                  <div class="stat-value" id="volume">Loading...</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">P/E Ratio</div>
+                  <div class="stat-value" id="pe-ratio">Loading...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Earnings Calendar -->
+        <div class="section">
+          <div class="section-header">
+            <span class="section-title">📅 Earnings Calendar</span>${srcBadge('earnings')}
+          </div>
+          <div class="section-body">
+            <div class="grid-3" id="earnings-calendar">
+              <div class="stat-card">
+                <div class="stat-label">Next Earnings</div>
+                <div class="stat-value" style="font-size:20px" id="next-earnings-date">Loading...</div>
+                <div style="font-size:13px;color:#64748b;margin-top:4px" id="next-earnings-quarter">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">EPS Estimate</div>
+                <div class="stat-value" style="font-size:20px" id="eps-estimate">--</div>
+                <div style="font-size:13px;color:#64748b;margin-top:4px">vs prior quarter</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Revenue Estimate</div>
+                <div class="stat-value" style="font-size:20px" id="revenue-estimate">--</div>
+                <div style="font-size:13px;color:#64748b;margin-top:4px">vs prior quarter</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- News Section (full width) -->
+        <div class="section">
+          <div class="section-header" style="display:flex;align-items:center;justify-content:space-between">
+            <span class="section-title">📰 Latest News</span>${srcBadge('news')}
+            <span style="font-size:12px;color:#475569">${(data.news || []).length} articles</span>
+          </div>
+          <div class="section-body">
+            ${(data.news || []).slice(0, 15).map(n => {
+              const sentBadge = n.sentiment === 'positive'
+                ? '<span class="news-badge news-badge-positive">Positive</span>'
+                : n.sentiment === 'negative'
+                ? '<span class="news-badge news-badge-negative">Negative</span>'
+                : '';
+              const catalystBadge = n.catalyst_type
+                ? `<span class="news-badge news-badge-catalyst">${n.catalyst_type}</span>`
+                : '';
+              const thumbHtml = n.image_url
+                ? `<img class="news-thumb" src="${n.image_url}" alt="" loading="lazy" onerror="this.style.display='none'">`
+                : '';
+              const summaryHtml = n.summary
+                ? `<div class="news-summary">${n.summary.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`
+                : '';
+              // Relative date
+              let dateStr = '';
+              if (n.published_at) {
+                try {
+                  const raw = n.published_at;
+                  const d = new Date(raw.includes('T') ? raw : raw.replace(' ','T') + 'Z');
+                  if (!isNaN(d)) {
+                    const diff = (Date.now() - d.getTime()) / 1000;
+                    if (diff < 3600) dateStr = Math.max(1, Math.floor(diff / 60)) + 'm ago';
+                    else if (diff < 86400) dateStr = Math.floor(diff / 3600) + 'h ago';
+                    else if (diff < 604800) dateStr = Math.floor(diff / 86400) + 'd ago';
+                    else dateStr = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+                  } else { dateStr = raw.slice(0,10); }
+                } catch { dateStr = n.published_at.slice(0,10); }
+              }
+              return `
+              <a href="${n.url || '#'}" target="_blank" rel="noopener" class="news-item" style="text-decoration:none">
+                ${thumbHtml}
+                <div class="news-body">
+                  <div class="news-title">${n.title}</div>
+                  ${summaryHtml}
+                  <div class="news-meta">
+                    <span>${n.source || ''}</span>
+                    <span>${dateStr}</span>
+                    ${sentBadge}${catalystBadge}
+                    <span>↗</span>
+                  </div>
+                </div>
+              </a>`;
+            }).join('') || '<div style="color:#64748b;padding:20px 0;text-align:center">No recent news for this ticker</div>'}
+          </div>
+        </div>
+
+        <!-- Pipeline -->
+        <div class="grid-2">
+          <div class="section">
+            <div class="section-header">
+              <span class="section-title">🔬 Clinical Pipeline</span>${srcBadge('pipeline')}
+            </div>
+            <div class="section-body">
+              ${(data.trials || []).slice(0, 5).map(t => `
+                <a href="/trial/${t.nct_id}" class="pipeline-item" style="text-decoration:none;transition:all 0.2s" 
+                   onmouseover="this.style.background='#1e3050';this.style.borderColor='#3b82f6'" 
+                   onmouseout="this.style.background='#0d1623';this.style.borderColor='transparent'">
+                  <span class="phase-badge phase-${(t.phase || '1').toLowerCase().replace('phase', '').replace(';', '').trim()}">${t.phase || 'Phase 1'}</span>
+                  <div>
+                    <div style="font-size:14px;color:#e2e8f0">${t.title?.slice(0, 60)}...</div>
+                    <div style="font-size:12px;color:#64748b">
+                      ${t.condition || 'Various'} • ${t.nct_id}
+                      ${t.filled_fields?.intervention_type ? ` • <span style="color:#60a5fa">${t.filled_fields.intervention_type}</span>` : ''}
+                      ${t.filled_fields?.enrollment_bucket ? ` • <span style="color:#94a3b8">${t.enrollment || ''} pts (${t.filled_fields.enrollment_bucket})</span>` : ''}
+                    </div>
+                  </div>
+                </a>
+              `).join('') || '<div style="color:#64748b">No active trials</div>'}
+            </div>
+          </div>
+        </div>
+
+        <!-- Filings -->
+        <div class="section">
+          <div class="section-header">
+            <span class="section-title">📄 SEC Filings</span>${srcBadge('filings')}
+          </div>
+          <div class="section-body">
+            <div style="display:flex;gap:16px;flex-wrap:wrap">
+              ${(data.filings || []).slice(0, 6).map(f => `
+                <a href="${f.filing_url || '#'}" target="_blank" style="background:#0d1623;border:1px solid #1e2a3a;border-radius:8px;padding:12px 16px;min-width:150px">
+                  <div style="font-size:13px;font-weight:600">${f.form_type}</div>
+                  <div style="font-size:12px;color:#64748b;margin-top:4px">${f.filed_date}</div>
+                </a>
+              `).join('') || '<div style="color:#64748b">No recent filings</div>'}
+            </div>
+          </div>
+        </div>
+
+        <!-- Insider Trading & Institutional Holdings -->
+        <div class="grid-2">
+          <div class="section">
+            <div class="section-header">
+              <span class="section-title">💼 Insider Trading</span>${srcBadge('insider')}
+            </div>
+            <div class="section-body">
+              <table style="width:100%;font-size:13px;border-collapse:collapse">
+                <thead>
+                  <tr style="border-bottom:1px solid #1e2a3a;color:#64748b;text-align:left">
+                    <th style="padding:8px 0">Date</th>
+                    <th style="padding:8px 0">Insider</th>
+                    <th style="padding:8px 0">Type</th>
+                    <th style="padding:8px 0;text-align:right">Shares</th>
+                    <th style="padding:8px 0;text-align:right">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${(data.insider_trades || []).map(trade => `
+                    <tr style="border-bottom:1px solid #1e2a3a">
+                      <td style="padding:10px 0">${trade.date}</td>
+                      <td style="padding:10px 0">${trade.insider}</td>
+                      <td style="padding:10px 0">
+                        <span style="color:${trade.type === 'Buy' ? '#10b981' : trade.type === 'Sell' ? '#ef4444' : '#94a3b8'};font-weight:600">${trade.type}</span>
+                      </td>
+                      <td style="padding:10px 0;text-align:right">${trade.shares?.toLocaleString()}</td>
+                      <td style="padding:10px 0;text-align:right">${trade.value >= 1e6 ? '$' + (trade.value / 1e6).toFixed(1) + 'M' : trade.value >= 1e3 ? '$' + (trade.value / 1e3).toFixed(1) + 'K' : '$' + (trade.value || 0).toLocaleString()}</td>
+                    </tr>
+                  `).join('') || '<tr><td colspan="5" style="color:#64748b;padding:20px 0">No recent insider trades</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <span class="section-title">🏦 Institutional Holdings</span>${srcBadge('holdings')}
+            </div>
+            <div class="section-body">
+              <table style="width:100%;font-size:13px;border-collapse:collapse">
+                <thead>
+                  <tr style="border-bottom:1px solid #1e2a3a;color:#64748b;text-align:left">
+                    <th style="padding:8px 0">Holder</th>
+                    <th style="padding:8px 0;text-align:right">Shares</th>
+                    <th style="padding:8px 0;text-align:right">%</th>
+                    <th style="padding:8px 0;text-align:right">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${(data.institutional_holdings || []).map(h => `
+                    <tr style="border-bottom:1px solid #1e2a3a">
+                      <td style="padding:10px 0;font-weight:500">${h.holder}</td>
+                      <td style="padding:10px 0;text-align:right;color:#94a3b8">${h.shares}</td>
+                      <td style="padding:10px 0;text-align:right;font-weight:600">${h.percent}</td>
+                      <td style="padding:10px 0;text-align:right;color:#94a3b8">${h.value}</td>
+                    </tr>
+                  `).join('') || '<tr><td colspan="4" style="color:#64748b;padding:20px 0">No holdings data</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Competitors Analysis Slider -->
+        <div class="section">
+          <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="section-title">⚔️ Competitors Analysis</span>${srcBadge('competitors')}
+            <span style="color:#64748b;font-size:13px" id="competitor-counter">1 / ${(data.competitors || []).length}</span>
+          </div>
+          <div class="section-body" style="position:relative;padding:0;overflow:hidden">
+            ${(data.competitors || []).length > 0 ? `
+              <div id="competitors-slider" style="display:flex;transition:transform 0.3s ease">
+                ${data.competitors.map((comp, idx) => `
+                  <div class="competitor-slide" style="min-width:100%;padding:20px;box-sizing:border-box">
+                    <!-- Competitor Header -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #1e2a3a">
+                      <div>
+                        <div style="font-size:24px;font-weight:700;color:#e2e8f0">${comp.ticker}</div>
+                        <div style="font-size:14px;color:#94a3b8">${comp.name}</div>
+                      </div>
+                      <div style="text-align:right">
+                        <div style="font-size:20px;font-weight:600">$${comp.price}</div>
+                        <div style="font-size:13px;color:${comp.change?.startsWith('+') ? '#10b981' : '#ef4444'}">${comp.change}</div>
+                        <div style="font-size:12px;color:#64748b">${comp.market_cap}</div>
+                      </div>
+                    </div>
+                    
+                    <!-- Competitor Drugs -->
+                    <div>
+                      <div style="font-size:14px;font-weight:600;color:#94a3b8;margin-bottom:12px;text-transform:uppercase">Pipeline Drugs</div>
+                      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">
+                        ${(comp.drugs || []).length > 0 ? comp.drugs.map(drug => `
+                          <div style="background:#0d1623;border:1px solid #1e2a3a;border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s" 
+                               onmouseover="this.style.borderColor='#3b82f6'" 
+                               onmouseout="this.style.borderColor='#1e2a3a'"
+                               onclick="window.open('/drug/${encodeURIComponent(drug.name)}', '_blank')">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                              <span style="font-size:14px;font-weight:600;color:#e2e8f0">${drug.name}</span>
+                              <span class="phase-badge phase-${(drug.phase || '1').toLowerCase().replace('phase', '').replace(';', '').trim().slice(0,1)}" style="font-size:10px;padding:2px 8px">${drug.phase || 'Phase 1'}</span>
+                            </div>
+                            <div style="font-size:12px;color:#64748b">${drug.condition || 'Various'}</div>
+                            <div style="font-size:11px;color:${drug.status === 'Recruiting' ? '#10b981' : drug.status === 'Completed' ? '#60a5fa' : '#64748b'};margin-top:4px">${drug.status}</div>
+                          </div>
+                        `).join('') : '<div style="color:#64748b;font-size:13px">No drug data available</div>'}
+                      </div>
+                    </div>
+                    
+                    <!-- View Company Button -->
+                    <div style="margin-top:16px;text-align:center">
+                      <button onclick="addCompany('${comp.ticker}')" style="background:#1e3a5f;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#1e3a5f'">View ${comp.ticker} Page →</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+              
+              <!-- Navigation Arrows -->
+              <button onclick="prevCompetitor()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:rgba(13,17,23,0.9);border:1px solid #1e2a3a;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#e2e8f0;font-size:18px;transition:all 0.2s;z-index:10" onmouseover="this.style.background='#1e3a5f'" onmouseout="this.style.background='rgba(13,17,23,0.9)'">‹</button>
+              <button onclick="nextCompetitor()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(13,17,23,0.9);border:1px solid #1e2a3a;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#e2e8f0;font-size:18px;transition:all 0.2s;z-index:10" onmouseover="this.style.background='#1e3a5f'" onmouseout="this.style.background='rgba(13,17,23,0.9)'">›</button>
+              
+              <!-- Dots Indicator -->
+              <div style="display:flex;justify-content:center;gap:8px;padding:12px">
+                ${data.competitors.map((_, idx) => `
+                  <button onclick="goToCompetitor(${idx})" class="competitor-dot" data-idx="${idx}" style="width:8px;height:8px;border-radius:50%;border:none;background:${idx === 0 ? '#3b82f6' : '#1e2a3a'};cursor:pointer;transition:all 0.2s"></button>
+                `).join('')}
+              </div>
+            ` : '<div style="padding:40px;text-align:center;color:#64748b">No competitor data</div>'}
+          </div>
+        </div>
+
+        <!-- Drugs Portfolio -->
+        <div class="section">
+          <div class="section-header">
+            <span class="section-title">💊 Drugs Portfolio</span>${srcBadge('drugs')}
+          </div>
+          <div class="section-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+              ${(data.drugs || []).slice(0, 8).map(drug => `
+                <div style="background:#0d1623;border:1px solid #1e2a3a;border-radius:8px;padding:16px;cursor:pointer;transition:all 0.2s" 
+                     onmouseover="this.style.borderColor='#3b82f6';this.style.transform='translateY(-2px)'" 
+                     onmouseout="this.style.borderColor='#1e2a3a';this.style.transform='none'"
+                     onclick="window.open('/drug/${encodeURIComponent(drug.name)}', '_blank')">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+                    <span style="font-size:15px;font-weight:600">${drug.name?.slice(0, 40)}${drug.name?.length > 40 ? '...' : ''}</span>
+                    <span class="phase-badge phase-${(drug.phase || '1').toLowerCase().replace('phase', '').replace(';', '').trim().slice(0,1)}">${drug.phase || 'Phase 1'}</span>
+                  </div>
+                  <div style="font-size:13px;color:#64748b">${drug.condition || 'Various indications'}</div>
+                  ${drug.filled_fields?.mechanism_class ? `<div style="margin-top:6px"><span style="display:inline-block;background:#1e1b4b;color:#a78bfa;border:1px solid #4c1d95;border-radius:4px;padding:1px 8px;font-size:10px;font-weight:500">${drug.filled_fields.mechanism_class}</span></div>` : ''}
+                </div>
+              `).join('') || '<div style="color:#64748b">No drugs data</div>'}
+            </div>
+          </div>
+        </div>
+
+        <!-- Management Team -->
+        <div class="section">
+          <div class="section-header">
+            <span class="section-title">👔 Management Team</span>${srcBadge('management')}
+          </div>
+          <div class="section-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px">
+              ${(data.management || []).map((exec, i) => `
+                <div class="exec-card" onclick='showExecModal(${JSON.stringify(exec).replace(/'/g,"&#39;")}, "${(data.info?.company_name || currentTicker).replace(/"/g,"")}")' style="display:flex;align-items:center;gap:16px;background:#0d1623;border:1px solid #1e2a3a;border-radius:8px;padding:16px">
+                  <div style="width:50px;height:50px;border-radius:50%;background:#1e3a5f;display:flex;align-items:center;justify-content:center;font-size:20px">👤</div>
+                  <div>
+                    <div style="font-weight:600">${exec.name}</div>
+                    <div style="font-size:13px;color:#64748b">${exec.title}</div>
+                    <div style="font-size:12px;color:#475569;margin-top:2px">Since ${exec.since}</div>
+                  </div>
+                </div>
+              `).join('') || '<div style="color:#64748b">No management data</div>'}
+            </div>
+          </div>
+        </div>
+
+        <!-- AI prediction available on individual drug pages -->
+      `;
+
+      // Initialize competitor slider if competitors exist
+      if (data.competitors && data.competitors.length > 0) {
+        initCompetitorSlider(data.competitors.length);
+      }
+
+      // Load TradingView chart
+      setTimeout(() => {
+        new TradingView.widget({
+          container_id: 'tradingview-chart',
+          symbol: `${exchange}:${currentTicker}`,
+          interval: 'D',
+          timezone: 'America/New_York',
+          theme: 'dark',
+          style: '1',
+          locale: 'en',
+          toolbar_bg: '#0d1117',
+          enable_publishing: false,
+          allow_symbol_change: false,
+          hide_top_toolbar: false,
+          hide_legend: false,
+          hide_side_toolbar: false,
+          autosize: true
+        });
+      }, 100);
+    }
+
+    // ── DATA LOADING ─────────────────────────────────────────────────────────────
+    const EXCHANGE_MAP = {
+      'LLY': 'NYSE', 'PFE': 'NYSE', 'JNJ': 'NYSE', 'NVO': 'NYSE', 'BMY': 'NYSE',
+      'MRNA': 'NASDAQ', 'AZN': 'NASDAQ', 'GILD': 'NASDAQ', 'AMGN': 'NASDAQ', 'REGN': 'NASDAQ'
+    };
+
+    // ── SOURCE TRANSPARENCY ──────────────────────────────────────────────
+    const SRC = {
+      'chart':     { label:'TradingView',       icon:'📡' },
+      'overview':  { label:'Database',           icon:'🗄️' },
+      'stats':     { label:'Yahoo Finance',      icon:'📊' },
+      'earnings':  { label:'Yahoo Finance',      icon:'📊' },
+      'news':      { label:'DB + Yahoo Finance', icon:'📰' },
+      'pipeline':  { label:'ClinicalTrials.gov', icon:'🔬' },
+      'filings':   { label:'SEC EDGAR',          icon:'📄' },
+      'insider':   { label:'Yahoo Finance',      icon:'📊' },
+      'holdings':  { label:'Yahoo Finance',      icon:'📊' },
+      'competitors':{ label:'Yahoo Finance',     icon:'📊' },
+      'drugs':     { label:'Database',           icon:'🗄️' },
+      'management':{ label:'Yahoo Finance',      icon:'📊' },
+    };
+
+    function srcBadge(key) {
+      const s = SRC[key];
+      if (!s) return '';
+      return `<span class="source-badge source-badge-data">✓ ${s.label}<span class="source-tooltip">Source: ${s.label}<br>Type: Verified data</span></span>`;
+    }
+
+    const aiBadge = `<span class="source-badge source-badge-ai">✦ AI Generated<span class="source-tooltip">Generated by Qwen3:8b<br>May contain inaccuracies</span></span>`;
+
+    async function loadIntelBlocks(ticker) {
+      const el = document.getElementById('ai-summary-body');
+      if (!el) return;
+      try {
+        const r = await fetch(`/api/company/${ticker}/intel`, {signal: AbortSignal.timeout(30000)});
+        const d = await r.json();
+        if (d.error) { el.innerHTML = `<span style="color:#64748b">Intel unavailable: ${d.error}</span>`; return; }
+        el.innerHTML = (d.sections || []).map(b => {
+          const bc = b.source_type === 'source_data' ? 'source-badge-data'
+            : b.source_type === 'llm_generated' ? 'source-badge-ai' : 'source-badge-hybrid';
+          const bl = b.source_type === 'source_data' ? '✓ Verified'
+            : b.source_type === 'llm_generated' ? '✦ AI Generated' : '⚡ Hybrid';
+          const note = b.ai_note ? `<div style="margin-top:6px;font-size:11px;color:#64748b;font-style:italic">${b.ai_note}</div>` : '';
+          return `<div class="intel-block">
+            <div class="intel-block-header"><span>${b.title}</span><span class="source-badge ${bc}">${bl}</span></div>
+            <div class="intel-block-content">${b.content}${note}</div>
+          </div>`;
+        }).join('');
+      } catch(e) {
+        el.innerHTML = '<span style="color:#64748b">Intel analysis timed out.</span>';
+      }
+    }
+
+    // ── EXECUTIVE BIO MODAL ────────────────────────────────────────────
+    function fmtPay(val) {
+      if (!val) return 'Not disclosed';
+      if (val >= 1e6) return '$' + (val / 1e6).toFixed(1) + 'M';
+      if (val >= 1e3) return '$' + (val / 1e3).toFixed(0) + 'K';
+      return '$' + val.toLocaleString();
+    }
+
+    function showExecModal(exec, company) {
+      document.getElementById('exec-modal-name').textContent = exec.name;
+      document.getElementById('exec-modal-title').textContent = exec.title + (company ? ' — ' + company : '');
+
+      // Verified data stats
+      const stats = [
+        { label: 'Age', value: exec.age || 'N/A' },
+        { label: 'Since', value: exec.since || 'N/A' },
+        { label: 'Total Pay', value: fmtPay(exec.total_pay) },
+        { label: 'Exercised Options', value: fmtPay(exec.exercised_value) },
+        { label: 'Unexercised Options', value: fmtPay(exec.unexercised_value) },
+      ];
+      document.getElementById('exec-modal-data').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em">Profile</span>
+          <span class="source-badge source-badge-data">✓ Yahoo Finance</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px">
+          ${stats.map(s => `<div class="exec-stat"><div class="exec-stat-label">${s.label}</div><div class="exec-stat-value">${s.value}</div></div>`).join('')}
+        </div>`;
+
+      document.getElementById('exec-modal').classList.remove('hidden');
+    }
+
+
+    function closeExecModal() {
+      document.getElementById('exec-modal').classList.add('hidden');
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeExecModal(); });
+
+    async function loadCompanyData() {
+      companyData = null;
+      renderContent();
+      
+      try {
+        console.log('Fetching data for:', currentTicker);
+        const response = await fetch(`/api/company/${currentTicker}`);
+        if (!response.ok) throw new Error('Failed to load');
+        companyData = await response.json();
+        console.log('Received company data:', companyData);
+        
+        // Debug: Log each data section
+        console.log('News count:', companyData.news?.length || 0);
+        console.log('Trials count:', companyData.trials?.length || 0);
+        console.log('Filings count:', companyData.filings?.length || 0);
+        console.log('Drugs count:', companyData.drugs?.length || 0);
+        
+        // Ensure arrays exist
+        if (!companyData.news) companyData.news = [];
+        if (!companyData.trials) companyData.trials = [];
+        if (!companyData.filings) companyData.filings = [];
+        if (!companyData.drugs) companyData.drugs = [];
+        if (!companyData.insider_trades) companyData.insider_trades = [];
+        if (!companyData.institutional_holdings) companyData.institutional_holdings = [];
+        if (!companyData.competitors) companyData.competitors = [];
+        if (!companyData.management) companyData.management = [];
+      } catch (err) {
+        console.error('Error loading company data:', err);
+        companyData = { error: err.message };
+      }
+      
+      renderContent();
+      loadEarningsData();
+      loadStockData();
+      renderSidebar();
+    }
+
+    function renderSidebar() {
+      const tk = currentTicker;
+      const d = companyData;
+      document.getElementById('bc-ticker').textContent = tk;
+      document.getElementById('sb-ticker').textContent = tk + (d?.info?.company_name ? ' · ' + d.info.company_name : '');
+      if (!d || d.error) return;
+
+      const drugs = d.drugs || [];
+      document.getElementById('sb-drugs').innerHTML = drugs.length === 0
+        ? '<div style="padding:6px 16px;color:#64748b;font-size:11px">No drugs</div>'
+        : drugs.slice(0, 15).map(dr =>
+          `<a class="sb-item" href="/drug/${encodeURIComponent(dr.name)}?from=${tk}">${dr.name}</a>`
+        ).join('');
+
+      const trials = d.trials || [];
+      document.getElementById('sb-trials').innerHTML = trials.length === 0
+        ? '<div style="padding:6px 16px;color:#64748b;font-size:11px">No trials</div>'
+        : trials.slice(0, 25).map(t =>
+          `<a class="sb-item" href="/trial/${t.nct_id}?from=${tk}" title="${t.title || ''}">${t.nct_id}</a>`
+        ).join('');
+    }
+
+    async function loadStockData() {
+      try {
+        const response = await fetch(`/api/stock/${currentTicker}`);
+        if (!response.ok) throw new Error('Failed to load stock data');
+        const data = await response.json();
+        
+        // Update stock price
+        const priceEl = document.getElementById('stock-price');
+        const changeEl = document.getElementById('stock-change');
+        if (priceEl && data.price) {
+          priceEl.textContent = `$${data.price.toFixed(2)}`;
+        }
+        if (changeEl && data.change_percent !== null) {
+          const isPositive = data.change_percent >= 0;
+          changeEl.textContent = `${isPositive ? '+' : ''}${data.change_percent.toFixed(2)}%`;
+          changeEl.className = `stat-change ${isPositive ? 'stat-positive' : 'stat-negative'}`;
+        }
+        
+        // Update market cap
+        const marketCapEl = document.getElementById('market-cap');
+        if (marketCapEl && data.market_cap) {
+          marketCapEl.textContent = formatMarketCap(data.market_cap);
+        }
+        
+        // Update volume
+        const volumeEl = document.getElementById('volume');
+        if (volumeEl && data.volume) {
+          volumeEl.textContent = formatVolume(data.volume);
+        }
+        
+        // Update P/E ratio
+        const peEl = document.getElementById('pe-ratio');
+        if (peEl) {
+          peEl.textContent = data.pe_ratio ? data.pe_ratio.toFixed(1) : 'N/A';
+        }
+
+        // Update sidebar price
+        const sbPrice = document.getElementById('sb-price');
+        if (sbPrice && data.price) {
+          const up = (data.change_percent || 0) >= 0;
+          sbPrice.innerHTML = `<span style="color:#e2e8f0;font-weight:600">$${data.price.toFixed(2)}</span> <span style="color:${up?'#10b981':'#ef4444'}">${up?'+':''}${data.change_percent?.toFixed(2)||'0'}%</span>`;
+        }
+
+        // Update company overview
+        const sectorEl = document.getElementById('company-sector');
+        if (sectorEl) {
+          sectorEl.textContent = [data.industry, data.sector].filter(Boolean).join(' \u2022 ') || 'Biotechnology';
+        }
+        const locEl = document.getElementById('company-location');
+        if (locEl) {
+          const parts = [data.city, data.state, data.country].filter(Boolean);
+          locEl.textContent = parts.length ? '\uD83D\uDCCD ' + parts.join(', ') : '';
+        }
+        const empEl = document.getElementById('company-employees');
+        if (empEl) {
+          empEl.textContent = data.employees ? '\uD83D\uDC65 ' + data.employees.toLocaleString() + ' employees' : '';
+        }
+        const exchEl = document.getElementById('company-exchange');
+        if (exchEl) {
+          exchEl.textContent = '\uD83C\uDFDB\uFE0F ' + (EXCHANGE_MAP[currentTicker] || 'NASDAQ');
+        }
+      } catch (err) {
+        console.error('Error loading stock data:', err);
+      }
+    }
+
+    function formatMarketCap(cap) {
+      if (!cap) return 'N/A';
+      if (cap >= 1e12) return `$${(cap / 1e12).toFixed(2)}T`;
+      if (cap >= 1e9) return `$${(cap / 1e9).toFixed(2)}B`;
+      if (cap >= 1e6) return `$${(cap / 1e6).toFixed(2)}M`;
+      return `$${cap}`;
+    }
+
+    function formatVolume(vol) {
+      if (!vol) return 'N/A';
+      if (vol >= 1e9) return `${(vol / 1e9).toFixed(2)}B`;
+      if (vol >= 1e6) return `${(vol / 1e6).toFixed(1)}M`;
+      if (vol >= 1e3) return `${(vol / 1e3).toFixed(1)}K`;
+      return vol.toString();
+    }
+
+    async function loadEarningsData() {
+      try {
+        const response = await fetch(`/api/earnings?ticker=${currentTicker}&days=180`);
+        if (!response.ok) throw new Error('Failed to load earnings');
+        const earnings = await response.json();
+        
+        // Find next earnings for this ticker (first one in the sorted list)
+        const nextEarnings = earnings.find(e => e.ticker === currentTicker);
+        
+        if (nextEarnings) {
+          const date = new Date(nextEarnings.earnings_date);
+          const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          document.getElementById('next-earnings-date').textContent = formattedDate;
+          document.getElementById('next-earnings-quarter').textContent =
+            nextEarnings.quarter + (nextEarnings.status === 'confirmed' ? ' (confirmed)' : ' (est.)');
+
+          document.getElementById('eps-estimate').textContent =
+            nextEarnings.eps_estimate != null ? `$${nextEarnings.eps_estimate.toFixed(2)}` : '--';
+          document.getElementById('revenue-estimate').textContent =
+            nextEarnings.revenue_estimate != null ? `$${(nextEarnings.revenue_estimate / 1e9).toFixed(2)}B` : '--';
+        } else {
+          document.getElementById('next-earnings-date').textContent = 'TBD';
+          document.getElementById('next-earnings-quarter').textContent = 'Date not announced';
+          document.getElementById('eps-estimate').textContent = '--';
+          document.getElementById('revenue-estimate').textContent = '--';
+        }
+        
+      } catch (err) {
+        console.error('Error loading earnings:', err);
+        document.getElementById('next-earnings-date').textContent = 'TBD';
+      }
+    }
+
+    function showSearchModal() {
+      const ticker = prompt('Enter ticker symbol:');
+      if (ticker) addCompany(ticker.toUpperCase());
+    }
+
+    // ── Competitors Slider Functions ────────────────────────────────────────────
+    let currentCompetitor = 0;
+    let totalCompetitors = 0;
+    
+    function initCompetitorSlider(count) {
+      totalCompetitors = count;
+      currentCompetitor = 0;
+      updateCompetitorSlider();
+    }
+    
+    function updateCompetitorSlider() {
+      const slider = document.getElementById('competitors-slider');
+      if (slider) {
+        slider.style.transform = 'translateX(-' + (currentCompetitor * 100) + '%)';
+      }
+      
+      // Update counter
+      const counter = document.getElementById('competitor-counter');
+      if (counter) {
+        counter.textContent = (currentCompetitor + 1) + ' / ' + totalCompetitors;
+      }
+      
+      // Update dots
+      document.querySelectorAll('.competitor-dot').forEach((dot, idx) => {
+        dot.style.background = idx === currentCompetitor ? '#3b82f6' : '#1e2a3a';
+      });
+    }
+    
+    function nextCompetitor() {
+      if (currentCompetitor < totalCompetitors - 1) {
+        currentCompetitor++;
+        updateCompetitorSlider();
+      }
+    }
+    
+    function prevCompetitor() {
+      if (currentCompetitor > 0) {
+        currentCompetitor--;
+        updateCompetitorSlider();
+      }
+    }
+    
+    function goToCompetitor(idx) {
+      currentCompetitor = idx;
+      updateCompetitorSlider();
+    }
+
+    // ── INIT ─────────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTabs();
+      loadCompanyData();
+
+      // Search input
+      $('ticker-search').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          addCompany(e.target.value);
+          e.target.value = '';
+        }
+      });
+    });
+  </script>
+<!-- Executive Bio Modal -->
+<div id="exec-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px" onclick="if(event.target===this)closeExecModal()">
+  <div style="background:#111827;border:1px solid #1f2937;border-radius:12px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto;padding:24px" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <h3 id="exec-modal-name" style="font-size:20px;font-weight:700;margin:0;color:#e2e8f0"></h3>
+      <button onclick="closeExecModal()" style="background:none;border:none;color:#64748b;font-size:24px;cursor:pointer;line-height:1">&times;</button>
+    </div>
+    <div id="exec-modal-title" style="color:#60a5fa;font-size:14px;margin-bottom:16px"></div>
+
+    <!-- Verified data (instant) -->
+    <div id="exec-modal-data"></div>
+
+  </div>
+</div>
+
+<!-- ═══ CHATBOX ═══ -->
+<button class="chat-toggle" id="chat-toggle" onclick="toggleChat()" title="AI Assistant">💬</button>
+<div class="chatbox hidden" id="chatbox">
+  <div class="chat-header">
+    <span>💬 AI Assistant</span>
+    <button onclick="toggleChat()" style="background:none;border:none;color:#64748b;font-size:18px;cursor:pointer">&times;</button>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-msg chat-msg-ai">Ask me about this company's trials, predictions, or pipeline. I'll use verified data and AI analysis to answer.</div>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chat-input" placeholder="Ask about this company..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<script>
+  // ── AI INTELLIGENCE LAYER ──────────────────────────────────────────
+  let tickerIntelData = null;
+
+  async function loadTickerIntel(ticker) {
+    try {
+      const r = await fetch(`/api/ticker-intel/${ticker}`, {signal: AbortSignal.timeout(60000)});
+      const d = await r.json();
+      tickerIntelData = d;
+
+      // Render prediction
+      const predEl = document.getElementById('prediction-body');
+      const badgeEl = document.getElementById('pred-badge');
+      if (d.prediction) {
+        const p = d.prediction;
+        const isSuccess = p.outcome === 'success';
+        const probStr = p.probability != null ? `<div class="pred-label">${(p.probability * 100).toFixed(1)}% failure probability</div>` : '';
+
+        badgeEl.className = 'source-badge source-badge-data';
+        badgeEl.textContent = '✓ ' + (p.source === 'rf_v6' ? 'RandomForest V6' : 'Qwen V5');
+
+        predEl.innerHTML = `
+          <div style="display:flex;gap:16px;flex-wrap:wrap">
+            <div class="pred-card" style="flex:1;min-width:120px">
+              <div class="pred-label">Predicted Outcome</div>
+              <div class="pred-outcome ${isSuccess ? 'pred-success' : 'pred-failure'}">${p.outcome.toUpperCase()}</div>
+              <div class="pred-label">${p.confidence} confidence</div>
+              ${probStr}
+            </div>
+            <div class="pred-card" style="flex:1;min-width:120px">
+              <div class="pred-label">Domain</div>
+              <div style="font-size:18px;font-weight:600;color:#e2e8f0;margin:4px 0">${d.domain || 'unknown'}</div>
+              <div class="pred-label">Focal Trial</div>
+              <div style="font-size:12px;color:#60a5fa;margin-top:4px">${d.focal_trial?.nct_id || ''}</div>
+              <div style="font-size:11px;color:#64748b">${d.focal_trial?.title?.slice(0,50) || ''}...</div>
+            </div>
+            <div class="pred-card" style="flex:1;min-width:120px">
+              <div class="pred-label">Reason Flags</div>
+              <div style="margin-top:8px;font-size:12px">
+                ${Object.entries(d.reason_flags || {}).filter(([k,v]) => v).map(([k]) =>
+                  '<span style="display:inline-block;background:#1e293b;color:#94a3b8;border-radius:4px;padding:2px 8px;margin:2px;font-size:11px">' + k.replace(/_/g,' ') + '</span>'
+                ).join('') || '<span style="color:#64748b;font-size:11px">None flagged</span>'}
+              </div>
+            </div>
+          </div>`;
+      } else {
+        predEl.innerHTML = '<span style="color:#64748b">No prediction available.</span>';
+        badgeEl.textContent = 'N/A';
+      }
+
+      // Render analysis
+      const analysisEl = document.getElementById('analysis-body');
+      if (d.analysis?.text) {
+        analysisEl.innerHTML = `<div style="color:#c4b5fd;font-size:14px;line-height:1.7">${d.analysis.text.replace(/\n/g,'<br>')}</div>`;
+      } else {
+        analysisEl.innerHTML = '<span style="color:#64748b">Analysis unavailable.</span>';
+      }
+
+      // Render supporting evidence
+      const evidenceEl = document.getElementById('evidence-body');
+      if (d.supporting_trials?.length) {
+        evidenceEl.innerHTML = d.supporting_trials.map(s => `
+          <div class="evidence-item">
+            <div class="evidence-score">${(s.similarity_score * 100).toFixed(0)}%</div>
+            <div style="flex:1">
+              <div style="color:#60a5fa;font-weight:500">${s.trial_id}</div>
+              <div style="color:${s.outcome === 'success' ? '#4ade80' : '#f87171'};font-size:12px">${s.outcome} — ${s.reason_summary}</div>
+              <div style="color:#64748b;font-size:11px;margin-top:2px">${s.text || ''}</div>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        evidenceEl.innerHTML = '<span style="color:#64748b">No similar trials retrieved.</span>';
+      }
+
+    } catch(e) {
+      console.error('Intel load failed:', e);
+      document.getElementById('prediction-body').innerHTML = '<span style="color:#64748b">Prediction timed out.</span>';
+      document.getElementById('analysis-body').innerHTML = '<span style="color:#64748b">Analysis timed out.</span>';
+      document.getElementById('evidence-body').innerHTML = '<span style="color:#64748b">Evidence retrieval timed out.</span>';
+    }
+  }
+
+  // ── CHATBOX ─────────────────────────────────────────────────────────
+  function toggleChat() {
+    const box = document.getElementById('chatbox');
+    const btn = document.getElementById('chat-toggle');
+    box.classList.toggle('hidden');
+    btn.style.display = box.classList.contains('hidden') ? 'flex' : 'none';
+  }
+
+  async function sendChat() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+
+    const messages = document.getElementById('chat-messages');
+    messages.innerHTML += `<div class="chat-msg chat-msg-user">You: ${msg}</div>`;
+    messages.innerHTML += `<div class="chat-msg chat-msg-ai" id="chat-loading"><span class="ai-loading-pulse"></span> Thinking...</div>`;
+    messages.scrollTop = messages.scrollHeight;
+
+    try {
+      const ctx = tickerIntelData ? {
+        focal_trial: tickerIntelData.focal_trial,
+        prediction: tickerIntelData.prediction,
+        domain: tickerIntelData.domain,
+      } : {};
+
+      const r = await fetch(`/api/chat/${currentTicker}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: msg, context: ctx}),
+        signal: AbortSignal.timeout(45000),
+      });
+      const d = await r.json();
+
+      const loadingEl = document.getElementById('chat-loading');
+      if (loadingEl) loadingEl.remove();
+
+      const resp = d.response || d.error || 'No response.';
+      const sources = d.sources?.length ? `<div class="chat-msg-meta">Sources: ${d.sources.join(', ')}</div>` : '';
+      messages.innerHTML += `<div class="chat-msg chat-msg-ai">AI: ${resp.replace(/\n/g,'<br>')}${sources}</div>`;
+    } catch(e) {
+      const loadingEl = document.getElementById('chat-loading');
+      if (loadingEl) loadingEl.remove();
+      messages.innerHTML += `<div class="chat-msg chat-msg-ai" style="color:#f87171">Error: ${e.message}</div>`;
+    }
+    messages.scrollTop = messages.scrollHeight;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+{
+  "autoimmune": {
+    "rate": 0.7333,
+    "n": 15
+  },
+  "cardiovascular_metabolic": {
+    "rate": 0.5,
+    "n": 34
+  },
+  "hematologic": {
+    "rate": 0.0,
+    "n": 45
+  },
+  "infectious_disease": {
+    "rate": 0.625,
+    "n": 24
+  },
+  "neurology": {
+    "rate": 0.7778,
+    "n": 9
+  },
+  "oncology": {
+    "rate": 0.7882,
+    "n": 85
+  },
+  "other": {
+    "rate": 0.527,
+    "n": 241
+  },
+  "rare_other": {
+    "rate": 0.0,
+    "n": 3
+  },
+  "respiratory": {
+    "rate": 0.75,
+    "n": 12
+  },
+  "solid_tumor": {
+    "rate": 0.0,
+    "n": 199
+  },
+  "carcinoma, non-small-cell lung": {
+    "rate": 0.125,
+    "n": 8
+  },
+  "epithelial ovarian cancer": {
+    "rate": 0.0,
+    "n": 8
+  },
+  "anemia": {
+    "rate": 0.5,
+    "n": 8
+  },
+  "depression": {
+    "rate": 0.6,
+    "n": 5
+  },
+  "prostatic neoplasms": {
+    "rate": 0.125,
+    "n": 8
+  },
+  "prostate cancer": {
+    "rate": 0.087,
+    "n": 23
+  },
+  "non-small lung cancer": {
+    "rate": 0.1,
+    "n": 10
+  },
+  "glioblastoma": {
+    "rate": 0.95,
+    "n": -1,
+    "source": "literature"
+  },
+  "covid-19": {
+    "rate": 0.625,
+    "n": 8
+  },
+  "actinic keratosis": {
+    "rate": 0.0,
+    "n": 9
+  },
+  "colorectal cancer": {
+    "rate": 0.0833,
+    "n": 12
+  },
+  "carcinoma, hepatocellular": {
+    "rate": 0.0,
+    "n": 6
+  },
+  "diffuse large b-cell lymphoma": {
+    "rate": 0.4444,
+    "n": 9
+  },
+  "follicular lymphoma": {
+    "rate": 0.2222,
+    "n": 9
+  },
+  "chronic lymphocytic leukemia": {
+    "rate": 0.1429,
+    "n": 7
+  },
+  "non-small cell lung cancer": {
+    "rate": 0.05,
+    "n": 20
+  },
+  "gastric cancer": {
+    "rate": 0.0,
+    "n": 8
+  },
+  "arterial hypertension": {
+    "rate": 0.6,
+    "n": 5
+  },
+  "type 2 diabetes": {
+    "rate": 0.1818,
+    "n": 11
+  },
+  "chronic obstructive pulmonary disease": {
+    "rate": 0.3333,
+    "n": 6
+  },
+  "pain": {
+    "rate": 0.6364,
+    "n": 11
+  },
+  "melanoma": {
+    "rate": 0.4167,
+    "n": 12
+  },
+  "ulcer": {
+    "rate": 0.7143,
+    "n": 7
+  },
+  "type 2 diabetes melitus": {
+    "rate": 0.2,
+    "n": 5
+  },
+  "breast cancer": {
+    "rate": 0.1389,
+    "n": 36
+  },
+  "head and neck cancer": {
+    "rate": 0.2222,
+    "n": 9
+  },
+  "myelodysplastic syndromes": {
+    "rate": 0.5,
+    "n": 6
+  },
+  "lymphoma": {
+    "rate": 0.2683,
+    "n": 41
+  },
+  "solid tumor": {
+    "rate": 0.0714,
+    "n": 14
+  },
+  "ovarian cancer": {
+    "rate": 0.1333,
+    "n": 15
+  },
+  "lung cancer": {
+    "rate": 0.1915,
+    "n": 47
+  },
+  "small cell lung cancer": {
+    "rate": 0.1071,
+    "n": 28
+  },
+  "asthma": {
+    "rate": 0.8,
+    "n": 5
+  },
+  "metastatic non-small cell lung cancer": {
+    "rate": 0.0,
+    "n": 5
+  },
+  "disease": {
+    "rate": 0.5918,
+    "n": 49
+  },
+  "acute myeloid leukemia": {
+    "rate": 0.3571,
+    "n": 14
+  },
+  "chronic kidney disease": {
+    "rate": 0.4,
+    "n": 5
+  },
+  "pancreatic cancer": {
+    "rate": 0.92,
+    "n": -1,
+    "source": "literature"
+  },
+  "fallopian tube cancer": {
+    "rate": 0.0,
+    "n": 8
+  },
+  "mantle cell lymphoma": {
+    "rate": 0.3,
+    "n": 10
+  },
+  "solid tumors": {
+    "rate": 0.0,
+    "n": 10
+  },
+  "advanced solid tumors": {
+    "rate": 0.0,
+    "n": 5
+  },
+  "cancer": {
+    "rate": 0.1638,
+    "n": 177
+  },
+  "metastatic melanoma": {
+    "rate": 0.1667,
+    "n": 6
+  },
+  "myelodysplastic syndrome": {
+    "rate": 0.5,
+    "n": 8
+  },
+  "carcinoma": {
+    "rate": 0.1528,
+    "n": 72
+  },
+  "neoplasms": {
+    "rate": 0.32,
+    "n": 25
+  },
+  "peritoneal cancer": {
+    "rate": 0.0,
+    "n": 5
+  },
+  "lung cancer, small cell": {
+    "rate": 0.2,
+    "n": 5
+  },
+  "glioma": {
+    "rate": 0.5,
+    "n": 6
+  },
+  "hypertension": {
+    "rate": 0.75,
+    "n": 12
+  },
+  "diabetes": {
+    "rate": 0.25,
+    "n": 16
+  },
+  "leukemia": {
+    "rate": 0.2963,
+    "n": 27
+  },
+  "multiple myeloma": {
+    "rate": 0.3333,
+    "n": 12
+  },
+  "primary peritoneal": {
+    "rate": 0.0,
+    "n": 5
+  },
+  "covid": {
+    "rate": 0.7,
+    "n": 10
+  },
+  "unresectable": {
+    "rate": 0.0,
+    "n": 7
+  },
+  "locally advanced": {
+    "rate": 0.0,
+    "n": 9
+  },
+  "hodgkin lymphoma": {
+    "rate": 0.4,
+    "n": 5
+  },
+  "lung": {
+    "rate": 0.25,
+    "n": 60
+  },
+  "heart": {
+    "rate": 0.7143,
+    "n": 7
+  },
+  "psoriasis": {
+    "rate": 0.4,
+    "n": 5
+  },
+  "malignant neoplasm": {
+    "rate": 0.6,
+    "n": 5
+  },
+  "alzheimer": {
+    "rate": 0.97,
+    "n": -1,
+    "source": "literature"
+  },
+  "nash": {
+    "rate": 0.85,
+    "n": -1,
+    "source": "literature"
+  },
+  "als": {
+    "rate": 0.95,
+    "n": -1,
+    "source": "literature"
+  },
+  "sepsis": {
+    "rate": 0.9,
+    "n": -1,
+    "source": "literature"
+  },
+  "huntington": {
+    "rate": 0.95,
+    "n": -1,
+    "source": "literature"
+  },
+  "scleroderma": {
+    "rate": 0.88,
+    "n": -1,
+    "source": "literature"
+  },
+  "lupus": {
+    "rate": 0.82,
+    "n": -1,
+    "source": "literature"
+  },
+  "parkinson": {
+    "rate": 0.85,
+    "n": -1,
+    "source": "literature"
+  }
+}

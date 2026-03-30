@@ -1,0 +1,11 @@
+{
+  "drug": "EDP-938 Dose 4",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. N Engl J Med. 2022 Feb 17;386(7):655-666. doi: 10.1056/NEJMoa2108903.\n\nEDP-938, a Respiratory Syncytial Virus Inhibitor, in a Human Virus Challenge.\n\nAhmad A(1), Eze K(1), Noulin N(1), Horvathova V(1), Murray B(1), Baillet M(1), \nGrey L(1), Mori J(1), Adda N(1).\n\nAuthor information:\n(1)From Enanta Pharmaceuticals, Watertown, MA (A.A., N.A.); hVIVO, London (K.E., \nN.N., J.M.), Boyd Consultants, Crew (B.M.), BJM Pharma, St. Neots (B.M.), and \nS-Cubed Biometrics, Abingdon (M.B., L.G.) - all in the United Kingdom; and \nLinical, Frankfurt, Germany (V.H.).\n\nComment in\n    N Engl J Med. 2022 Feb 17;386(7):696-697. doi: 10.1056/NEJMe2118465.\n    J Pediatr. 2022 Aug;247:176-180. doi: 10.1016/j.jpeds.2022.04.053.\n\nBACKGROUND: Respiratory syncytial virus (RSV) infection causes substantial \nmorbidity and mortality among infants, older adults, and immunocompromised \nadults. EDP-938, a nonfusion replication inhibitor of RSV, acts by modulating \nthe viral nucleoprotein.\nMETHODS: In a two-part, phase 2a, randomized, double-blind, placebo-controlled \nchallenge trial, we assigned participants who had been inoculated with RSV-A \nMemphis 37b to receive EDP-938 or placebo. Different doses of EDP-938 were \nassessed. Nasal-wash samples were obtained from day 2 until day 12 for \nassessments. Clinical symptoms were assessed by the participants, and \npharmacokinetic profiles were obtained. The primary end point was the area under \nthe curve (AUC) for the RSV viral load, as measured by \nreverse-transcriptase-quantitative polymerase-chain-reaction assay. The key \nsecondary end point was the AUC for the total symptom score.\nRESULTS: In part 1 of the trial, 115 participants were assigned to receive \nEDP-938 (600 mg once daily [600-mg once-daily group] or 300 mg twice daily after \na 500-mg loading dose [300-mg twice-daily group]) or placebo. In part 2, a total \nof 63 participants were assigned to receive EDP-938 (300 mg once daily after a \n600-mg loading dose [300-mg once-daily group] or 200 m"
+      }
+    ]
+  }
+}

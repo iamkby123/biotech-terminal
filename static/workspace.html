@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Workspace - Biotech Terminal</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; background:#0a0e1a; color:#e2e8f0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+    /* Header */
+    .header { position:sticky; top:0; z-index:100; display:flex; align-items:center; gap:16px;
+      padding:0 20px; height:52px; background:#0d1117; border-bottom:1px solid #1e2a3a; }
+    .header-logo { color:#60a5fa; font-size:16px; font-weight:700; text-decoration:none; }
+    .header-link { color:#94a3b8; font-size:13px; text-decoration:none; padding:6px 12px; border-radius:6px; }
+    .header-link:hover { background:#1e293b; color:#e2e8f0; }
+    .header-link.active { background:#1e1b4b; color:#a78bfa; }
+    .model-badge { margin-left:auto; font-size:11px; color:#4ade80; background:#052e16; border:1px solid #14532d;
+      padding:4px 12px; border-radius:12px; display:flex; align-items:center; gap:6px; }
+    .model-badge .dot { width:6px; height:6px; border-radius:50%; background:#4ade80; }
+
+    /* Workspace container */
+    .workspace { display:flex; flex-direction:column; height:calc(100vh - 52px); overflow:hidden; }
+
+    /* ── Initial "hero" state ── */
+    .workspace:not(.active) .chat-area {
+      flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+    .workspace:not(.active) .chat-input-box { width:680px; max-width:90vw; }
+    .workspace:not(.active) #chat-input {
+      font-size:16px; padding:18px 54px 18px 20px; min-height:60px; border-radius:16px;
+      background:#111827; border:1px solid #1f2937; }
+    .workspace:not(.active) #chat-input:focus { border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,0.15); }
+    .workspace:not(.active) .chat-history { display:none !important; }
+    .workspace:not(.active) .hero-title { display:block; }
+    .workspace:not(.active) .workspace-canvas { display:none !important; }
+
+    /* ── Active state ── */
+    .workspace.active .workspace-canvas { display:flex !important; flex:1; overflow:hidden; }
+    .workspace.active .chat-area { flex-shrink:0; border-top:1px solid #1e2a3a; background:#0d1117; padding:0; }
+    .workspace.active .chat-history { display:block !important; max-height:180px; overflow-y:auto; padding:8px 20px;
+      scrollbar-width:thin; scrollbar-color:#1e293b transparent; }
+    .workspace.active .chat-input-box { width:100%; padding:8px 20px 12px; }
+    .workspace.active #chat-input { font-size:14px; padding:10px 48px 10px 14px; min-height:42px; border-radius:10px; }
+    .workspace.active .hero-title { display:none; }
+    .workspace.active .hints { display:none; }
+
+    .hero-title { margin-bottom:24px; text-align:center; }
+    .hero-title h1 { font-size:28px; font-weight:700; color:#e2e8f0; margin-bottom:8px; }
+    .hero-title p { font-size:14px; color:#64748b; }
+
+    /* Chat elements */
+    .chat-area { transition: all 0.3s ease; }
+    .chat-input-box { position:relative; }
+    #chat-input { width:100%; background:#111827; border:1px solid #1f2937; color:#e2e8f0;
+      resize:none; outline:none; font-family:inherit; transition:all 0.2s; }
+    #send-btn { position:absolute; right:28px; bottom:50%; transform:translateY(50%);
+      background:none; border:none; color:#3b82f6; cursor:pointer; font-size:20px; padding:4px; }
+    #send-btn:hover { color:#60a5fa; }
+
+    .hints { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; justify-content:center; }
+    .hints button { background:#1e293b; border:1px solid #334155; color:#94a3b8; padding:6px 14px;
+      border-radius:8px; font-size:12px; cursor:pointer; transition:all 0.15s; }
+    .hints button:hover { background:#334155; color:#e2e8f0; border-color:#475569; }
+
+    .chat-msg { padding:6px 0; font-size:13px; line-height:1.5; }
+    .chat-msg-user { color:#60a5fa; }
+    .chat-msg-ai { color:#c4b5fd; }
+
+    @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+    .loading-pulse { animation:pulse 1.5s infinite; color:#64748b; }
+
+    /* ── Canvas ── */
+    .canvas-area { flex:1; overflow-y:auto; padding:16px; scrollbar-width:thin; scrollbar-color:#1e293b transparent; }
+    .card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr));
+      gap:14px; align-content:start; }
+
+    /* Cards */
+    .ws-card { background:#111827; border:1px solid #1f2937; border-radius:10px; overflow:hidden;
+      transition: box-shadow 0.15s, transform 0.1s; }
+    .ws-card:hover { box-shadow:0 4px 20px rgba(59,130,246,0.08); }
+    .ws-card.sortable-ghost { opacity:0.35; transform:scale(0.98); }
+    .ws-card .card-hdr { padding:10px 14px; background:#0d1623; border-bottom:1px solid #1e2a3a;
+      display:flex; justify-content:space-between; align-items:center; cursor:grab; user-select:none; }
+    .ws-card .card-hdr span { font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; }
+    .ws-card .card-hdr button { background:none; border:none; color:#475569; cursor:pointer; font-size:16px; line-height:1; }
+    .ws-card .card-hdr button:hover { color:#f87171; }
+    .ws-card .card-body { padding:14px; font-size:13px; line-height:1.6; color:#94a3b8; }
+
+    .ws-card[data-type="prediction"] { border-left:3px solid #8b5cf6; }
+    .ws-card[data-type="trial_data"] { border-left:3px solid #3b82f6; }
+    .ws-card[data-type="news"] { border-left:3px solid #10b981; }
+    .ws-card[data-type="company"] { border-left:3px solid #f59e0b; }
+    .ws-card[data-type="research"] { border-left:3px solid #f59e0b; }
+
+    .pred-out { font-size:24px; font-weight:700; text-align:center; margin:6px 0; }
+    .pred-s { color:#4ade80; }
+    .pred-f { color:#f87171; }
+
+    /* Browser panel */
+    .browser-panel { width:480px; flex-shrink:0; border-left:1px solid #1e2a3a;
+      display:flex; flex-direction:column; background:#0d1117; }
+    .browser-panel.hidden { display:none !important; }
+    .browser-bar { padding:8px 12px; background:#111827; border-bottom:1px solid #1e2a3a;
+      display:flex; justify-content:space-between; align-items:center; }
+    .browser-bar .url { font-size:12px; color:#64748b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+    .browser-bar button { background:none; border:none; color:#64748b; cursor:pointer; font-size:18px; margin-left:8px; }
+    .browser-bar button:hover { color:#f87171; }
+    .browser-panel iframe { flex:1; border:none; background:#f8fafc; }
+    .browser-bar .open-ext { font-size:12px; color:#60a5fa; cursor:pointer; text-decoration:none; margin-left:8px; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="/" class="header-logo">Biotech Terminal</a>
+    <a href="/news" class="header-link">News</a>
+    <a href="/workspace" class="header-link active">AI Workspace</a>
+    <div class="model-badge"><span class="dot"></span> Qwen 0.8B Fine-tuned</div>
+  </header>
+
+  <div class="workspace" id="workspace">
+    <!-- Canvas (hidden until first message) -->
+    <div class="workspace-canvas" style="display:none">
+      <div class="canvas-area" id="canvas-area">
+        <div class="card-grid" id="card-grid"></div>
+      </div>
+      <div class="browser-panel hidden" id="browser-panel">
+        <div class="browser-bar">
+          <span class="url" id="browser-url">about:blank</span>
+          <a class="open-ext" id="browser-ext-link" href="#" target="_blank">open externally</a>
+          <button onclick="closeBrowser()">&times;</button>
+        </div>
+        <iframe id="browser-iframe" src="" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+      </div>
+    </div>
+
+    <!-- Chat area -->
+    <div class="chat-area" id="chat-area">
+      <div class="hero-title">
+        <h1>AI Workspace</h1>
+        <p>Search trials, predict outcomes, and browse clinical data — powered by Qwen 0.8B</p>
+      </div>
+      <div class="chat-history" id="chat-history"></div>
+      <div class="chat-input-box">
+        <textarea id="chat-input" rows="1"
+          placeholder="Ask me about any clinical trial, drug, or company..."
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+        <button id="send-btn" onclick="sendMessage()">&#10148;</button>
+      </div>
+      <div class="hints" id="hints">
+        <button onclick="fillHint('Predict the outcome of NCT05566639')">Predict a trial</button>
+        <button onclick="fillHint('Find Phase 3 oncology trials from Moderna')">Search trials</button>
+        <button onclick="fillHint('Show me clinicaltrials.gov')">Browse ClinicalTrials.gov</button>
+        <button onclick="fillHint('What is the pipeline for Pfizer?')">Company pipeline</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ── State ──
+let isActive = false;
+const chatHistory = [];
+const workspaceCards = {};
+let sortableInstance = null;
+
+// ── Layout transition ──
+function activateWorkspace() {
+  if (isActive) return;
+  isActive = true;
+  document.getElementById('workspace').classList.add('active');
+  sortableInstance = new Sortable(document.getElementById('card-grid'), {
+    animation: 150, handle: '.card-hdr', ghostClass: 'sortable-ghost',
+  });
+}
+
+// ── Send message ──
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  activateWorkspace();
+  appendMsg('user', msg);
+  const loadId = 'load-' + Date.now();
+  appendMsg('ai', '<span class="loading-pulse">Thinking...</span>', loadId);
+  chatHistory.push({role: 'user', content: msg});
+
+  try {
+    const resp = await fetch('/api/workspace/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        message: msg,
+        history: chatHistory.slice(-10),
+        workspace_state: {
+          cards: Object.keys(workspaceCards),
+          browser_url: document.getElementById('browser-iframe')?.src || null,
+        }
+      }),
+      signal: AbortSignal.timeout(90000),
+    });
+    const data = await resp.json();
+
+    // Remove loading
+    const el = document.getElementById(loadId);
+    if (el) el.remove();
+
+    // Show message
+    let reply = data.message || 'Done.';
+    if (data.sources?.length) reply += `\n<span style="font-size:11px;color:#475569">Sources: ${data.sources.join(', ')}</span>`;
+    if (data.elapsed) reply += ` <span style="font-size:11px;color:#475569">(${data.elapsed}s)</span>`;
+    appendMsg('ai', reply);
+    chatHistory.push({role: 'assistant', content: data.message || ''});
+
+    // Execute actions
+    if (data.actions) data.actions.forEach(execAction);
+
+  } catch (e) {
+    const el = document.getElementById(loadId);
+    if (el) el.remove();
+    appendMsg('ai', `Error: ${e.message}`, null, true);
+  }
+}
+
+// ── Actions ──
+function execAction(a) {
+  if (a.type === 'create_card') createCard(a);
+  else if (a.type === 'update_card') updateCard(a);
+  else if (a.type === 'remove_card') removeCard(a.id);
+  else if (a.type === 'navigate_browser') navBrowser(a.url);
+}
+
+// ── Cards ──
+function createCard(a) {
+  const grid = document.getElementById('card-grid');
+  const card = document.createElement('div');
+  card.className = 'ws-card';
+  card.id = 'card-' + a.id;
+  card.dataset.type = a.card_type || 'research';
+  card.innerHTML = buildCard(a);
+  grid.prepend(card);
+  workspaceCards[a.id] = a;
+}
+
+function updateCard(a) {
+  const el = document.getElementById('card-' + a.id);
+  if (!el) return createCard(a);
+  const merged = {...workspaceCards[a.id], ...a};
+  el.innerHTML = buildCard(merged);
+  workspaceCards[a.id] = merged;
+}
+
+function removeCard(id) {
+  const el = document.getElementById('card-' + id);
+  if (el) el.remove();
+  delete workspaceCards[id];
+}
+
+function buildCard(a) {
+  const icons = {prediction:'&#128302;', trial_data:'&#129514;', news:'&#128240;', company:'&#127970;', research:'&#128269;'};
+  const icon = icons[a.card_type] || '&#128203;';
+  let body = '';
+
+  if (a.card_type === 'prediction' && a.data && !a.data.error) {
+    const d = a.data;
+    const cls = d.outcome === 'success' ? 'pred-s' : 'pred-f';
+    const overridden = d.presumption_overridden;
+    body = `
+      ${overridden != null ? `<div style="padding:6px 10px;border-radius:5px;font-size:11px;font-weight:600;margin-bottom:8px;${overridden?'background:#2d0a0a;border:1px solid #7f1d1d;color:#fca5a5':'background:#052e16;border:1px solid #14532d;color:#86efac'}">
+        ${overridden?'PRESUMPTION OVERRIDDEN':'PRESUMPTION OF SUCCESS HOLDS'}
+      </div>` : ''}
+      <div class="pred-out ${cls}">${(d.outcome||'?').toUpperCase()}</div>
+      <div style="text-align:center;color:#64748b;font-size:12px">${d.confidence} confidence | ${(d.probability*100).toFixed(1)}% failure risk</div>
+      <div style="text-align:center;font-size:10px;color:#475569;margin-top:2px">Model: ${d.source}</div>
+      ${d.drivers?.length ? '<div style="border-top:1px solid #1e2a3a;padding-top:8px;margin-top:8px">' +
+        d.drivers.slice(0,5).map(dr => {
+          const c = dr.direction==='risk'?'#f87171':'#4ade80';
+          const sign = dr.impact>0?'+':'';
+          return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0">
+            <span style="color:#94a3b8">${dr.feature}${dr.value?': '+dr.value:''}</span>
+            <span style="color:${c}">${sign}${dr.impact}%</span></div>`;
+        }).join('') + '</div>' : ''}
+      ${d.explanation ? `<div style="margin-top:8px;font-size:12px;color:#94a3b8;border-top:1px solid #1e2a3a;padding-top:8px">${d.explanation}</div>` : ''}
+      ${Object.keys(d.reason_weights||{}).length ? '<div style="margin-top:6px;font-size:11px;color:#64748b">Reasons: '+Object.entries(d.reason_weights).map(([k,v])=>k.replace(/_/g,' ')+' '+Math.round(v*100)+'%').join(', ')+'</div>' : ''}
+    `;
+  } else if (a.card_type === 'trial_data' && a.data) {
+    const d = a.data;
+    body = `
+      <div style="font-size:12px;color:#60a5fa;margin-bottom:6px;cursor:pointer" onclick="window.open('/trial/${d.nct_id||''}')">${d.nct_id||''}</div>
+      <div style="font-size:13px;color:#e2e8f0;margin-bottom:8px">${(d.title||a.content||'').slice(0,100)}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:12px">
+        ${d.phase?`<div><span style="color:#475569">Phase:</span> ${d.phase}</div>`:''}
+        ${d.status?`<div><span style="color:#475569">Status:</span> ${d.status}</div>`:''}
+        ${d.sponsor?`<div><span style="color:#475569">Sponsor:</span> ${(d.sponsor||'').slice(0,25)}</div>`:''}
+        ${d.enrollment?`<div><span style="color:#475569">Enrollment:</span> ${d.enrollment}</div>`:''}
+      </div>
+      ${d.condition?`<div style="margin-top:4px;font-size:12px"><span style="color:#475569">Condition:</span> ${(d.condition||'').slice(0,50)}</div>`:''}
+      <div style="margin-top:8px"><a href="/trial/${d.nct_id||''}" style="color:#60a5fa;font-size:11px;text-decoration:none">View full trial page &rarr;</a></div>
+    `;
+  } else {
+    body = `<div style="font-size:13px">${a.content||JSON.stringify(a.data||{}).slice(0,200)}</div>`;
+  }
+
+  return `
+    <div class="card-hdr">
+      <span>${icon} ${(a.title||'Card').slice(0,50)}</span>
+      <button onclick="removeCard('${a.id}')">&times;</button>
+    </div>
+    <div class="card-body">${body}</div>`;
+}
+
+// ── Browser ──
+function navBrowser(url) {
+  const panel = document.getElementById('browser-panel');
+  const iframe = document.getElementById('browser-iframe');
+  panel.classList.remove('hidden');
+  iframe.src = url;
+  document.getElementById('browser-url').textContent = url;
+  document.getElementById('browser-ext-link').href = url;
+
+  // Detect if iframe is blocked and fallback
+  iframe.onerror = function() {
+    iframe.srcdoc = `<div style="padding:40px;font-family:sans-serif;text-align:center">
+      <p>This site cannot be embedded. <a href="${url}" target="_blank">Open in new tab</a></p></div>`;
+  };
+}
+function closeBrowser() {
+  document.getElementById('browser-panel').classList.add('hidden');
+  document.getElementById('browser-iframe').src = '';
+}
+
+// ── Chat messages ──
+function appendMsg(role, content, id, isErr) {
+  const c = document.getElementById('chat-history');
+  const div = document.createElement('div');
+  div.className = 'chat-msg chat-msg-' + role;
+  if (id) div.id = id;
+  if (isErr) div.style.color = '#f87171';
+  div.innerHTML = `<strong>${role==='user'?'You':'AI'}:</strong> ${content.replace(/\n/g,'<br>')}`;
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+}
+
+// ── Helpers ──
+function fillHint(t) { document.getElementById('chat-input').value = t; document.getElementById('chat-input').focus(); }
+document.getElementById('chat-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+</script>
+</body>
+</html>

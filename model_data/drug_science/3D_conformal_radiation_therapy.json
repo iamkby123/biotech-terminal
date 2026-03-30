@@ -1,0 +1,11 @@
+{
+  "drug": "3D conformal radiation therapy",
+  "science": {
+    "mechanism": [
+      {
+        "title": "1",
+        "abstract": "1. Cureus. 2022 Mar 28;14(3):e23568. doi: 10.7759/cureus.23568. eCollection 2022 \nMar.\n\nA Dosimetric Study Comparing 3D-CRT vs. IMRT vs. VMAT in Left-Sided Breast \nCancer Patients After Mastectomy at a Tertiary Care Centre in Eastern India.\n\nDas Majumdar SK(1), Amritt A(1), Dhar SS(1), Barik S(1), Beura SS(2), Mishra \nT(3), Muduly DK(4), Dash A(5), Parida DK(1).\n\nAuthor information:\n(1)Radiation Oncology, All India Institute of Medical Sciences, Bhubaneswar, \nBhubaneswar, IND.\n(2)Medical Physics, All India Institute of Medical Sciences, Bhubaneswar, \nBhubaneswar, IND.\n(3)Surgery, All India Institute of Medical Sciences, Bhubaneswar, Bhubaneswar, \nIND.\n(4)Surgical Oncology, All India Institute of Medical Sciences, Bhubaneswar, \nBhubaneswar, IND.\n(5)Pharmacology, All India Institute of Medical Sciences, Bhubaneswar, \nBhubaneswar, IND.\n\nIntroduction Post-mastectomy radiation in left-sided breast cancer in women \ncontinues to pose a significant risk to the underlying lungs and heart. This \nstudy analyzed the difference in planning target volume (PTV) coverage and dose \nto the organs at risk (OAR) by using three different planning methods for the \nsame patient - three-dimensional conformal radiotherapy (3D-CRT), \nintensity-modulated radiotherapy (IMRT), and volumetric-modulated arc therapy \n(VMAT). Material and methods Thirty-five left-sided breast cancer patients' \npost-mastectomy were included in this study, and three different plans for \nadjuvant radiation were created using 3D-CRT, IMRT, and VMAT. The prescribed \ndose was 50Gy in 25 fractions. ﻿Kruskal-Wallis analysis of variance (ANOVA) was \ndone, followed by a pairwise t-test to establish a hierarchy of plan quality and \ndosimetric benefits. The plans were compared with PTV95, homogeneity index (HI), \nconformity index (CI), hotspot (V107%), left lung V20Gy, mean lung dose, heart \nV25Gy, mean heart dose, and integral dose (ID) to the body. Results Both VMAT \nand IMRT led to improved PTV95% coverage (95.63±1.82%, p=0"
+      }
+    ]
+  }
+}

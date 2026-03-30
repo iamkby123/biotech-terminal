@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biotech Terminal - Clinical Trial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0e1a;color:#e2e8f0}
+    a{color:#60a5fa;text-decoration:none}
+    a:hover{text-decoration:underline}
+    
+    .header{position:sticky;top:0;z-index:100;background:#0d1117;border-bottom:1px solid #1e2a3a;padding:12px 20px;display:flex;align-items:center;gap:16px}
+    
+    .main-content{max-width:1200px;margin:0 auto;padding:24px}
+    
+    .trial-header{background:linear-gradient(135deg,#1e3a5f 0%,#0d1623 100%);padding:32px;border-radius:12px;margin-bottom:24px;border:1px solid #1e2a3a}
+    .nct-badge{background:#0d1117;border:1px solid #1e2a3a;padding:6px 12px;border-radius:6px;font-size:13px;font-family:monospace;color:#94a3b8}
+    .trial-title{font-size:28px;font-weight:700;margin:16px 0;color:#e2e8f0;line-height:1.3}
+    
+    .phase-badge{display:inline-block;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:600;margin-right:12px}
+    .phase-4{background:#1d4ed8;color:#fff}
+    .phase-3{background:#3b82f6;color:#fff}
+    .phase-2{background:#7c3aed;color:#fff}
+    .phase-1{background:#a855f7;color:#fff}
+    
+    .status-badge{display:inline-block;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:600}
+    .status-recruiting{background:#059669;color:#fff}
+    .status-active{background:#0891b2;color:#fff}
+    .status-completed{background:#2563eb;color:#fff}
+    .status-terminated{background:#dc2626;color:#fff}
+    .status-suspended{background:#d97706;color:#fff}
+    .status-withdrawn{background:#6b7280;color:#fff}
+    .status-default{background:#4b5563;color:#fff}
+    
+    .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:24px}
+    .info-card{background:rgba(13,17,23,0.7);border:1px solid #1e2a3a;border-radius:8px;padding:16px}
+    .info-label{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px}
+    .info-value{font-size:16px;font-weight:600;color:#e2e8f0}
+    
+    .section{background:#111827;border:1px solid #1f2937;border-radius:12px;margin-bottom:24px;overflow:hidden}
+    .section-header{padding:16px 20px;border-bottom:1px solid #1e2a3a;background:#0d1623}
+    .section-title{font-size:14px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em}
+    .section-body{padding:20px}
+    
+    .location-item{padding:12px;background:#0d1623;border:1px solid #1e2a3a;border-radius:8px;margin-bottom:8px}
+    .location-name{font-weight:600;color:#e2e8f0;margin-bottom:4px}
+    .location-details{font-size:13px;color:#64748b}
+    
+    .eligibility-box{background:#0d1623;border:1px solid #1e2a3a;border-radius:8px;padding:16px;white-space:pre-wrap;font-size:14px;line-height:1.6;color:#94a3b8}
+    
+    .description-text{font-size:15px;line-height:1.7;color:#94a3b8}
+    
+    .results-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:#059669;color:#fff;border-radius:6px;font-size:14px;font-weight:600}
+    
+    .cta-button{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:#1e3a5f;color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:all 0.2s}
+    .cta-button:hover{background:#2563eb;text-decoration:none}
+    
+    .back-link{display:inline-flex;align-items:center;gap:8px;color:#94a3b8;font-size:14px;cursor:pointer;transition:color 0.2s}
+    .back-link:hover{color:#60a5fa}
+    
+    .loading{display:flex;align-items:center;justify-content:center;height:200px;color:#64748b}
+    .error{color:#ef4444;padding:20px;text-align:center}
+    .source-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;cursor:default;flex-shrink:0}
+    .source-badge-data{background:#052e16;color:#4ade80;border:1px solid #16a34a}
+    .source-badge-ai{background:#1e1b4b;color:#a78bfa;border:1px solid #6d28d9}
+    .source-badge-evidence{background:#0c2d1a;color:#34d399;border:1px solid #059669}
+    .pred-card{background:#0d1623;border:1px solid #1e3a5f;border-radius:10px;padding:16px;text-align:center}
+    .pred-outcome{font-size:28px;font-weight:700;margin:4px 0}
+    .pred-success{color:#4ade80}.pred-failure{color:#f87171}
+    .pred-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.05em}
+    .ai-summary-container{border-left:3px solid #6d28d9!important}
+    .ai-disclaimer{padding:8px 20px 12px;font-size:11px;color:#64748b;font-style:italic;border-top:1px solid #1e2a3a}
+    .ai-loading-pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:#a78bfa;animation:pulse 1.2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+    .evidence-item{background:#0d1623;border:1px solid #1e2a3a;border-radius:10px;padding:16px;margin-bottom:12px}
+    
+    /* sidebar + breadcrumb */
+    .breadcrumb{padding:6px 20px;background:#0d1117;border-bottom:1px solid #1e2a3a;font-size:12px;color:#64748b}
+    .breadcrumb a{color:#60a5fa;font-weight:600;text-decoration:none}.breadcrumb a:hover{text-decoration:underline}
+    .breadcrumb .sep{color:#475569;margin:0 6px}
+    .page-wrap{display:flex;min-height:calc(100vh - 78px)}
+    .sidebar{width:220px;min-width:220px;background:#0d1117;border-right:1px solid #1e2a3a;display:flex;flex-direction:column;position:sticky;top:42px;height:calc(100vh - 78px);overflow:hidden}
+    .sb-ticker{padding:12px 16px;font-size:16px;font-weight:700;color:#e2e8f0;border-bottom:1px solid #1e2a3a}
+    .sb-price{padding:6px 16px 10px;font-size:13px;border-bottom:1px solid #1e2a3a}
+    .sb-section-hdr{padding:8px 16px 4px;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em}
+    .sb-list{overflow-y:auto;flex:1}
+    .sb-item{display:block;padding:5px 16px;font-size:12px;color:#94a3b8;text-decoration:none;border-left:3px solid transparent;transition:all .1s}
+    .sb-item:hover{background:#111827;color:#e2e8f0;text-decoration:none;border-left-color:#3b82f6}
+    .sb-item.active{color:#60a5fa;border-left-color:#60a5fa;background:#0d1623;font-weight:600}
+    .main-scroll{flex:1;overflow-y:auto}
+    .company-bar{padding:8px 20px;background:#0d1623;border-bottom:1px solid #1e2a3a;font-size:12px;display:flex;gap:16px;align-items:center}
+    .company-bar a{color:#60a5fa;font-weight:600}
+    @media(max-width:900px){.sidebar{display:none}}
+
+    ::-webkit-scrollbar{width:8px;height:8px}
+    ::-webkit-scrollbar-track{background:#0d1117}
+    ::-webkit-scrollbar-thumb{background:#1f2937;border-radius:4px}
+    ::-webkit-scrollbar-thumb:hover{background:#2d3f5a}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="/" style="font-size:18px;font-weight:700;color:#60a5fa">🧬 Biotech Terminal</a>
+    <div style="flex:1"></div>
+    <span class="back-link" onclick="goBack()">← Back</span>
+  </header>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb" id="breadcrumb">
+    <a href="/">Home</a><span class="sep">›</span><span id="bc-ticker">...</span><span class="sep">›</span><span>Trials</span><span class="sep">›</span><span id="bc-trial" style="color:#e2e8f0">Loading...</span>
+  </div>
+
+  <div class="page-wrap">
+    <div class="sidebar" id="sidebar">
+      <div class="sb-ticker" id="sb-ticker">--</div>
+      <div class="sb-price" id="sb-price">--</div>
+      <div class="sb-section-hdr">Drugs</div>
+      <div class="sb-list" id="sb-drugs" style="max-height:40%">Loading...</div>
+      <div class="sb-section-hdr">Trials</div>
+      <div class="sb-list" id="sb-trials">Loading...</div>
+    </div>
+    <div class="main-scroll">
+      <div class="company-bar" id="company-bar" style="display:none">
+        <a id="cb-link" href="#">--</a>
+        <span id="cb-name" style="color:#94a3b8">--</span>
+        <span id="cb-price" style="color:#e2e8f0">--</span>
+        <span id="cb-stats" style="color:#64748b">--</span>
+      </div>
+
+      <main class="main-content" id="main-content">
+        <div class="loading">Loading trial data...</div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Get NCT ID from URL
+    const pathParts = window.location.pathname.split('/');
+    const nctId = decodeURIComponent(pathParts[pathParts.length - 1]);
+    const fromTicker = new URLSearchParams(location.search).get('from') || '';
+
+    let trialData = null;
+
+    function $(id) { return document.getElementById(id); }
+
+    // Update breadcrumb
+    $('bc-trial').textContent = nctId;
+    if (fromTicker) {
+      $('bc-ticker').innerHTML = `<a href="/company/${fromTicker}">${fromTicker}</a>`;
+    }
+
+    // Load sidebar from parent company
+    async function loadSidebar() {
+      if (!fromTicker) { $('sidebar').style.display = 'none'; return; }
+      try {
+        const r = await fetch(`/api/company/${fromTicker}`);
+        if (!r.ok) throw new Error();
+        const d = await r.json();
+
+        $('sb-ticker').textContent = fromTicker + (d.info?.company_name ? ' · ' + d.info.company_name : '');
+        $('company-bar').style.display = 'flex';
+        $('cb-link').href = `/company/${fromTicker}`;
+        $('cb-link').textContent = fromTicker;
+        $('cb-name').textContent = d.info?.company_name || '';
+        $('cb-stats').textContent = `${(d.trials||[]).length} trials · ${(d.drugs||[]).length} drugs`;
+
+        // Drugs list
+        const drugs = d.drugs || [];
+        $('sb-drugs').innerHTML = drugs.length === 0
+          ? '<div style="padding:6px 16px;color:#64748b;font-size:11px">No drugs</div>'
+          : drugs.slice(0, 15).map(dr =>
+            `<a class="sb-item" href="/drug/${encodeURIComponent(dr.name)}?from=${fromTicker}">${dr.name}</a>`
+          ).join('');
+
+        // Trials list — highlight current trial
+        const trials = d.trials || [];
+        $('sb-trials').innerHTML = trials.length === 0
+          ? '<div style="padding:6px 16px;color:#64748b;font-size:11px">No trials</div>'
+          : trials.slice(0, 25).map(t => {
+            const isActive = t.nct_id === nctId;
+            return `<a class="sb-item${isActive?' active':''}" href="/trial/${t.nct_id}?from=${fromTicker}">${t.nct_id}</a>`;
+          }).join('');
+
+        // Scroll active item into view
+        setTimeout(() => {
+          const active = document.querySelector('.sb-item.active');
+          if (active) active.scrollIntoView({block:'center',behavior:'smooth'});
+        }, 100);
+
+        // Stock price
+        try {
+          const sr = await fetch(`/api/stock/${fromTicker}`);
+          if (sr.ok) {
+            const s = await sr.json();
+            const up = (s.change_percent||0) >= 0;
+            const priceHtml = `<span style="color:#e2e8f0;font-weight:600">$${s.price?.toFixed(2)||'--'}</span> <span style="color:${up?'#10b981':'#ef4444'}">${up?'+':''}${s.change_percent?.toFixed(2)||'0'}%</span>`;
+            $('sb-price').innerHTML = priceHtml;
+            $('cb-price').innerHTML = priceHtml;
+          }
+        } catch {}
+      } catch {
+        $('sidebar').style.display = 'none';
+      }
+    }
+    loadSidebar();
+    
+    function getPhaseClass(phase) {
+      if (!phase) return 'phase-1';
+      const p = phase.toLowerCase().replace(/\s/g, '').replace('phase', '');
+      if (p.includes('4') || p.includes('iv')) return 'phase-4';
+      if (p.includes('3') || p.includes('iii')) return 'phase-3';
+      if (p.includes('2') || p.includes('ii')) return 'phase-2';
+      return 'phase-1';
+    }
+    
+    function getStatusClass(status) {
+      if (!status) return 'status-default';
+      const s = status.toLowerCase();
+      if (s.includes('recruit')) return 'status-recruiting';
+      if (s.includes('active')) return 'status-active';
+      if (s.includes('complete')) return 'status-completed';
+      if (s.includes('terminat')) return 'status-terminated';
+      if (s.includes('suspend')) return 'status-suspended';
+      if (s.includes('withdraw')) return 'status-withdrawn';
+      return 'status-default';
+    }
+    
+    function formatDate(dateStr) {
+      if (!dateStr) return 'Not Available';
+      try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+      } catch {
+        return dateStr;
+      }
+    }
+    
+    function goBack() {
+      if (document.referrer && document.referrer.includes(window.location.host)) {
+        history.back();
+      } else {
+        window.location.href = '/';
+      }
+    }
+    
+    function renderTrialPage() {
+      if (!trialData) {
+        $('main-content').innerHTML = '<div class="loading">Loading...</div>';
+        return;
+      }
+      
+      if (trialData.error) {
+        $('main-content').innerHTML = `
+          <div style="text-align:center;padding:60px 20px">
+            <div style="font-size:48px;margin-bottom:16px">🔍</div>
+            <h2 style="color:#e2e8f0;margin-bottom:8px">Trial ${nctId} not in local database</h2>
+            <p style="color:#64748b;margin-bottom:24px">This trial hasn't been imported yet. View it directly on ClinicalTrials.gov.</p>
+            <a href="https://clinicaltrials.gov/study/${nctId}" target="_blank" class="cta-button" style="display:inline-flex">
+              View ${nctId} on ClinicalTrials.gov ↗
+            </a>
+            <div style="margin-top:12px">
+              <a href="javascript:history.back()" style="color:#64748b;font-size:14px">← Go back</a>
+            </div>
+          </div>`;
+        return;
+      }
+      
+      const phaseClass = getPhaseClass(trialData.phase);
+      const statusClass = getStatusClass(trialData.status);
+      const phaseText = trialData.phase || 'Phase 1';
+      const statusText = trialData.status || 'Unknown';
+      
+      // Build locations HTML — scrollable if many
+      let locationsSection = '';
+      if (trialData.locations && trialData.locations.length > 0) {
+        const locCount = trialData.locations.length;
+        const locsHtml = trialData.locations.map(loc => `
+          <div class="location-item">
+            <div class="location-name">${loc.facility || loc.city || 'Unknown Location'}</div>
+            <div class="location-details">
+              ${loc.city ? loc.city + ', ' : ''}${loc.state || ''} ${loc.country || ''}
+              ${loc.status ? '• ' + loc.status : ''}
+            </div>
+          </div>
+        `).join('');
+        locationsSection = `
+        <div class="section">
+          <div class="section-header"><span class="section-title">📍 Study Locations (${locCount})</span></div>
+          <div class="section-body" style="${locCount > 5 ? 'max-height:300px;overflow-y:auto' : ''}">
+            ${locsHtml}
+          </div>
+        </div>`;
+      }
+
+      // Build eligibility section — only if data exists
+      let eligibilitySection = '';
+      if (trialData.eligibility_criteria && trialData.eligibility_criteria.trim().length > 10) {
+        eligibilitySection = `
+        <div class="section">
+          <div class="section-header"><span class="section-title">✅ Eligibility Criteria</span></div>
+          <div class="section-body"><div class="eligibility-box">${trialData.eligibility_criteria}</div></div>
+        </div>`;
+      }
+
+      // Build description section — only if data exists
+      let descriptionSection = '';
+      const descText = trialData.brief_summary || trialData.detailed_description || '';
+      if (descText.trim().length > 10) {
+        const displayText = trialData.brief_summary || trialData.detailed_description.substring(0, 1000) + (trialData.detailed_description.length > 1000 ? '...' : '');
+        descriptionSection = `
+        <div class="section">
+          <div class="section-header"><span class="section-title">📝 Description</span></div>
+          <div class="section-body"><div class="description-text">${displayText}</div></div>
+        </div>`;
+      }
+
+      // Why stopped — only if data exists
+      const whyStoppedHtml = trialData.why_stopped
+        ? `<div class="section"><div class="section-header"><span class="section-title">⚠️ Why Stopped</span></div><div class="section-body"><div style="color:#ef4444">${trialData.why_stopped}</div></div></div>`
+        : '';
+      
+      $('main-content').innerHTML = `
+        <div class="trial-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <span class="nct-badge">📋 ${trialData.nct_id}</span>
+            ${trialData.results_posted ? '<span class="results-badge">✓ Results Posted</span>' : ''}
+          </div>
+          
+          <h1 class="trial-title">${trialData.title || 'Untitled Trial'}</h1>
+          
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;align-items:center">
+            <span class="phase-badge ${phaseClass}">${phaseText}</span>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+            <span id="outcome-badge" style="display:none"></span>
+          </div>
+          
+          <div class="info-grid">
+            ${trialData.sponsor ? `<div class="info-card"><div class="info-label">Sponsor</div><div class="info-value">${trialData.sponsor}</div></div>` : ''}
+            ${trialData.study_type ? `<div class="info-card"><div class="info-label">Study Type</div><div class="info-value">${trialData.study_type}</div></div>` : ''}
+            ${trialData.study_design ? `<div class="info-card"><div class="info-label">Study Design</div><div class="info-value">${trialData.study_design}</div></div>` : ''}
+            ${trialData.condition ? `<div class="info-card"><div class="info-label">Condition</div><div class="info-value">${trialData.condition}</div></div>` : ''}
+            ${trialData.start_date ? `<div class="info-card"><div class="info-label">Start Date</div><div class="info-value">${formatDate(trialData.start_date)}</div></div>` : ''}
+            ${trialData.primary_completion_date ? `<div class="info-card"><div class="info-label">Expected Completion</div><div class="info-value">${formatDate(trialData.primary_completion_date)}</div></div>` : ''}
+            ${trialData.enrollment ? `<div class="info-card"><div class="info-label">Enrollment</div><div class="info-value">${trialData.enrollment}</div></div>` : ''}
+            ${trialData.principal_investigator ? `<div class="info-card"><div class="info-label">Principal Investigator</div><div class="info-value">${trialData.principal_investigator}</div></div>` : ''}
+          </div>
+          <div id="aact-chars" style="display:none"></div>
+        </div>
+        
+        ${descriptionSection}
+
+        ${whyStoppedHtml}
+
+        ${trialData.intervention ? `
+        <div class="section">
+          <div class="section-header"><span class="section-title">💊 Intervention</span></div>
+          <div class="section-body"><div class="description-text">${trialData.intervention}</div></div>
+        </div>` : ''}
+
+        ${eligibilitySection}
+
+        ${locationsSection}
+        
+        <!-- ═══ TRIAL RESULT ═══ -->
+        <div id="trial-result-section" style="display:none"></div>
+
+        <!-- ═══ AI INTELLIGENCE ═══ -->
+        <div class="section" style="border-left:3px solid #3b82f6">
+          <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="section-title">🎯 Trial Prediction</span>
+            <span class="source-badge source-badge-data" id="pred-badge">Loading...</span>
+          </div>
+          <div class="section-body" id="prediction-body">
+            <div style="color:#64748b;font-size:13px"><span class="ai-loading-pulse"></span> Running prediction model...</div>
+          </div>
+        </div>
+
+        <!-- ═══ RISK BREAKDOWN ═══ -->
+        <div class="section" style="border-left:3px solid #f59e0b;display:none" id="risk-section">
+          <div class="section-header"><span class="section-title">⚡ Risk Breakdown</span></div>
+          <div class="section-body" id="risk-body"></div>
+        </div>
+
+        <!-- ═══ DRUG MECHANISM ═══ -->
+        <div class="section" style="border-left:3px solid #a78bfa;display:none" id="drug-mech-section">
+          <div class="section-header"><span class="section-title">🧬 Drug Mechanism</span><span class="source-badge" style="background:#1e1b4b;color:#a78bfa;border:1px solid #3730a3" id="drug-mech-badge">PubMed</span></div>
+          <div class="section-body" id="drug-mech-body"></div>
+        </div>
+
+        <!-- ═══ CONFIDENCE CALIBRATION ═══ -->
+        <div class="section" style="border-left:3px solid #10b981;display:none" id="calibration-section">
+          <div class="section-header"><span class="section-title">📊 Confidence Calibration</span></div>
+          <div class="section-body" id="calibration-body"></div>
+        </div>
+
+        <!-- ═══ MODEL DECISION TREES ═══ -->
+        <div class="section" style="border-left:3px solid #f59e0b;display:none" id="trees-section">
+          <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="section-title">🌲 Model Decision Trees</span>
+            <span class="source-badge" style="background:#451a03;color:#f59e0b;border:1px solid #78350f">XGBoost</span>
+          </div>
+          <div class="section-body" id="trees-body"></div>
+        </div>
+
+        <div class="section ai-summary-container" style="border-left:3px solid #8b5cf6"
+          <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="section-title">🧠 AI Analysis</span>
+            <span class="source-badge" style="background:#1e1b4b;color:#a78bfa;border:1px solid #3730a3" id="analysis-badge">✦ Researching...</span>
+          </div>
+          <div class="section-body" id="analysis-body">
+            <div style="color:#64748b;font-size:13px"><span class="ai-loading-pulse"></span> Researching trial... searching web for company, drug, and regulatory data</div>
+          </div>
+          <div id="analysis-sources" style="display:none;padding:8px 20px 12px;border-top:1px solid #1e2a3a"></div>
+          <div class="ai-disclaimer">AI-generated analysis with web research. Always verify with primary sources.</div>
+        </div>
+
+        <div class="section" style="border-left:3px solid #059669">
+          <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="section-title">📋 Similar Trials</span>
+            <span class="source-badge source-badge-evidence">📎 Completed Trials</span>
+          </div>
+          <div class="section-body" id="evidence-body">
+            <div style="color:#64748b;font-size:13px"><span class="ai-loading-pulse"></span> Retrieving similar trials...</div>
+          </div>
+        </div>
+
+        <div style="text-align:center;padding:20px">
+          <a href="https://clinicaltrials.gov/study/${trialData.nct_id}" target="_blank" class="cta-button">
+            View on ClinicalTrials.gov ↗
+          </a>
+        </div>
+      `;
+    }
+    
+    async function loadTrialData() {
+      try {
+        const response = await fetch(`/api/trial/${encodeURIComponent(nctId)}`);
+        if (!response.ok) throw new Error('Failed to load trial data');
+        trialData = await response.json();
+        console.log('Trial data loaded:', trialData);
+      } catch (err) {
+        console.error('Error loading trial data:', err);
+        trialData = { error: err.message };
+      }
+      renderTrialPage();
+
+      // Show trial outcome badge if available
+      const ob = $('outcome-badge');
+      if (ob && trialData?.trial_outcome) {
+        const to = trialData.trial_outcome;
+        const oc = (to.outcome || '').toLowerCase();
+        const colorMap = {
+          'success': ['#4ade80','#052e16','#14532d'],
+          'endpoint met': ['#4ade80','#052e16','#14532d'],
+          'endpoint not met': ['#f87171','#2d0a0a','#7f1d1d'],
+          'lack of efficacy': ['#f87171','#2d0a0a','#7f1d1d'],
+          'safety failure': ['#fb923c','#431407','#7c2d12'],
+          'crl received': ['#f43f5e','#4c0519','#881337'],
+          'mixed results': ['#f59e0b','#451a03','#78350f'],
+          'enrollment failure': ['#a78bfa','#1e1b4b','#3730a3'],
+          'business decision': ['#94a3b8','#1e293b','#334155'],
+          'regulatory hold': ['#fb923c','#431407','#7c2d12'],
+          'failure': ['#f87171','#2d0a0a','#7f1d1d'],
+        };
+        const [color, bg, border] = colorMap[oc] || ['#94a3b8','#1e293b','#334155'];
+        ob.style.display = 'inline-block';
+        ob.style.padding = '8px 20px';
+        ob.style.borderRadius = '6px';
+        ob.style.fontSize = '14px';
+        ob.style.fontWeight = '700';
+        ob.style.color = color;
+        ob.style.background = bg;
+        ob.style.border = '1px solid ' + border;
+        ob.textContent = 'RESULT: ' + to.outcome.toUpperCase();
+        ob.title = to.reason || '';
+
+        // Show detailed result section
+        const rs = $('trial-result-section');
+        if (rs) {
+          const isPos = oc === 'success' || oc === 'endpoint met';
+          const borderColor = isPos ? '#10b981' : (oc.includes('safety') ? '#f97316' : '#ef4444');
+          rs.style.display = 'block';
+          rs.innerHTML = `<div class="section" style="border-left:3px solid ${borderColor}">
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+              <span class="section-title">📊 Trial Result</span>
+              <span style="font-size:12px;font-weight:700;color:${color};background:${bg};border:1px solid ${border};padding:4px 12px;border-radius:4px">${to.outcome.toUpperCase()}</span>
+            </div>
+            <div class="section-body">
+              <div style="font-size:15px;font-weight:600;color:${color};margin-bottom:8px">${to.outcome.charAt(0).toUpperCase() + to.outcome.slice(1)}</div>
+              ${to.reason ? '<div style="font-size:13px;color:#c4b5fd;line-height:1.6">' + to.reason + '</div>' : ''}
+              <div style="font-size:11px;color:#475569;margin-top:8px">Source: ${to.source?.replace(/_/g, ' ') || 'database'}</div>
+            </div>
+          </div>`;
+        }
+      }
+    }
+
+    async function loadTrialIntel() {
+      // Reset all intel sections to loading state for this trial
+      if ($('prediction-body')) $('prediction-body').innerHTML = '<div style="color:#64748b;font-size:13px"><span class="ai-loading-pulse"></span> Running prediction for ' + nctId + '...</div>';
+      if ($('analysis-body')) $('analysis-body').innerHTML = '<div style="color:#64748b;font-size:13px"><span class="ai-loading-pulse"></span> Generating analysis...</div>';
+      if ($('evidence-body')) $('evidence-body').innerHTML = '<div style="color:#64748b;font-size:13px"><span class="ai-loading-pulse"></span> Retrieving similar completed trials...</div>';
+      if ($('pred-badge')) $('pred-badge').textContent = 'Loading...';
+
+      try {
+        // Cache-bust to ensure fresh data per trial
+        const r = await fetch(`/api/trial-intel/${encodeURIComponent(nctId)}?t=${Date.now()}`, {signal: AbortSignal.timeout(120000)});
+        const d = await r.json();
+
+        // Prediction
+        const predEl = $('prediction-body');
+        const badgeEl = $('pred-badge');
+        if (d.prediction) {
+          const p = d.prediction;
+          const isS = p.outcome === 'success';
+          const probStr = p.probability != null ? `<div class="pred-label">${(p.probability*100).toFixed(1)}% failure probability</div>` : '';
+          badgeEl.className = 'source-badge source-badge-data';
+          const srcLabel = 'ML Prediction';
+          badgeEl.textContent = '✓ ' + srcLabel;
+          // Build drivers HTML
+          const drivers = p.drivers || [];
+          const maxImpact = Math.max(...drivers.map(d => Math.abs(d.impact || d.importance || 0)), 1);
+          const driversHtml = drivers.length > 0 ? drivers.map(dr => {
+            const impact = dr.impact ?? dr.importance ?? 0;
+            const barWidth = Math.min(Math.abs(impact) / maxImpact * 100, 100);
+            const isRisk = dr.direction === 'risk' || impact > 0;
+            const barColor = isRisk ? '#ef4444' : '#10b981';
+            const sign = isRisk ? '+' : '';
+            const dot = isRisk ? '●' : '○';
+            return `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px">
+              <span style="color:${barColor};width:12px">${dot}</span>
+              <span style="color:#94a3b8;min-width:140px">${dr.feature}${dr.value ? ': '+dr.value : ''}</span>
+              <div style="flex:1;height:8px;background:#1e293b;border-radius:4px;overflow:hidden;position:relative;min-width:60px">
+                <div style="position:absolute;${isRisk?'left':'right'}:0;top:0;height:100%;width:${barWidth}%;background:${barColor};border-radius:4px"></div>
+              </div>
+              <span style="color:${barColor};font-size:11px;font-weight:600;min-width:50px;text-align:right">${typeof impact === 'number' ? impact.toFixed(1) : impact}%</span>
+            </div>`;
+          }).join('') : '<span style="color:#64748b;font-size:11px">No feature data available</span>';
+
+          // Condition risk warning
+          const condRisk = p.condition_risk;
+          const presumptionHtml = condRisk ? `
+            <div style="margin-bottom:12px;padding:10px 14px;border-radius:8px;background:#451a03;border:1px solid #78350f">
+              <div style="font-size:13px;font-weight:700;color:#f59e0b;margin-bottom:4px">⚠ High-Risk Condition: ${condRisk.condition}</div>
+              <div style="font-size:12px;color:#fbbf24">Historical failure rate for ${condRisk.condition} trials: <strong>${condRisk.condition_failure_rate}%</strong></div>
+              <div style="font-size:11px;color:#92400e;margin-top:4px">
+                Model raw: ${condRisk.model_raw}% failure → Adjusted: <strong>${condRisk.blended}%</strong> (${condRisk.adjustment > 0 ? '+' : ''}${condRisk.adjustment}pp condition adjustment)
+              </div>
+            </div>
+          ` : '';
+
+          // Simplified — no reason weights or weight explanation for GB model
+          const rwBarHtml = '';
+          const weHtml = '';
+
+          // Confidence gauge
+          const failPct = p.probability != null ? Math.round(p.probability * 100) : 50;
+          const gaugeColor = failPct < 30 ? '#10b981' : (failPct < 60 ? '#f59e0b' : '#ef4444');
+          const gaugeAngle = (failPct / 100) * 180;
+
+          // Dual model data
+          const dual = p.dual;
+          const opt = dual ? dual.optimist : null;
+          const pes = dual ? dual.pessimist : null;
+          const agreement = dual ? dual.agreement : null;
+
+          // Use dual model data if available, otherwise fallback to single model
+          const optSucc = opt ? opt.success_pct : (100 - failPct);
+          const optFail = opt ? opt.failure_pct : failPct;
+          const optConf = opt ? opt.confidence : (optSucc >= 70 ? 'High' : optSucc >= 50 ? 'Medium' : 'Low');
+          const pesSucc = pes ? pes.success_pct : (100 - failPct);
+          const pesFail = pes ? pes.failure_pct : failPct;
+          const pesConf = pes ? pes.confidence : (pesFail >= 70 ? 'High' : pesFail >= 50 ? 'Medium' : 'Low');
+
+          const agreeColor = agreement === 'AGREE' ? '#10b981' : '#f59e0b';
+          const agreeText = agreement === 'AGREE' ? 'Models Agree' : 'Models Disagree — High Uncertainty';
+
+          predEl.innerHTML = `
+            ${presumptionHtml}
+
+            <!-- Agreement indicator -->
+            ${dual ? `<div style="text-align:center;margin-bottom:12px">
+              <span style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;color:${agreeColor};background:${agreeColor}15;border:1px solid ${agreeColor}40">
+                ${agreement === 'AGREE' ? '✓' : '⚠'} ${agreeText}${dual.combined_confidence ? ' • Combined confidence: ' + dual.combined_confidence : ''}
+              </span>
+            </div>` : ''}
+
+            <!-- Dual Prediction: Optimist vs Pessimist -->
+            <div style="display:flex;gap:12px;margin-bottom:16px">
+              <!-- OPTIMIST (Success-biased) -->
+              <div style="flex:1;padding:16px;border-radius:10px;border:2px solid #10b981;background:#052e1620;position:relative">
+                <div style="position:absolute;top:-8px;left:12px;background:#10b981;color:#052e16;font-size:8px;font-weight:700;padding:2px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:0.05em">Optimist Model</div>
+                <div style="text-align:center;margin-top:4px">
+                  <div style="font-size:10px;color:#64748b;text-transform:uppercase">Success Probability</div>
+                  <div style="font-size:32px;font-weight:800;color:#4ade80;margin:4px 0">${optSucc}%</div>
+                  <div style="font-size:10px;color:#10b981;font-weight:600">${optConf} confidence</div>
+                </div>
+                <div style="height:6px;background:#1e293b;border-radius:3px;overflow:hidden;margin:10px 0">
+                  <div style="height:100%;width:${optSucc}%;background:linear-gradient(90deg,#10b981,#4ade80);border-radius:3px"></div>
+                </div>
+                <div style="font-size:10px;color:#64748b;line-height:1.4">
+                  ${opt ? opt.bias : 'Assumes success, looks for failure evidence'}<br>
+                  <span style="color:#94a3b8">${opt ? opt.features : 'Design, sponsor, enrollment'}</span>
+                </div>
+              </div>
+
+              <!-- PESSIMIST (Failure-biased) -->
+              <div style="flex:1;padding:16px;border-radius:10px;border:2px solid #ef4444;background:#2d0a0a20;position:relative">
+                <div style="position:absolute;top:-8px;left:12px;background:#ef4444;color:#2d0a0a;font-size:8px;font-weight:700;padding:2px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:0.05em">Pessimist Model</div>
+                <div style="text-align:center;margin-top:4px">
+                  <div style="font-size:10px;color:#64748b;text-transform:uppercase">Failure Probability</div>
+                  <div style="font-size:32px;font-weight:800;color:#f87171;margin:4px 0">${pesFail}%</div>
+                  <div style="font-size:10px;color:#ef4444;font-weight:600">${pesConf} confidence</div>
+                </div>
+                <div style="height:6px;background:#1e293b;border-radius:3px;overflow:hidden;margin:10px 0">
+                  <div style="height:100%;width:${pesFail}%;background:linear-gradient(90deg,#ef4444,#f87171);border-radius:3px"></div>
+                </div>
+                <div style="font-size:10px;color:#64748b;line-height:1.4">
+                  ${pes ? pes.bias : 'Assumes failure, looks for success evidence'}<br>
+                  <span style="color:#94a3b8">${pes ? pes.features : 'Condition, drug class, competition'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:16px;flex-wrap:wrap">
+              <!-- Drivers -->
+              <div class="pred-card" style="flex:1;min-width:250px">
+                <div class="pred-label">Prediction Drivers</div>
+                <div style="margin-top:8px">${driversHtml}</div>
+              </div>
+            </div>
+
+            <!-- Analytics Grid -->
+            <div id="analytics-panel" style="margin-top:12px">
+              <div style="color:#64748b;font-size:12px"><span class="ai-loading-pulse"></span> Computing analytics...</div>
+            </div>
+            <div id="ensemble-panel"></div>`;
+
+          // Build ensemble breakdown AFTER innerHTML is set
+          var ensSignals = p.signals || [];
+          var ensAvail = ensSignals.filter(function(s){return s.available;});
+          if (ensAvail.length > 0) {
+            var ensHtml = '<div style="border-top:2px solid #8b5cf6;padding:14px 0">';
+            ensHtml += '<div style="font-size:13px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px">Ensemble Signal Breakdown</div>';
+            ensAvail.forEach(function(s) {
+              var color = s.prob < 0.35 ? '#10b981' : s.prob < 0.65 ? '#f59e0b' : '#ef4444';
+              var pct = Math.round(s.prob * 100);
+              ensHtml += '<div style="display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px">' +
+                '<span style="color:#e2e8f0;min-width:130px;font-weight:500">' + s.name + '</span>' +
+                '<span style="color:' + color + ';font-weight:700;min-width:40px">' + pct + '%</span>' +
+                '<div style="flex:1;height:8px;background:#1e293b;border-radius:4px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:4px"></div></div>' +
+                '<span style="color:#64748b;font-size:10px;min-width:35px">' + Math.round(s.weight*100) + '%w</span>' +
+                '</div><div style="font-size:10px;color:#94a3b8;margin-bottom:6px;padding-left:4px">' + (s.detail||'') + '</div>';
+            });
+            ensHtml += '</div>';
+            var ep = document.getElementById('ensemble-panel');
+            if (ep) ep.innerHTML = ensHtml;
+          }
+        } else {
+          predEl.innerHTML = '<span style="color:#64748b">No prediction available.</span>';
+          badgeEl.textContent = 'N/A';
+        }
+
+        // AI Analysis — render research-backed analysis
+        if (d.analysis?.text) {
+          const badge = $('analysis-badge');
+          if (badge) {
+            badge.textContent = d.analysis.source_type === 'local_drug_science' ? '✦ Drug Science (PubMed)'
+                              : d.analysis.source_type === 'qwen_v8_web_research' ? '✦ Web-Researched'
+                              : '✦ AI Generated';
+            badge.style.background = '#1e1b4b';
+          }
+          // Format analysis text with section headers
+          let analysisHtml = d.analysis.text
+            .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#e2e8f0">$1</strong>')
+            .replace(/^(#{1,3})\s+(.+)$/gm, (m, hashes, title) => `<div style="font-size:${hashes.length===1?'16':'14'}px;font-weight:700;color:#a78bfa;margin:16px 0 8px;border-bottom:1px solid #1e293b;padding-bottom:4px">${title}</div>`)
+            .replace(/\n/g, '<br>');
+          $('analysis-body').innerHTML = `<div style="color:#c4b5fd;font-size:14px;line-height:1.8">${analysisHtml}</div>`;
+
+          // Render sources
+          const sources = d.analysis.sources || [];
+          const srcEl = $('analysis-sources');
+          if (sources.length > 0 && srcEl) {
+            srcEl.style.display = 'block';
+            srcEl.innerHTML = `<div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Sources</div>` +
+              sources.map(s => `<div style="margin-bottom:4px">
+                <a href="${s.url}" target="_blank" style="color:#60a5fa;font-size:12px;text-decoration:none">${s.title}</a>
+                <span style="color:#475569;font-size:11px"> — ${(s.snippet||'').slice(0,100)}</span>
+              </div>`).join('');
+          }
+        } else {
+          $('analysis-body').innerHTML = '<span style="color:#64748b">Analysis unavailable.</span>';
+        }
+
+        // Analytics panel
+        const aPanel = $('analytics-panel');
+        if (aPanel && d.analytics) {
+          const a = d.analytics;
+          let aHtml = '';
+
+          // 1. Historical base rates
+          if (a.base_rates) {
+            const br = a.base_rates;
+            const lc = br.label === 'HIGH' ? '#10b981' : (br.label === 'MEDIUM' ? '#f59e0b' : '#ef4444');
+            aHtml += `<div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Historical Base Rate</span>
+                <span style="font-size:10px;font-weight:700;color:${lc};background:${lc}15;padding:1px 8px;border-radius:4px">${br.label}</span>
+              </div>
+              <div style="font-size:13px;color:#e2e8f0;margin-top:4px">${br.phase} ${br.condition}: <strong>${br.rate}%</strong> completion rate</div>
+              <div style="font-size:11px;color:#64748b">${br.completed} completed · ${br.terminated} terminated (n=${br.total})</div>
+            </div>`;
+          }
+
+          // 2. Design quality
+          if (a.design_quality) {
+            const dq = a.design_quality;
+            const sc = dq.score >= 4 ? '#10b981' : (dq.score >= 2 ? '#f59e0b' : '#ef4444');
+            aHtml += `<div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Design Quality</span>
+                <span style="font-size:13px;font-weight:700;color:${sc}">${dq.score}/${dq.total}</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;margin-top:6px;font-size:12px">
+                ${dq.checks.map(c => `<span style="color:${c.pass?'#10b981':'#64748b'}">${c.pass?'✓':'✗'} ${c.name}</span>`).join('')}
+              </div>
+            </div>`;
+          }
+
+          // 2b. Trial Characteristics (from AACT enrichment)
+          if (a.trial_characteristics && Object.keys(a.trial_characteristics).length > 0) {
+            const tc = a.trial_characteristics;
+            const charItems = Object.entries(tc).map(([k, v]) =>
+              `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1e293b22">
+                <span style="color:#94a3b8;font-size:11px">${k}</span>
+                <span style="color:#e2e8f0;font-size:12px;font-weight:600">${v}</span>
+              </div>`
+            ).join('');
+            aHtml += `<div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px">
+              <div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">📋 Trial Characteristics</div>
+              ${charItems}
+            </div>`;
+          }
+
+          // 3. Sponsor track record
+          if (a.sponsor_record) {
+            const sr = a.sponsor_record;
+            const lc = sr.label === 'EXPERIENCED' ? '#10b981' : (sr.label === 'MODERATE' ? '#f59e0b' : '#64748b');
+            aHtml += `<div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Sponsor: ${sr.name}</span>
+                <span style="font-size:10px;font-weight:700;color:${lc};background:${lc}15;padding:1px 8px;border-radius:4px">${sr.label}</span>
+              </div>
+              <div style="font-size:12px;color:#e2e8f0;margin-top:4px">${sr.total} trials · ${sr.completed} completed · ${sr.terminated} terminated</div>
+              ${sr.total > 0 ? '<div style="font-size:11px;color:#64748b">Completion rate: '+sr.rate+'%</div>' : ''}
+            </div>`;
+          }
+
+          // 4. Competitive landscape
+          if (a.competition) {
+            const cl = a.competition;
+            const lc = cl.label === 'HIGH' ? '#f59e0b' : (cl.label === 'MEDIUM' ? '#60a5fa' : '#10b981');
+            aHtml += `<div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Competitive Landscape</span>
+                <span style="font-size:10px;font-weight:700;color:${lc};background:${lc}15;padding:1px 8px;border-radius:4px">${cl.label} COMPETITION</span>
+              </div>
+              <div style="font-size:12px;color:#e2e8f0;margin-top:4px">${cl.total} ${cl.condition} trials total</div>
+              <div style="font-size:11px;color:#64748b">${cl.active} active · ${cl.completed} completed · ${cl.terminated} terminated</div>
+            </div>`;
+          }
+
+          // 5. Drug class success rates
+          if (a.drug_class && a.drug_class.total > 0) {
+            const dc = a.drug_class;
+            const dcRate = dc.success_rate || 0;
+            const dcColor = dcRate > 60 ? '#10b981' : (dcRate > 40 ? '#f59e0b' : '#ef4444');
+            aHtml += `<div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Drug Class: ${dc.modality}</span>
+                <span style="font-size:10px;font-weight:700;color:${dcColor};background:${dcColor}15;padding:1px 8px;border-radius:4px">${dcRate}% SUCCESS</span>
+              </div>
+              <div style="font-size:12px;color:#e2e8f0;margin-top:4px">${dc.intervention}: ${dc.completed} completed · ${dc.terminated} terminated (n=${dc.total})</div>
+              <div style="height:6px;background:#1e293b;border-radius:3px;margin-top:6px;overflow:hidden">
+                <div style="height:100%;width:${dcRate}%;background:${dcColor};border-radius:3px"></div>
+              </div>
+            </div>`;
+          }
+
+          // 6. Enrollment comparison
+          if (a.enrollment_comparison) {
+            const ec = a.enrollment_comparison;
+            const pctColor = ec.percentile > 60 ? '#10b981' : (ec.percentile > 30 ? '#f59e0b' : '#ef4444');
+            const markerPos = Math.min(Math.max(ec.percentile, 2), 98);
+            aHtml += `<div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Enrollment Comparison</span>
+                <span style="font-size:10px;font-weight:700;color:${pctColor};background:${pctColor}15;padding:1px 8px;border-radius:4px">${ec.percentile}th percentile</span>
+              </div>
+              <div style="font-size:12px;color:#e2e8f0;margin-top:4px">This trial: <strong>${ec.trial_enrollment.toLocaleString()}</strong> pts · Median: ${ec.median_enrollment.toLocaleString()} pts</div>
+              <div style="position:relative;height:16px;background:#1e293b;border-radius:4px;margin-top:6px">
+                <div style="position:absolute;left:0;top:0;height:100%;width:${markerPos}%;background:linear-gradient(90deg,#0f172a,${pctColor}30);border-radius:4px"></div>
+                <div style="position:absolute;left:${markerPos}%;top:-2px;width:3px;height:20px;background:${pctColor};border-radius:2px;transform:translateX(-50%)"></div>
+                <span style="position:absolute;left:2px;top:1px;font-size:9px;color:#64748b">${ec.min_enrollment}</span>
+                <span style="position:absolute;right:2px;top:1px;font-size:9px;color:#64748b">${ec.max_enrollment.toLocaleString()}</span>
+              </div>
+              <div style="font-size:10px;color:#64748b;margin-top:2px">Based on ${ec.sample_size} similar trials</div>
+            </div>`;
+          }
+
+          // 7. Phase transition rate
+          if (a.phase_transition) {
+            const pt = a.phase_transition;
+            const ptColor = pt.transition_rate > 50 ? '#10b981' : (pt.transition_rate > 25 ? '#f59e0b' : '#ef4444');
+            aHtml += `<div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Phase Advancement</span>
+                <span style="font-size:10px;font-weight:700;color:${ptColor};background:${ptColor}15;padding:1px 8px;border-radius:4px">${pt.transition_rate}%</span>
+              </div>
+              <div style="font-size:12px;color:#e2e8f0;margin-top:4px">${pt.current_count} trials at ${pt.current_phase} → ${pt.next_count} advanced to ${pt.next_phase}</div>
+              <div style="height:6px;background:#1e293b;border-radius:3px;margin-top:6px;overflow:hidden">
+                <div style="height:100%;width:${pt.transition_rate}%;background:${ptColor};border-radius:3px"></div>
+              </div>
+            </div>`;
+          }
+
+          // 8. Timeline
+          if (a.timeline) {
+            const tl = a.timeline;
+            const tlColor = tl.vs_typical === 'faster' ? '#10b981' : (tl.vs_typical === 'typical' ? '#60a5fa' : '#f59e0b');
+            const tlIcon = tl.vs_typical === 'faster' ? '⚡' : (tl.vs_typical === 'typical' ? '📅' : '🐢');
+            aHtml += `<div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Trial Duration</span>
+                <span style="font-size:10px;font-weight:700;color:${tlColor};background:${tlColor}15;padding:1px 8px;border-radius:4px">${tlIcon} ${tl.vs_typical.toUpperCase()}</span>
+              </div>
+              <div style="font-size:12px;color:#e2e8f0;margin-top:4px">${tl.duration_months} months (typical: ${tl.typical_months} months)</div>
+              <div style="font-size:11px;color:#64748b">${tl.start_date} → ${tl.completion_date}</div>
+            </div>`;
+          }
+
+          aPanel.innerHTML = aHtml || '<span style="color:#64748b;font-size:11px">No analytics available</span>';
+
+          // ═══ AACT CHARACTERISTICS CARDS (from enriched focal_trial) ═══
+          const ft = d.focal_trial || {};
+          const aactEl = document.getElementById('aact-chars');
+          if (aactEl) {
+            const cards = [];
+            if (ft.allocation) cards.push({label: 'Allocation', value: ft.allocation, icon: '🎲'});
+            if (ft.masking) cards.push({label: 'Masking', value: ft.masking, icon: '🔒'});
+            if (ft.intervention_model) cards.push({label: 'Intervention Model', value: ft.intervention_model, icon: '📊'});
+            if (ft.primary_purpose) cards.push({label: 'Primary Purpose', value: ft.primary_purpose, icon: '🎯'});
+            if (ft.num_arms) cards.push({label: 'Arms', value: ft.num_arms, icon: '🔀'});
+            if (ft.age_range) cards.push({label: 'Age Range', value: ft.age_range, icon: '👤'});
+            if (ft.duration_months) cards.push({label: 'Planned Duration', value: ft.duration_months + ' months', icon: '⏱️'});
+            if (ft.num_countries && ft.num_countries > 1) cards.push({label: 'Countries', value: ft.num_countries, icon: '🌍'});
+
+            if (cards.length > 0) {
+              aactEl.style.display = 'block';
+              aactEl.innerHTML = `<div class="info-grid" style="margin-top:8px">${cards.map(c =>
+                `<div class="info-card"><div class="info-label">${c.icon} ${c.label}</div><div class="info-value">${c.value}</div></div>`
+              ).join('')}</div>`;
+            }
+          }
+
+          // ═══ RISK BREAKDOWN (separate section with sub-factors) ═══
+          if (a.risk_scores && a.risk_scores.length > 0) {
+            $('risk-section').style.display = 'block';
+            var overallRisk = a.overall_risk || 5;
+            var overallColor = overallRisk <= 3 ? '#10b981' : overallRisk <= 6 ? '#f59e0b' : '#ef4444';
+            var riskHtml = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:10px;background:#0f172a;border-radius:8px">' +
+              '<div style="font-size:32px;font-weight:700;color:' + overallColor + '">' + overallRisk + '</div>' +
+              '<div><div style="font-size:13px;font-weight:600;color:#e2e8f0">Overall Risk Score</div>' +
+              '<div style="font-size:11px;color:#64748b">Average across 5 risk categories (1=low, 10=high)</div></div></div>';
+
+            riskHtml += a.risk_scores.map(function(r) {
+              var color = r.score <= 3 ? '#10b981' : r.score <= 6 ? '#f59e0b' : '#ef4444';
+              var label = r.score <= 3 ? 'Low' : r.score <= 6 ? 'Moderate' : 'High';
+              var subs = r.sub_factors || [];
+              var subsHtml = subs.length > 0 ? '<div style="margin-top:6px;padding-left:8px;border-left:2px solid ' + color + '30">' +
+                subs.map(function(s) { return '<div style="font-size:11px;color:#94a3b8;margin:3px 0;line-height:1.4">' + s + '</div>'; }).join('') +
+                '</div>' : '';
+              return '<details style="margin-bottom:8px" open>' +
+                '<summary style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:8px 0">' +
+                '<span style="font-size:13px;font-weight:600;color:#e2e8f0">' + r.label + ' Risk</span>' +
+                '<span style="font-size:11px;font-weight:700;color:' + color + ';background:' + color + '15;padding:2px 10px;border-radius:4px">' + label + ' (' + r.score + '/10)</span>' +
+                '</summary>' +
+                '<div style="padding-bottom:8px">' +
+                '<div style="height:8px;background:#1e293b;border-radius:4px;overflow:hidden;margin-bottom:6px">' +
+                '<div style="height:100%;width:' + (r.score*10) + '%;background:' + color + ';border-radius:4px"></div></div>' +
+                subsHtml +
+                '</div></details>';
+            }).join('');
+            $('risk-body').innerHTML = riskHtml;
+          }
+
+          // ═══ DRUG MECHANISM (separate section) ═══
+          if (a.drug_mechanism && a.drug_mechanism.data) {
+            var dm = a.drug_mechanism;
+            var dd = dm.data;
+            $('drug-mech-section').style.display = 'block';
+            $('drug-mech-badge').textContent = dm.drug_name || 'PubMed';
+            var dmHtml = '';
+            if (dd.mechanism) dmHtml += '<div style="margin-bottom:10px"><div style="font-size:10px;color:#a78bfa;text-transform:uppercase;font-weight:600;margin-bottom:4px">Mechanism of Action</div><div style="font-size:12px;color:#c4b5fd;line-height:1.6;background:#0f172a;padding:10px;border-radius:6px">' + dd.mechanism.substring(0,400) + '</div></div>';
+            if (dd.targets) dmHtml += '<div style="margin-bottom:10px"><div style="font-size:10px;color:#a78bfa;text-transform:uppercase;font-weight:600;margin-bottom:4px">Molecular Targets</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">' + dd.targets.substring(0,300) + '</div></div>';
+            if (dd.safety_profile) dmHtml += '<div style="margin-bottom:10px"><div style="font-size:10px;color:#a78bfa;text-transform:uppercase;font-weight:600;margin-bottom:4px">Safety Profile</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">' + dd.safety_profile.substring(0,300) + '</div></div>';
+            if (dd.prior_results) dmHtml += '<div><div style="font-size:10px;color:#a78bfa;text-transform:uppercase;font-weight:600;margin-bottom:4px">Prior Clinical Results</div>' + dd.prior_results.map(function(r){return '<div style="font-size:11px;color:#94a3b8;line-height:1.4;margin-bottom:6px;border-left:2px solid #3730a3;padding-left:8px">' + r.substring(0,250) + '</div>';}).join('') + '</div>';
+            $('drug-mech-body').innerHTML = dmHtml;
+          }
+
+          // ═══ CONFIDENCE CALIBRATION (separate section) ═══
+          if (a.calibration) {
+            var cal = a.calibration;
+            var composite = cal.composite_historical_success;
+            if (composite != null || cal.data_points > 0) {
+              $('calibration-section').style.display = 'block';
+              var confColor = cal.confidence_level === 'high' ? '#10b981' : cal.confidence_level === 'medium' ? '#f59e0b' : '#64748b';
+              var calHtml = '';
+              if (composite != null) {
+                calHtml += '<div style="display:flex;align-items:center;gap:16px;margin-bottom:12px">' +
+                  '<div style="font-size:36px;font-weight:700;color:' + confColor + '">' + composite + '%</div>' +
+                  '<div><div style="font-size:13px;color:#e2e8f0;font-weight:600">Composite historical success rate</div>' +
+                  '<div style="font-size:11px;color:#64748b">Based on ' + cal.data_points + ' data sources • Confidence: <strong style="color:' + confColor + '">' + cal.confidence_level + '</strong></div></div></div>';
+              }
+              calHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+              if (cal.phase_condition_rate != null) calHtml += '<div style="background:#0f172a;padding:8px 10px;border-radius:6px"><div style="font-size:10px;color:#64748b">Phase + Condition</div><div style="font-size:16px;font-weight:700;color:#e2e8f0;margin-top:2px">' + cal.phase_condition_rate + '%</div><div style="font-size:9px;color:#475569">n=' + cal.phase_condition_n + '</div></div>';
+              if (cal.drug_class_rate != null) calHtml += '<div style="background:#0f172a;padding:8px 10px;border-radius:6px"><div style="font-size:10px;color:#64748b">Drug Class</div><div style="font-size:16px;font-weight:700;color:#e2e8f0;margin-top:2px">' + cal.drug_class_rate + '%</div><div style="font-size:9px;color:#475569">n=' + cal.drug_class_n + '</div></div>';
+              if (cal.enrollment_percentile != null) calHtml += '<div style="background:#0f172a;padding:8px 10px;border-radius:6px"><div style="font-size:10px;color:#64748b">Enrollment Percentile</div><div style="font-size:16px;font-weight:700;color:#e2e8f0;margin-top:2px">' + cal.enrollment_percentile + 'th</div></div>';
+              if (cal.phase_advancement_rate != null) calHtml += '<div style="background:#0f172a;padding:8px 10px;border-radius:6px"><div style="font-size:10px;color:#64748b">Phase Advancement</div><div style="font-size:16px;font-weight:700;color:#e2e8f0;margin-top:2px">' + cal.phase_advancement_rate + '%</div></div>';
+              calHtml += '</div>';
+              $('calibration-body').innerHTML = calHtml;
+            }
+          }
+        }
+
+        // ═══ LOAD DECISION TREES (async, non-blocking) ═══
+        (async function() {
+          try {
+            var tr = await fetch('/api/model/trees?count=3');
+            var td = await tr.json();
+            if (td.trees && td.trees.length > 0) {
+              $('trees-section').style.display = 'block';
+              var tHtml = '';
+
+              // Model summary
+              var s = td.summary || {};
+              tHtml += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">';
+              tHtml += '<div style="background:#0f172a;padding:8px 12px;border-radius:6px;flex:1;min-width:100px"><div style="font-size:10px;color:#f59e0b">Total Trees</div><div style="font-size:20px;font-weight:700;color:#e2e8f0">' + (s.total_trees||'?') + '</div></div>';
+              tHtml += '<div style="background:#0f172a;padding:8px 12px;border-radius:6px;flex:1;min-width:100px"><div style="font-size:10px;color:#f59e0b">Features</div><div style="font-size:20px;font-weight:700;color:#e2e8f0">' + (s.features_used||'?') + '</div></div>';
+              tHtml += '<div style="background:#0f172a;padding:8px 12px;border-radius:6px;flex:1;min-width:100px"><div style="font-size:10px;color:#f59e0b">Learning Rate</div><div style="font-size:20px;font-weight:700;color:#e2e8f0">' + (s.learning_rate||'?') + '</div></div>';
+              tHtml += '<div style="background:#0f172a;padding:8px 12px;border-radius:6px;flex:1;min-width:100px"><div style="font-size:10px;color:#f59e0b">Max Depth</div><div style="font-size:20px;font-weight:700;color:#e2e8f0">' + (s.max_depth||'?') + '</div></div>';
+              tHtml += '</div>';
+
+              // How Gradient Boosting Works
+              tHtml += '<div style="margin-bottom:16px;padding:12px;background:#0f172a;border-radius:8px;border:1px solid #1e293b">';
+              tHtml += '<div style="font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;margin-bottom:8px">How Gradient Boosting Works</div>';
+              tHtml += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:11px">';
+              tHtml += '<div style="background:#1e293b;padding:4px 8px;border-radius:4px;color:#94a3b8">Base Rate</div>';
+              tHtml += '<span style="color:#f59e0b">→</span>';
+              tHtml += '<div style="background:#2d0a0a;padding:4px 8px;border-radius:4px;color:#f87171">Tree 1 corrects errors</div>';
+              tHtml += '<span style="color:#f59e0b">→</span>';
+              tHtml += '<div style="background:#2d0a0a;padding:4px 8px;border-radius:4px;color:#fbbf24">Tree 2 refines</div>';
+              tHtml += '<span style="color:#f59e0b">→</span>';
+              tHtml += '<div style="background:#1e293b;padding:4px 8px;border-radius:4px;color:#94a3b8">... × ' + (s.total_trees||500) + '</div>';
+              tHtml += '<span style="color:#f59e0b">→</span>';
+              tHtml += '<div style="background:#052e16;padding:4px 8px;border-radius:4px;color:#4ade80;font-weight:600">Final Score</div>';
+              tHtml += '</div>';
+              tHtml += '<div style="font-size:10px;color:#64748b;margin-top:6px">Each tree learns from the mistakes of previous trees. The final prediction is the sum of all ' + (s.total_trees||500) + ' tree contributions.</div>';
+              tHtml += '</div>';
+
+              // Render each tree
+              function renderNode(node, depth) {
+                if (!node) return '';
+                var indent = depth * 20;
+                if (node.type === 'leaf') {
+                  var leafColor = node.leaf > 0 ? '#f87171' : '#4ade80';
+                  var leafLabel = node.leaf > 0 ? 'Risk +' + (node.leaf * 100).toFixed(2) + '%' : 'Safe ' + (node.leaf * 100).toFixed(2) + '%';
+                  return '<div style="margin-left:' + indent + 'px;padding:4px 8px;background:' + leafColor + '15;border:1px solid ' + leafColor + '40;border-radius:4px;display:inline-block;margin:2px 0;font-size:11px;color:' + leafColor + ';font-weight:600">' + leafLabel + '</div>';
+                }
+                var nodeId = 'tn-' + Math.random().toString(36).substr(2,6);
+                var html = '<div style="margin-left:' + indent + 'px;margin:3px 0">';
+                html += '<div onclick="var c=document.getElementById(\'' + nodeId + '\');c.style.display=c.style.display===\'none\'?\'block\':\'none\'" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:6px 10px;background:#1e293b;border:1px solid #334155;border-radius:6px;font-size:12px;transition:all 0.2s" onmouseover="this.style.borderColor=\'#f59e0b\'" onmouseout="this.style.borderColor=\'#334155\'">';
+                html += '<span style="color:#f59e0b;font-size:10px">▼</span>';
+                html += '<span style="color:#e2e8f0;font-weight:500">' + (node.feature||'?') + '</span>';
+                html += '<span style="color:#64748b;font-size:10px">';
+                if (typeof node.threshold === 'number') {
+                  html += (node.threshold % 1 === 0 ? '= ' + node.threshold : '< ' + node.threshold.toFixed(2));
+                }
+                html += '</span>';
+                html += '</div>';
+                html += '<div id="' + nodeId + '" style="border-left:2px solid #334155;margin-left:12px;padding-left:8px">';
+                if (node.children) {
+                  html += '<div style="font-size:9px;color:#10b981;margin:2px 0">YES ↓</div>';
+                  html += renderNode(node.children[0], 0);
+                  html += '<div style="font-size:9px;color:#f87171;margin:2px 0">NO ↓</div>';
+                  if (node.children[1]) html += renderNode(node.children[1], 0);
+                }
+                html += '</div></div>';
+                return html;
+              }
+
+              td.trees.forEach(function(tree) {
+                tHtml += '<details style="margin-bottom:12px" ' + (tree.tree_id === 0 ? 'open' : '') + '>';
+                tHtml += '<summary style="cursor:pointer;font-size:13px;font-weight:600;color:#e2e8f0;padding:8px 0">Tree #' + tree.tree_id + '</summary>';
+                tHtml += '<div style="padding:8px;background:#0a0e1a;border-radius:6px;overflow-x:auto;max-height:400px;overflow-y:auto">';
+                tHtml += renderNode(tree.root, 0);
+                tHtml += '</div></details>';
+              });
+
+              $('trees-body').innerHTML = tHtml;
+            }
+          } catch(e) { console.log('Tree load skipped:', e.message); }
+        })();
+
+        // Evidence
+        const eEl = $('evidence-body');
+        if (d.supporting_trials?.length) {
+          eEl.innerHTML = d.supporting_trials.map(s => {
+            const oc = (s.outcome || '').toLowerCase();
+            const isSuccess = oc === 'success' || oc === 'endpoint met';
+            const isEndpointFail = oc === 'endpoint not met';
+            const isSafetyFail = oc === 'safety failure';
+            const isCRL = oc === 'crl received';
+            const isEfficacyFail = oc === 'lack of efficacy';
+            const isEnrollFail = oc === 'enrollment failure';
+            const isBizDecision = oc === 'business decision';
+            const isRegHold = oc === 'regulatory hold';
+            const isCovid = oc === 'covid impact';
+            const isSuperseded = oc === 'superseded';
+            const isMixed = oc === 'mixed results';
+            const isTerminated = oc === 'terminated';
+            const isNegative = isEndpointFail || isSafetyFail || isCRL || isEfficacyFail;
+            const isNeutral = isEnrollFail || isBizDecision || isRegHold || isCovid || isSuperseded || isTerminated || isMixed;
+
+            // Color mapping per outcome type
+            const colorMap = {
+              'success': ['#4ade80','#052e16'],
+              'endpoint met': ['#4ade80','#052e16'],
+              'endpoint not met': ['#f87171','#2d0a0a'],
+              'lack of efficacy': ['#f87171','#2d0a0a'],
+              'safety failure': ['#fb923c','#431407'],
+              'crl received': ['#f43f5e','#4c0519'],
+              'mixed results': ['#f59e0b','#451a03'],
+              'enrollment failure': ['#a78bfa','#1e1b4b'],
+              'business decision': ['#94a3b8','#1e293b'],
+              'regulatory hold': ['#fb923c','#431407'],
+              'covid impact': ['#94a3b8','#1e293b'],
+              'superseded': ['#94a3b8','#1e293b'],
+              'terminated': ['#f87171','#2d0a0a'],
+              'results posted': ['#60a5fa','#0c1929'],
+              'completed': ['#94a3b8','#1e293b'],
+              'inconclusive': ['#f59e0b','#451a03'],
+            };
+            const [outcomeColor, outcomeBg] = colorMap[oc] || ['#94a3b8','#1e293b'];
+            const outcomeText = s.outcome ? s.outcome.toUpperCase() : (s.status?.toUpperCase() || 'UNKNOWN');
+            const pc = s.phase ? 'phase-' + s.phase.toLowerCase().replace('phase','').replace(/\s|;/g,'').trim().slice(0,1) : 'phase-1';
+            const sourceLabel = s.outcome_source === 'validated' ? '✓ Validated'
+                              : s.outcome_source === 'v2_extracted' ? '📊 Extracted'
+                              : s.outcome_source === 'ctgov' ? '📊 Results posted'
+                              : s.outcome_source === 'terminated_reason' ? '⚠️ Terminated'
+                              : '';
+
+            return `
+            <div class="evidence-item" style="cursor:pointer" onclick="window.location.href='/trial/${s.trial_id}'">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                    <span style="font-size:13px;font-weight:700;color:#60a5fa">${s.trial_id}</span>
+                    ${s.phase ? '<span class="phase-badge '+pc+'" style="font-size:10px;padding:2px 8px">'+s.phase+'</span>' : ''}
+                    <span style="font-size:11px;font-weight:600;color:${outcomeColor};background:${outcomeBg};padding:2px 8px;border-radius:4px">${outcomeText}</span>
+                    ${sourceLabel ? '<span style="font-size:9px;color:#475569">'+sourceLabel+'</span>' : ''}
+                  </div>
+                  ${s.title ? '<div style="font-size:13px;color:#e2e8f0;margin-top:4px">'+s.title.slice(0,80)+'</div>' : ''}
+                </div>
+                <div style="text-align:right;flex-shrink:0;margin-left:12px"><div style="font-size:20px;font-weight:700;color:#60a5fa">${(s.similarity_score*100).toFixed(0)}%</div><div style="font-size:10px;color:#475569">match</div></div>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+                ${(s.match_tags||[]).map(tag => '<span style="font-size:10px;font-weight:600;background:#1e3a5f;color:#60a5fa;padding:2px 8px;border-radius:4px;border:1px solid #2d4060">'+tag+'</span>').join('')}
+              </div>
+              <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px">
+                ${s.condition ? '<span><span style="color:#64748b">Condition:</span> <span style="color:#94a3b8">'+s.condition.slice(0,50)+'</span></span>' : ''}
+                ${s.enrollment ? '<span><span style="color:#64748b">Enrollment:</span> <span style="color:#94a3b8">'+s.enrollment+' pts</span></span>' : ''}
+                ${s.sponsor ? '<span><span style="color:#64748b">Sponsor:</span> <span style="color:#94a3b8">'+s.sponsor.slice(0,30)+'</span></span>' : ''}
+              </div>
+              ${s.brief_summary ? '<div style="font-size:12px;color:#94a3b8;line-height:1.5;margin-top:6px;border-left:2px solid #1e3a5f;padding-left:10px">'+s.brief_summary.slice(0,200)+'</div>' : ''}
+              ${(isNegative || isNeutral) && s.reason_summary && s.reason_summary !== 'unknown' && s.reason_summary !== 'no results posted yet' && s.reason_summary !== 'trial terminated, reason not specified' ? '<div style="font-size:11px;margin-top:4px"><span style="color:#475569">Reason:</span> <span style="color:'+outcomeColor+'">'+s.reason_summary.slice(0,200)+'</span></div>' : ''}
+              ${isSuccess ? '<div style="font-size:11px;margin-top:4px;color:#4ade80">Primary endpoint met</div>' : ''}
+            </div>`;
+          }).join('');
+        } else {
+          eEl.innerHTML = '<span style="color:#64748b">No similar trials found.</span>';
+        }
+      } catch(e) {
+        console.error('Trial intel error:', e);
+        if ($('prediction-body') && $('prediction-body').innerText.includes('Running prediction')) {
+          $('prediction-body').innerHTML = '<span style="color:#f87171">Error: ' + (e.message || e) + '</span>';
+        }
+        if ($('analysis-body') && $('analysis-body').innerText.includes('Generating')) {
+          $('analysis-body').innerHTML = '<span style="color:#64748b">Analysis unavailable.</span>';
+        }
+        if ($('evidence-body') && $('evidence-body').innerText.includes('Retrieving')) {
+          $('evidence-body').innerHTML = '<span style="color:#64748b">Evidence unavailable.</span>';
+        }
+      }
+    }
+
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadTrialData();
+      // Fire intel async after trial data renders
+      loadTrialIntel();
+    });
+  </script>
+</body>
+</html>

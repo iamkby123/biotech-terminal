@@ -1,0 +1,191 @@
+{
+  "drug_name": "Etanercept",
+  "condition": "Graft Vs Host Disease",
+  "disease_group": "other",
+  "population": {
+    "population_size": 1000,
+    "avg_age": 48.1,
+    "age_range": [
+      25,
+      70
+    ],
+    "female_pct": 48.8,
+    "treatment_seeking_pct": 57.6,
+    "insured_pct": 83.8,
+    "adherent_pct": 54.3,
+    "avg_urgency": 0.49,
+    "avg_sentiment": 0.2,
+    "top_comorbidities": [
+      [
+        "other_chronic",
+        391
+      ]
+    ],
+    "demand_estimate": 48.3
+  },
+  "demand": {
+    "demand_score": 24.1,
+    "sustained_demand_score": 13.1,
+    "demand_pool_pct": 48.3,
+    "competition_factor": 0.667,
+    "urgency_factor": 0.747,
+    "comorbidity_conflict_rate": 5.9,
+    "year1_penetration_pct": 3.6,
+    "year3_penetration_pct": 10.8,
+    "age_segments": {
+      "18-35": 208,
+      "35-50": 312,
+      "50-65": 320,
+      "65+": 160
+    },
+    "gender_split": {
+      "female": 488,
+      "male": 512
+    },
+    "alternative_therapies": 5,
+    "avg_treatment_duration_months": 24,
+    "epidemiology": {
+      "prevalence_per_100k": 1000,
+      "total_patients_global": 80000000,
+      "addressable_market": 25760000,
+      "mortality_rate": 0.05,
+      "unmet_need_score": 5
+    },
+    "market": {
+      "total_market_bn": 20,
+      "growth_rate_pct": 5.0,
+      "avg_treatment_cost_usd": 30000
+    },
+    "revenue_projections": {
+      "year1": {
+        "patients": 192411,
+        "revenue_m": 5772.3
+      },
+      "year3": {
+        "patients": 962058,
+        "revenue_m": 28861.7
+      },
+      "year5": {
+        "patients": 2308940,
+        "revenue_m": 69268.2
+      }
+    },
+    "adoption_curve": [
+      {
+        "quarter": "Q1Y1",
+        "adoption_pct": 2.0
+      },
+      {
+        "quarter": "Q2Y1",
+        "adoption_pct": 2.4
+      },
+      {
+        "quarter": "Q3Y1",
+        "adoption_pct": 2.9
+      },
+      {
+        "quarter": "Q4Y1",
+        "adoption_pct": 3.5
+      },
+      {
+        "quarter": "Q1Y2",
+        "adoption_pct": 4.3
+      },
+      {
+        "quarter": "Q2Y2",
+        "adoption_pct": 5.2
+      },
+      {
+        "quarter": "Q3Y2",
+        "adoption_pct": 6.2
+      },
+      {
+        "quarter": "Q4Y2",
+        "adoption_pct": 7.5
+      },
+      {
+        "quarter": "Q1Y3",
+        "adoption_pct": 9.0
+      },
+      {
+        "quarter": "Q2Y3",
+        "adoption_pct": 10.8
+      },
+      {
+        "quarter": "Q3Y3",
+        "adoption_pct": 12.9
+      },
+      {
+        "quarter": "Q4Y3",
+        "adoption_pct": 15.3
+      },
+      {
+        "quarter": "Q1Y4",
+        "adoption_pct": 18.1
+      },
+      {
+        "quarter": "Q2Y4",
+        "adoption_pct": 21.2
+      },
+      {
+        "quarter": "Q3Y4",
+        "adoption_pct": 24.7
+      },
+      {
+        "quarter": "Q4Y4",
+        "adoption_pct": 28.7
+      },
+      {
+        "quarter": "Q1Y5",
+        "adoption_pct": 32.9
+      },
+      {
+        "quarter": "Q2Y5",
+        "adoption_pct": 37.5
+      },
+      {
+        "quarter": "Q3Y5",
+        "adoption_pct": 42.3
+      },
+      {
+        "quarter": "Q4Y5",
+        "adoption_pct": 47.2
+      }
+    ],
+    "price_sensitivity": [
+      {
+        "price_usd": 15000,
+        "patients": 1360555,
+        "revenue_m": 20408.3
+      },
+      {
+        "price_usd": 22500,
+        "patients": 1110888,
+        "revenue_m": 24995.0
+      },
+      {
+        "price_usd": 30000,
+        "patients": 962058,
+        "revenue_m": 28861.7
+      },
+      {
+        "price_usd": 37500,
+        "patients": 860490,
+        "revenue_m": 32268.4
+      },
+      {
+        "price_usd": 45000,
+        "patients": 785517,
+        "revenue_m": 35348.3
+      },
+      {
+        "price_usd": 60000,
+        "patients": 680277,
+        "revenue_m": 40816.6
+      }
+    ],
+    "source": "local_demand_model"
+  },
+  "simulation_type": "local_model",
+  "elapsed_seconds": 4.28
+}

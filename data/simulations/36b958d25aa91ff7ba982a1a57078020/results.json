@@ -1,0 +1,51 @@
+{
+  "drug_name": "mRNA-1010",
+  "condition": "Seasonal Influenza",
+  "disease_group": "other",
+  "population": {
+    "population_size": 1000,
+    "avg_age": 48.1,
+    "age_range": [
+      25,
+      70
+    ],
+    "female_pct": 48.8,
+    "treatment_seeking_pct": 57.6,
+    "insured_pct": 83.8,
+    "adherent_pct": 54.3,
+    "avg_urgency": 0.49,
+    "avg_sentiment": 0.2,
+    "top_comorbidities": [
+      [
+        "other_chronic",
+        391
+      ]
+    ],
+    "demand_estimate": 48.3
+  },
+  "demand": {
+    "demand_score": 24.1,
+    "sustained_demand_score": 13.1,
+    "demand_pool_pct": 48.3,
+    "competition_factor": 0.667,
+    "urgency_factor": 0.747,
+    "comorbidity_conflict_rate": 5.9,
+    "year1_penetration_pct": 3.6,
+    "year3_penetration_pct": 10.8,
+    "age_segments": {
+      "18-35": 208,
+      "35-50": 312,
+      "50-65": 320,
+      "65+": 160
+    },
+    "gender_split": {
+      "female": 488,
+      "male": 512
+    },
+    "alternative_therapies": 5,
+    "avg_treatment_duration_months": 24,
+    "source": "local_demand_model"
+  },
+  "simulation_type": "local_model",
+  "elapsed_seconds": 4.26
+}
