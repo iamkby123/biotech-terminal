@@ -400,7 +400,7 @@ def compute_xgb_signal(trial: dict) -> dict:
         "prob": round(fail_prob, 4),
         "drivers": drivers,
         "feature_impacts": feature_impacts,
-        "detail": f"XGBoost V10: {len(_xgb_feat_cols)} features, 785 training trials (MCC 0.715)",
+        "detail": f"ML model analyzing {len(_xgb_feat_cols)} trial characteristics, trained on 785 completed trials",
     }
 
 
@@ -558,7 +558,7 @@ def compute_design_signal(trial: dict) -> dict:
     # Map score (0-10.5) to failure probability
     max_score = 10.5
     fail_prob = 0.75 - (min(score, max_score) / max_score) * 0.50  # 10.5 → 0.25, 0 → 0.75
-    detail = f"{score:.0f}/10 design quality ({', '.join(checks[:4])})" if checks else "No design info available"
+    detail = f"Design strength: {score:.0f}/10 ({', '.join(checks[:4])})" if checks else "No design info available"
     return {"prob": round(max(0.15, min(0.80, fail_prob)), 4), "detail": detail}
 
 
@@ -1096,16 +1096,16 @@ def _compute_dual_prediction(trial):
                 "failure_pct": opt_failure,
                 "prediction": opt_says,
                 "confidence": "high" if abs(opt_prob - 0.5) > 0.25 else "medium" if abs(opt_prob - 0.5) > 0.1 else "low",
-                "bias": "Assumes success, looks for failure evidence",
-                "features": "Design quality, sponsor, enrollment, masking, allocation, arms, intervention model",
+                "bias": "Starts optimistic and looks for red flags in trial design and sponsor track record",
+                "features": "Evaluates: randomization, blinding, enrollment size, sponsor experience, trial design",
             },
             "pessimist": {
                 "success_pct": pes_success,
                 "failure_pct": pes_failure,
                 "prediction": pes_says,
                 "confidence": "high" if abs(pes_prob - 0.5) > 0.25 else "medium" if abs(pes_prob - 0.5) > 0.1 else "low",
-                "bias": "Assumes failure, looks for success evidence",
-                "features": "Condition risk, disease group, modality, purpose, age/gender, eligibility, endpoints",
+                "bias": "Starts skeptical and looks for strengths in the condition, drug class, and historical data",
+                "features": "Evaluates: disease difficulty, drug mechanism, competitor outcomes, regulatory pathway",
             },
             "agreement": agreement_label,
             "combined_confidence": combined_conf,

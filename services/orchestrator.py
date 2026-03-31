@@ -1030,7 +1030,7 @@ def predict_trial_for_ticker(trial):
                 "feature_impacts": gb_result.get("feature_impacts", []),
                 "signals": gb_result.get("signals", []),
                 "dual": gb_result.get("dual"),
-                "explanation": f"Ensemble predicts {gb_result['outcome']} with {gb_result['probability']*100:.1f}% failure probability.",
+                "explanation": f"The model estimates a {gb_result['probability']*100:.1f}% probability of not meeting the primary endpoint, indicating likely {'success' if gb_result['outcome']=='success' else 'failure'}.",
             }
             if nct_id:
                 _prediction_cache[nct_id] = {"domain": domain, "prediction": prediction}
@@ -1788,7 +1788,8 @@ def generate_analysis(trial, prediction, supporting, domain):
     parts.append(f"\n## Prediction Summary")
     fail_pct = round(float(prob) * 100, 1)
     succ_pct = round(100 - fail_pct, 1)
-    parts.append(f"The Gradient Boosting model predicts **{outcome.upper()}** with {succ_pct}% confidence ({fail_pct}% failure probability).")
+    likely = "likely to succeed" if outcome == "success" else "likely to fail"
+    parts.append(f"Our AI prediction model estimates this trial is **{likely}**, with a {succ_pct}% estimated probability of meeting its primary endpoint ({fail_pct}% failure probability).")
     if drivers:
         top_drivers = [f"{d.get('feature','?')}: {d.get('value','?')} ({d.get('importance', d.get('impact', 0))}%)" for d in drivers[:3]]
         parts.append(f"Key factors: {', '.join(top_drivers)}.")

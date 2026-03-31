@@ -191,7 +191,7 @@
       if (!el) return;
       const succPct = 100 - failPct;
       const color = succPct >= 60 ? '#10b981' : (succPct >= 40 ? '#f59e0b' : '#ef4444');
-      const label = succPct >= 60 ? 'SUCCESS' : (succPct >= 40 ? 'UNCERTAIN' : 'FAILURE');
+      const label = succPct >= 60 ? 'Likely to Succeed' : (succPct >= 40 ? 'Too Close to Call' : 'Likely to Fail');
       const r = 70, cx = 90, cy = 90;
       const circ = 2 * Math.PI * r;
       const arc = (succPct / 100) * circ;
@@ -202,10 +202,57 @@
             stroke-dasharray="${arc} ${circ}" stroke-dashoffset="${circ * 0.25}"
             stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>
         </svg>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center" title="Estimated probability of meeting primary endpoint">
           <div style="font-size:36px;font-weight:800;color:${color}">${succPct}%</div>
-          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.1em">${label}</div>
+          <div style="font-size:10px;color:#64748b;letter-spacing:0.05em">${label}</div>
         </div>`;
+    }
+
+    // Feature name lookup — maps raw ML column names to human-readable labels
+    const FEATURE_LABELS = {
+      'num_secondary_endpoints': 'Secondary Endpoints',
+      'num_secondary_log': 'Endpoint Complexity',
+      'feat_indication_category': 'Disease Category',
+      'feat_primary_endpoint_type': 'Primary Endpoint Type',
+      'feat_enrollment_size': 'Enrollment Size',
+      'enrollment_log': 'Enrollment (log scale)',
+      'sponsor_failure_rate': 'Sponsor Failure History',
+      'sponsor_completion_rate': 'Sponsor Completion Rate',
+      'sponsor_total_log': 'Sponsor Experience',
+      'intervention_model': 'Intervention Model',
+      'study_duration_months': 'Study Duration',
+      'min_age': 'Minimum Patient Age',
+      'max_age': 'Maximum Patient Age',
+      'age_range': 'Patient Age Range',
+      'masking_level': 'Blinding Level',
+      'phase_x_oncology': 'Phase × Oncology',
+      'feat_is_oncology': 'Oncology Trial',
+      'feat_has_placebo': 'Placebo-Controlled',
+      'feat_is_double_blind': 'Double-Blinded',
+      'design_quality_score': 'Design Quality Score',
+      'feat_modality': 'Drug Type',
+      'feat_phase_num': 'Trial Phase',
+      'feat_therapeutic_area': 'Therapeutic Area',
+      'feat_is_combination': 'Combination Therapy',
+      'feat_has_randomization': 'Randomized',
+      'feat_has_control_group': 'Has Control Group',
+      'feat_num_interventions': 'Number of Drugs',
+      'feat_num_conditions': 'Number of Conditions',
+      'feat_is_rare_disease': 'Rare Disease',
+      'num_arms': 'Number of Arms',
+      'num_countries': 'Countries Involved',
+      'is_multi_sponsor': 'Multi-Sponsor Trial',
+      'allocation': 'Allocation Method',
+      'primary_purpose': 'Primary Purpose',
+      'eligibility_complexity': 'Eligibility Complexity',
+      'combination_x_phase': 'Combination × Phase',
+      'target_class': 'Drug Target Class',
+      'is_pediatric': 'Pediatric Trial',
+      'accepts_healthy': 'Accepts Healthy Volunteers',
+    };
+    function cleanFeatureName(raw) {
+      if (FEATURE_LABELS[raw]) return FEATURE_LABELS[raw];
+      return raw.replace(/^feat_/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     }
 
     function renderShapChart(impacts) {
@@ -217,13 +264,13 @@
 
       const maxImp = Math.max(...impacts.map(i => Math.abs(i.impact)), 1);
       body.innerHTML = `
-        <div style="font-size:11px;color:#64748b;margin-bottom:12px">How each feature shifted this trial's prediction from baseline</div>
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:14px;line-height:1.5">Each bar shows how a specific trial characteristic pushed the prediction toward <span style="color:#10b981">success</span> or <span style="color:#ef4444">failure</span>, compared to an average trial.</div>
         ${impacts.map(imp => {
           const pct = Math.min(Math.abs(imp.impact) / maxImp * 40, 40);
           const isRisk = imp.direction === 'risk';
           const barColor = isRisk ? '#ef4444' : '#10b981';
           const barSide = isRisk ? `margin-left:50%;width:${pct}%` : `margin-left:${50-pct}%;width:${pct}%`;
-          const featureName = imp.feature.replace(/^feat_/, '').replace(/_/g, ' ');
+          const featureName = cleanFeatureName(imp.feature);
           return `<div style="display:flex;align-items:center;margin:4px 0;gap:8px">
             <span style="width:160px;font-size:11px;color:#94a3b8;text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${imp.feature}">${featureName}</span>
             <div style="flex:1;height:16px;position:relative;background:#1e293b;border-radius:3px">
@@ -498,13 +545,13 @@
 
           <!-- Feature Impact (SHAP) -->
           <div class="section" style="border-left:3px solid #8b5cf6;display:none" id="shap-section">
-            <div class="section-header"><span class="section-title">🔬 Feature Impact (per-trial)</span></div>
+            <div class="section-header"><span class="section-title">🔬 What's Influencing This Prediction?</span></div>
             <div class="section-body" id="shap-body"></div>
           </div>
 
           <!-- Risk Breakdown -->
           <div class="section" style="border-left:3px solid #f59e0b;display:none" id="risk-section">
-            <div class="section-header"><span class="section-title">⚡ Risk Breakdown</span></div>
+            <div class="section-header"><span class="section-title">⚡ Risk Assessment — Five Key Risk Categories</span></div>
             <div class="section-body" id="risk-body"></div>
           </div>
 
@@ -680,7 +727,7 @@
         if (d.prediction) {
           const p = d.prediction;
           const isS = p.outcome === 'success';
-          const probStr = p.probability != null ? `<div class="pred-label">${(p.probability*100).toFixed(1)}% failure probability</div>` : '';
+          const probStr = p.probability != null ? `<div class="pred-label">${(p.probability*100).toFixed(1)}% chance of not meeting primary endpoint</div>` : '';
           badgeEl.className = 'source-badge source-badge-data';
           const srcLabel = 'ML Prediction';
           badgeEl.textContent = '✓ ' + srcLabel;
@@ -696,7 +743,7 @@
             const dot = isRisk ? '●' : '○';
             return `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px">
               <span style="color:${barColor};width:12px">${dot}</span>
-              <span style="color:#94a3b8;min-width:140px">${dr.feature}${dr.value ? ': '+dr.value : ''}</span>
+              <span style="color:#94a3b8;min-width:140px">${typeof cleanFeatureName === 'function' ? cleanFeatureName(dr.feature) : dr.feature}${dr.value ? ': '+dr.value : ''}</span>
               <div style="flex:1;height:8px;background:#1e293b;border-radius:4px;overflow:hidden;position:relative;min-width:60px">
                 <div style="position:absolute;${isRisk?'left':'right'}:0;top:0;height:100%;width:${barWidth}%;background:${barColor};border-radius:4px"></div>
               </div>
@@ -740,7 +787,7 @@
           const pesConf = pes ? pes.confidence : (pesFail >= 70 ? 'High' : pesFail >= 50 ? 'Medium' : 'Low');
 
           const agreeColor = agreement === 'AGREE' ? '#10b981' : '#f59e0b';
-          const agreeText = agreement === 'AGREE' ? 'Models Agree' : 'Models Disagree — High Uncertainty';
+          const agreeText = agreement === 'AGREE' ? 'Both Models Agree' : 'Models Disagree — Prediction is uncertain, exercise caution';
 
           predEl.innerHTML = `
             ${presumptionHtml}
@@ -766,7 +813,7 @@
                   <div style="height:100%;width:${optSucc}%;background:linear-gradient(90deg,#10b981,#4ade80);border-radius:3px"></div>
                 </div>
                 <div style="font-size:10px;color:#64748b;line-height:1.4">
-                  ${opt ? opt.bias : 'Assumes success, looks for failure evidence'}<br>
+                  ${opt ? opt.bias : 'Starts optimistic, looks for red flags in design and sponsor'}<br>
                   <span style="color:#94a3b8">${opt ? opt.features : 'Design, sponsor, enrollment'}</span>
                 </div>
               </div>
@@ -783,7 +830,7 @@
                   <div style="height:100%;width:${pesFail}%;background:linear-gradient(90deg,#ef4444,#f87171);border-radius:3px"></div>
                 </div>
                 <div style="font-size:10px;color:#64748b;line-height:1.4">
-                  ${pes ? pes.bias : 'Assumes failure, looks for success evidence'}<br>
+                  ${pes ? pes.bias : 'Starts skeptical, looks for strengths in condition and drug class'}<br>
                   <span style="color:#94a3b8">${pes ? pes.features : 'Condition, drug class, competition'}</span>
                 </div>
               </div>
@@ -792,7 +839,7 @@
             <div style="display:flex;gap:16px;flex-wrap:wrap">
               <!-- Drivers -->
               <div class="pred-card" style="flex:1;min-width:250px">
-                <div class="pred-label">Prediction Drivers</div>
+                <div class="pred-label">Top Factors Driving This Prediction</div>
                 <div style="margin-top:8px">${driversHtml}</div>
               </div>
             </div>
@@ -808,7 +855,8 @@
           var ensAvail = ensSignals.filter(function(s){return s.available;});
           if (ensAvail.length > 0) {
             var ensHtml = '<div style="border-top:2px solid #8b5cf6;padding:14px 0">';
-            ensHtml += '<div style="font-size:13px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px">Ensemble Signal Breakdown</div>';
+            ensHtml += '<div style="font-size:13px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Prediction Breakdown</div>';
+            ensHtml += '<div style="font-size:11px;color:#64748b;margin-bottom:10px">Nine independent signals are combined, weighted by reliability, to produce the final prediction.</div>';
             ensAvail.forEach(function(s) {
               var color = s.prob < 0.35 ? '#10b981' : s.prob < 0.65 ? '#f59e0b' : '#ef4444';
               var pct = Math.round(s.prob * 100);
@@ -816,7 +864,7 @@
                 '<span style="color:#e2e8f0;min-width:130px;font-weight:500">' + s.name + '</span>' +
                 '<span style="color:' + color + ';font-weight:700;min-width:40px">' + pct + '%</span>' +
                 '<div style="flex:1;height:8px;background:#1e293b;border-radius:4px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:4px"></div></div>' +
-                '<span style="color:#64748b;font-size:10px;min-width:35px">' + Math.round(s.weight*100) + '%w</span>' +
+                '<span style="color:#64748b;font-size:10px;min-width:45px" title="Weight: how much this signal influences the final prediction">' + Math.round(s.weight*100) + '% weight</span>' +
                 '</div><div style="font-size:10px;color:#94a3b8;margin-bottom:6px;padding-left:4px">' + (s.detail||'') + '</div>';
             });
             ensHtml += '</div>';

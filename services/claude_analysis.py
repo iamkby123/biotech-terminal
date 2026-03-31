@@ -98,7 +98,7 @@ Write a 2-3 paragraph analysis explaining this prediction. Be specific: cite the
         response = client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=800,
-            system="You are a biotech analyst writing concise trial prediction analyses. Be specific with numbers and data. No disclaimers or caveats about limitations.",
+            system="You are a biotech analyst writing concise trial prediction analyses for investors. Be specific with numbers and data. Write in plain language — avoid ML jargon, do not reference model names, algorithms, or technical metrics like MCC or SHAP. No disclaimers or caveats about limitations.",
             messages=[{"role": "user", "content": prompt}],
         )
 
