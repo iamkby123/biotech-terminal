@@ -1195,58 +1195,77 @@
               tHtml += '<div style="background:#0f172a;padding:8px 12px;border-radius:6px;flex:1;min-width:100px"><div style="font-size:10px;color:#f59e0b">Max Depth</div><div style="font-size:20px;font-weight:700;color:#e2e8f0">' + (s.max_depth||'?') + '</div></div>';
               tHtml += '</div>';
 
-              // How Gradient Boosting Works
-              tHtml += '<div style="margin-bottom:16px;padding:12px;background:#0f172a;border-radius:8px;border:1px solid #1e293b">';
-              tHtml += '<div style="font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;margin-bottom:8px">How Gradient Boosting Works</div>';
-              tHtml += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:11px">';
-              tHtml += '<div style="background:#1e293b;padding:4px 8px;border-radius:4px;color:#94a3b8">Base Rate</div>';
-              tHtml += '<span style="color:#f59e0b">→</span>';
-              tHtml += '<div style="background:#2d0a0a;padding:4px 8px;border-radius:4px;color:#f87171">Tree 1 corrects errors</div>';
-              tHtml += '<span style="color:#f59e0b">→</span>';
-              tHtml += '<div style="background:#2d0a0a;padding:4px 8px;border-radius:4px;color:#fbbf24">Tree 2 refines</div>';
-              tHtml += '<span style="color:#f59e0b">→</span>';
-              tHtml += '<div style="background:#1e293b;padding:4px 8px;border-radius:4px;color:#94a3b8">... × ' + (s.total_trees||500) + '</div>';
-              tHtml += '<span style="color:#f59e0b">→</span>';
-              tHtml += '<div style="background:#052e16;padding:4px 8px;border-radius:4px;color:#4ade80;font-weight:600">Final Score</div>';
-              tHtml += '</div>';
-              tHtml += '<div style="font-size:10px;color:#64748b;margin-top:6px">Each tree learns from the mistakes of previous trees. The final prediction is the sum of all ' + (s.total_trees||500) + ' tree contributions.</div>';
-              tHtml += '</div>';
+              // How it works — plain language
+              tHtml += '<div style="margin-bottom:16px;padding:14px;background:#0f172a;border-radius:8px;border:1px solid #1e293b">';
+              tHtml += '<div style="font-size:12px;color:#94a3b8;line-height:1.6">';
+              tHtml += 'The model combines <strong style="color:#f59e0b">' + (s.total_trees||500) + ' small decision trees</strong>. Each tree corrects the mistakes of the previous ones. ';
+              tHtml += 'Below are the first 3 trees — click any node to expand and see how the model makes decisions. ';
+              tHtml += '<span style="color:#10b981">Green leaves</span> push toward success, <span style="color:#f87171">red leaves</span> push toward failure.';
+              tHtml += '</div></div>';
 
-              // Render each tree
+              // Render each tree — improved visualization
+              var treeDescriptions = ['First correction — largest adjustments', 'Refines prediction — corrects remaining errors', 'Fine-tuning — subtle adjustments'];
+
               function renderNode(node, depth) {
                 if (!node) return '';
-                var indent = depth * 20;
+                var indent = depth * 24;
+                var coverText = node.cover ? ' <span style="color:#475569;font-size:9px;font-weight:400">n=' + Math.round(node.cover) + '</span>' : '';
+
                 if (node.type === 'leaf') {
-                  var leafColor = node.leaf > 0 ? '#f87171' : '#4ade80';
-                  var leafLabel = node.leaf > 0 ? 'Risk +' + (node.leaf * 100).toFixed(2) + '%' : 'Safe ' + (node.leaf * 100).toFixed(2) + '%';
-                  return '<div style="margin-left:' + indent + 'px;padding:4px 8px;background:' + leafColor + '15;border:1px solid ' + leafColor + '40;border-radius:4px;display:inline-block;margin:2px 0;font-size:11px;color:' + leafColor + ';font-weight:600">' + leafLabel + '</div>';
+                  var isRisk = node.leaf > 0;
+                  var leafColor = isRisk ? '#f87171' : '#4ade80';
+                  var leafBg = isRisk ? '#2d0a0a' : '#052e16';
+                  var leafLabel = isRisk ? 'Risk' : 'Safe';
+                  var pct = Math.abs(node.leaf * 100);
+                  var barWidth = Math.min(pct / 3 * 100, 100); // scale to max ~3%
+                  return '<div style="margin-left:' + indent + 'px;margin:3px 0;display:flex;align-items:center;gap:8px">'
+                    + '<div style="padding:5px 10px;background:' + leafBg + ';border:1px solid ' + leafColor + '30;border-radius:6px;display:inline-flex;align-items:center;gap:8px;min-width:180px">'
+                    + '<span style="font-size:11px;font-weight:700;color:' + leafColor + '">' + leafLabel + ' ' + (isRisk?'+':'') + pct.toFixed(2) + '%</span>'
+                    + '<div style="flex:1;height:6px;background:#1e293b;border-radius:3px;min-width:40px;overflow:hidden">'
+                    + '<div style="height:100%;width:' + barWidth + '%;background:' + leafColor + ';border-radius:3px"></div></div>'
+                    + '</div>' + coverText + '</div>';
                 }
+
                 var nodeId = 'tn-' + Math.random().toString(36).substr(2,6);
-                var html = '<div style="margin-left:' + indent + 'px;margin:3px 0">';
-                html += '<div onclick="var c=document.getElementById(\'' + nodeId + '\');c.style.display=c.style.display===\'none\'?\'block\':\'none\'" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:6px 10px;background:#1e293b;border:1px solid #334155;border-radius:6px;font-size:12px;transition:all 0.2s" onmouseover="this.style.borderColor=\'#f59e0b\'" onmouseout="this.style.borderColor=\'#334155\'">';
-                html += '<span style="color:#f59e0b;font-size:10px">▼</span>';
-                html += '<span style="color:#e2e8f0;font-weight:500">' + (node.feature||'?') + '</span>';
-                html += '<span style="color:#64748b;font-size:10px">';
+                var featureName = typeof cleanFeatureName === 'function' ? cleanFeatureName(node.feature || '?') : (node.feature || '?');
+                var threshStr = '';
                 if (typeof node.threshold === 'number') {
-                  html += (node.threshold % 1 === 0 ? '= ' + node.threshold : '< ' + node.threshold.toFixed(2));
+                  threshStr = node.threshold % 1 === 0 ? ' = ' + node.threshold : ' < ' + node.threshold.toFixed(2);
                 }
-                html += '</span>';
+
+                var depthColors = ['#1e293b', '#1a2332', '#172030', '#141d2d'];
+                var bgColor = depthColors[Math.min(depth, depthColors.length - 1)];
+
+                var html = '<div style="margin-left:' + indent + 'px;margin:4px 0">';
+                // Split node
+                html += '<div onclick="var c=document.getElementById(\'' + nodeId + '\');var a=this.querySelector(\'.arrow\');if(c.style.display===\'none\'){c.style.display=\'block\';a.style.transform=\'rotate(0deg)\'}else{c.style.display=\'none\';a.style.transform=\'rotate(-90deg)\'}" '
+                  + 'style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:7px 12px;background:' + bgColor + ';border:1px solid #334155;border-radius:8px;font-size:12px;transition:all 0.15s" '
+                  + 'onmouseover="this.style.borderColor=\'#f59e0b\';this.style.background=\'#1e293b\'" onmouseout="this.style.borderColor=\'#334155\';this.style.background=\'' + bgColor + '\'">';
+                html += '<span class="arrow" style="color:#f59e0b;font-size:10px;transition:transform 0.2s;display:inline-block">▼</span>';
+                html += '<span style="color:#f59e0b;font-weight:600;font-size:12px">' + featureName + '</span>';
+                html += '<span style="color:#94a3b8;font-size:11px;font-weight:500">' + threshStr + '</span>';
+                html += coverText;
                 html += '</div>';
-                html += '<div id="' + nodeId + '" style="border-left:2px solid #334155;margin-left:12px;padding-left:8px">';
+
+                // Children container
+                html += '<div id="' + nodeId + '" style="border-left:2px solid #334155;margin-left:16px;padding-left:10px;margin-top:2px">';
                 if (node.children) {
-                  html += '<div style="font-size:9px;color:#10b981;margin:2px 0">YES ↓</div>';
-                  html += renderNode(node.children[0], 0);
-                  html += '<div style="font-size:9px;color:#f87171;margin:2px 0">NO ↓</div>';
-                  if (node.children[1]) html += renderNode(node.children[1], 0);
+                  html += '<div style="font-size:10px;color:#10b981;margin:3px 0;font-weight:600">✓ Yes</div>';
+                  html += renderNode(node.children[0], depth + 1);
+                  html += '<div style="font-size:10px;color:#f87171;margin:3px 0;font-weight:600">✗ No</div>';
+                  if (node.children[1]) html += renderNode(node.children[1], depth + 1);
                 }
                 html += '</div></div>';
                 return html;
               }
 
-              td.trees.forEach(function(tree) {
-                tHtml += '<details style="margin-bottom:12px" ' + (tree.tree_id === 0 ? 'open' : '') + '>';
-                tHtml += '<summary style="cursor:pointer;font-size:13px;font-weight:600;color:#e2e8f0;padding:8px 0">Tree #' + tree.tree_id + '</summary>';
-                tHtml += '<div style="padding:8px;background:#0a0e1a;border-radius:6px;overflow-x:auto;max-height:400px;overflow-y:auto">';
+              td.trees.forEach(function(tree, idx) {
+                var desc = treeDescriptions[idx] || 'Additional refinement';
+                tHtml += '<details style="margin-bottom:16px;background:#0d1117;border:1px solid #1e2a3a;border-radius:8px;overflow:hidden" ' + (idx === 0 ? 'open' : '') + '>';
+                tHtml += '<summary style="cursor:pointer;font-size:13px;font-weight:600;color:#e2e8f0;padding:12px 16px;background:#111827;display:flex;justify-content:space-between;align-items:center">'
+                  + '<span>🌳 Tree #' + tree.tree_id + ' <span style="font-weight:400;color:#64748b;font-size:11px">— ' + desc + '</span></span>'
+                  + '<span style="font-size:10px;color:#475569">Click to ' + (idx === 0 ? 'collapse' : 'expand') + '</span></summary>';
+                tHtml += '<div style="padding:12px 16px;overflow-x:auto">';
                 tHtml += renderNode(tree.root, 0);
                 tHtml += '</div></details>';
               });

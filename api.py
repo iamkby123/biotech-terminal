@@ -1531,7 +1531,7 @@ def training_monitor_page():
 def model_trees(count: int = 3):
     """Extract tree structures from XGBoost model for visualization."""
     import pickle, json as _json
-    ENSEMBLE_DIR = r"C:\Users\kbysn\Desktop\training1\predictor_v2\outputs\ensemble_v9"
+    ENSEMBLE_DIR = os.path.join(os.path.dirname(__file__), "model_data", "ensemble_v10")
 
     try:
         with open(os.path.join(ENSEMBLE_DIR, "xgb_model.pkl"), "rb") as f:
@@ -1542,7 +1542,7 @@ def model_trees(count: int = 3):
         # Get XGBClassifier from CalibratedClassifierCV
         xgb = model.estimator if hasattr(model, "estimator") else model
         booster = xgb.get_booster()
-        trees_json = booster.get_dump(dump_format="json")
+        trees_json = booster.get_dump(dump_format="json", with_stats=True)
 
         # Feature name mapping: f0 → feat_cols[0]
         DISPLAY_NAMES = {
@@ -1562,6 +1562,15 @@ def model_trees(count: int = 3):
             "sponsor_completion_rate": "Sponsor Completion Rate", "sponsor_failure_rate": "Sponsor Failure Rate",
             "sponsor_total_log": "Sponsor Trial Count", "phase_x_oncology": "Phase × Oncology",
             "phase_x_rare": "Phase × Rare Disease", "combination_x_phase": "Combination × Phase",
+            "allocation": "Allocation", "intervention_model": "Intervention Model",
+            "primary_purpose": "Primary Purpose", "masking_level": "Blinding Level",
+            "gender_restriction": "Gender Restricted", "min_age": "Min Age", "max_age": "Max Age",
+            "accepts_healthy": "Healthy Volunteers", "age_range": "Age Range",
+            "is_pediatric": "Pediatric", "num_arms": "# Arms",
+            "num_secondary_endpoints": "Secondary Endpoints", "num_secondary_log": "Endpoint Complexity",
+            "num_countries": "Countries", "is_multi_sponsor": "Multi-Sponsor",
+            "eligibility_complexity": "Eligibility Complexity", "eligibility_log": "Eligibility (log)",
+            "study_duration_months": "Study Duration",
         }
 
         def map_feature(f_idx):
@@ -1576,6 +1585,8 @@ def model_trees(count: int = 3):
         def process_node(node):
             """Recursively process tree node, mapping feature names."""
             result = {"nodeid": node.get("nodeid", 0), "depth": node.get("depth", 0)}
+            if node.get("cover"):
+                result["cover"] = round(node["cover"], 1)
             if "leaf" in node:
                 result["leaf"] = round(node["leaf"], 6)
                 result["type"] = "leaf"
