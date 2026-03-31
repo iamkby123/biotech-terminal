@@ -92,7 +92,38 @@
     .main-scroll{flex:1;overflow-y:auto}
     .company-bar{padding:8px 20px;background:#0d1623;border-bottom:1px solid #1e2a3a;font-size:12px;display:flex;gap:16px;align-items:center}
     .company-bar a{color:#60a5fa;font-weight:600}
-    @media(max-width:900px){.sidebar{display:none}}
+    @media(max-width:900px){.sidebar{display:none}.hamburger{display:flex !important}}
+    @media(max-width:768px){
+      .main-content{padding:12px}
+      .trial-header{padding:16px}
+      .trial-title{font-size:20px}
+      .info-grid{grid-template-columns:1fr 1fr}
+      .tab-btn{padding:10px 14px;font-size:12px}
+      .dual-models{flex-direction:column !important}
+    }
+    @media(max-width:480px){
+      .info-grid{grid-template-columns:1fr}
+      .trial-title{font-size:18px}
+      .tab-btn{padding:8px 10px;font-size:11px}
+    }
+
+    /* Tabs */
+    .tab-bar{display:flex;gap:0;border-bottom:2px solid #1e2a3a;margin-bottom:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .tab-btn{padding:14px 24px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all 0.2s}
+    .tab-btn:hover{color:#94a3b8;background:#111827}
+    .tab-btn.active{color:#60a5fa;border-bottom-color:#3b82f6}
+    .tab-panel{display:none;padding-top:24px}
+    .tab-panel.active{display:block}
+
+    /* Loading skeletons */
+    .skeleton{background:linear-gradient(90deg,#1e293b 25%,#2d3f5a 50%,#1e293b 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .skeleton-line{height:14px;margin:8px 0}
+    .skeleton-card{height:80px;margin:8px 0;border-radius:10px}
+
+    /* Hamburger */
+    .hamburger{display:none;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid #1e2a3a;border-radius:6px;cursor:pointer;background:transparent;color:#94a3b8;font-size:18px}
+    .sidebar.open{display:flex !important;position:fixed;left:0;top:42px;z-index:200;width:260px;height:calc(100vh - 42px);box-shadow:4px 0 20px rgba(0,0,0,0.5)}
 
     ::-webkit-scrollbar{width:8px;height:8px}
     ::-webkit-scrollbar-track{background:#0d1117}
@@ -102,6 +133,7 @@
 </head>
 <body>
   <header class="header">
+    <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
     <a href="/" style="font-size:18px;font-weight:700;color:#60a5fa">🧬 Biotech Terminal</a>
     <div style="flex:1"></div>
     <span class="back-link" onclick="goBack()">← Back</span>
@@ -144,6 +176,88 @@
     let trialData = null;
 
     function $(id) { return document.getElementById(id); }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      const btn = document.querySelector(`[data-tab="${tabId}"]`);
+      const panel = document.getElementById(`tab-${tabId}`);
+      if (btn) btn.classList.add('active');
+      if (panel) panel.classList.add('active');
+    }
+
+    function renderProbGauge(failPct) {
+      const el = $('prob-gauge');
+      if (!el) return;
+      const succPct = 100 - failPct;
+      const color = succPct >= 60 ? '#10b981' : (succPct >= 40 ? '#f59e0b' : '#ef4444');
+      const label = succPct >= 60 ? 'SUCCESS' : (succPct >= 40 ? 'UNCERTAIN' : 'FAILURE');
+      const r = 70, cx = 90, cy = 90;
+      const circ = 2 * Math.PI * r;
+      const arc = (succPct / 100) * circ;
+      el.innerHTML = `
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#1e293b" stroke-width="12"/>
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="12"
+            stroke-dasharray="${arc} ${circ}" stroke-dashoffset="${circ * 0.25}"
+            stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>
+        </svg>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+          <div style="font-size:36px;font-weight:800;color:${color}">${succPct}%</div>
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.1em">${label}</div>
+        </div>`;
+    }
+
+    function renderShapChart(impacts) {
+      if (!impacts || !impacts.length) return;
+      const section = $('shap-section');
+      const body = $('shap-body');
+      if (!section || !body) return;
+      section.style.display = 'block';
+
+      const maxImp = Math.max(...impacts.map(i => Math.abs(i.impact)), 1);
+      body.innerHTML = `
+        <div style="font-size:11px;color:#64748b;margin-bottom:12px">How each feature shifted this trial's prediction from baseline</div>
+        ${impacts.map(imp => {
+          const pct = Math.min(Math.abs(imp.impact) / maxImp * 40, 40);
+          const isRisk = imp.direction === 'risk';
+          const barColor = isRisk ? '#ef4444' : '#10b981';
+          const barSide = isRisk ? `margin-left:50%;width:${pct}%` : `margin-left:${50-pct}%;width:${pct}%`;
+          const featureName = imp.feature.replace(/^feat_/, '').replace(/_/g, ' ');
+          return `<div style="display:flex;align-items:center;margin:4px 0;gap:8px">
+            <span style="width:160px;font-size:11px;color:#94a3b8;text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${imp.feature}">${featureName}</span>
+            <div style="flex:1;height:16px;position:relative;background:#1e293b;border-radius:3px">
+              <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#475569"></div>
+              <div style="position:absolute;top:2px;bottom:2px;${barSide};background:${barColor};border-radius:2px"></div>
+            </div>
+            <span style="width:55px;font-size:11px;font-weight:600;color:${barColor};text-align:right">${imp.impact > 0 ? '+' : ''}${imp.impact}%</span>
+          </div>`;
+        }).join('')}
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:#64748b">
+          <span>← Toward SUCCESS</span><span>Toward FAILURE →</span>
+        </div>`;
+    }
+
+    async function loadNarrative(nctId) {
+      try {
+        const r = await fetch('/api/trial-narrative/' + encodeURIComponent(nctId), {signal: AbortSignal.timeout(30000)});
+        const d = await r.json();
+        const body = $('narrative-body');
+        const badge = $('narrative-badge');
+        if (d.narrative) {
+          body.innerHTML = '<div style="font-size:14px;line-height:1.8;color:#cbd5e1;white-space:pre-wrap">' +
+            d.narrative.replace(/\n\n/g, '</div><div style="font-size:14px;line-height:1.8;color:#cbd5e1;white-space:pre-wrap;margin-top:12px">') + '</div>';
+          if (badge) { badge.textContent = '✓ Claude AI'; badge.className = 'source-badge source-badge-ai'; }
+        } else {
+          // Fallback: show template analysis
+          body.innerHTML = '<div style="color:#64748b;font-size:12px">AI narrative not available. See template analysis below.</div>';
+          if (badge) { badge.textContent = 'Template'; badge.className = 'source-badge source-badge-data'; }
+        }
+      } catch (e) {
+        const body = $('narrative-body');
+        if (body) body.innerHTML = '<div style="color:#64748b;font-size:12px">Analysis loading failed. See prediction tab for details.</div>';
+      }
+    }
 
     // Update breadcrumb
     $('bc-trial').textContent = nctId;
@@ -348,81 +462,132 @@
           </div>
           <div id="aact-chars" style="display:none"></div>
         </div>
-        
-        ${descriptionSection}
 
-        ${whyStoppedHtml}
-
-        ${trialData.intervention ? `
-        <div class="section">
-          <div class="section-header"><span class="section-title">💊 Intervention</span></div>
-          <div class="section-body"><div class="description-text">${trialData.intervention}</div></div>
-        </div>` : ''}
-
-        ${eligibilitySection}
-
-        ${locationsSection}
-        
         <!-- ═══ TRIAL RESULT ═══ -->
         <div id="trial-result-section" style="display:none"></div>
 
-        <!-- ═══ AI INTELLIGENCE ═══ -->
-        <div class="section" style="border-left:3px solid #3b82f6">
-          <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
-            <span class="section-title">🎯 Trial Prediction</span>
-            <span class="source-badge source-badge-data" id="pred-badge">Loading...</span>
+        <!-- ═══ TABS ═══ -->
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="prediction" onclick="switchTab('prediction')">🎯 Prediction</button>
+          <button class="tab-btn" data-tab="analysis" onclick="switchTab('analysis')">📝 Analysis</button>
+          <button class="tab-btn" data-tab="details" onclick="switchTab('details')">📋 Trial Details</button>
+          <button class="tab-btn" data-tab="similar" onclick="switchTab('similar')">🔗 Similar Trials</button>
+        </div>
+
+        <!-- TAB 1: PREDICTION -->
+        <div class="tab-panel active" id="tab-prediction">
+          <!-- Probability Gauge -->
+          <div style="text-align:center;margin:24px 0 16px">
+            <div id="prob-gauge" style="display:inline-block;position:relative;width:180px;height:180px">
+              <div class="skeleton" style="width:180px;height:180px;border-radius:50%"></div>
+            </div>
           </div>
-          <div class="section-body" id="prediction-body">
-            <div style="color:#64748b;font-size:13px"><span class="ai-loading-pulse"></span> Running prediction model...</div>
+
+          <div class="section" style="border-left:3px solid #3b82f6">
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+              <span class="section-title">🎯 Trial Prediction</span>
+              <span class="source-badge source-badge-data" id="pred-badge">Loading...</span>
+            </div>
+            <div class="section-body" id="prediction-body">
+              <div class="skeleton skeleton-card"></div>
+              <div class="skeleton skeleton-card"></div>
+              <div class="skeleton skeleton-line" style="width:80%"></div>
+              <div class="skeleton skeleton-line" style="width:60%"></div>
+            </div>
+          </div>
+
+          <!-- Feature Impact (SHAP) -->
+          <div class="section" style="border-left:3px solid #8b5cf6;display:none" id="shap-section">
+            <div class="section-header"><span class="section-title">🔬 Feature Impact (per-trial)</span></div>
+            <div class="section-body" id="shap-body"></div>
+          </div>
+
+          <!-- Risk Breakdown -->
+          <div class="section" style="border-left:3px solid #f59e0b;display:none" id="risk-section">
+            <div class="section-header"><span class="section-title">⚡ Risk Breakdown</span></div>
+            <div class="section-body" id="risk-body"></div>
+          </div>
+
+          <!-- Confidence Calibration -->
+          <div class="section" style="border-left:3px solid #10b981;display:none" id="calibration-section">
+            <div class="section-header"><span class="section-title">📊 Confidence Calibration</span></div>
+            <div class="section-body" id="calibration-body"></div>
           </div>
         </div>
 
-        <!-- ═══ RISK BREAKDOWN ═══ -->
-        <div class="section" style="border-left:3px solid #f59e0b;display:none" id="risk-section">
-          <div class="section-header"><span class="section-title">⚡ Risk Breakdown</span></div>
-          <div class="section-body" id="risk-body"></div>
-        </div>
-
-        <!-- ═══ DRUG MECHANISM ═══ -->
-        <div class="section" style="border-left:3px solid #a78bfa;display:none" id="drug-mech-section">
-          <div class="section-header"><span class="section-title">🧬 Drug Mechanism</span><span class="source-badge" style="background:#1e1b4b;color:#a78bfa;border:1px solid #3730a3" id="drug-mech-badge">PubMed</span></div>
-          <div class="section-body" id="drug-mech-body"></div>
-        </div>
-
-        <!-- ═══ CONFIDENCE CALIBRATION ═══ -->
-        <div class="section" style="border-left:3px solid #10b981;display:none" id="calibration-section">
-          <div class="section-header"><span class="section-title">📊 Confidence Calibration</span></div>
-          <div class="section-body" id="calibration-body"></div>
-        </div>
-
-        <!-- ═══ MODEL DECISION TREES ═══ -->
-        <div class="section" style="border-left:3px solid #f59e0b;display:none" id="trees-section">
-          <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
-            <span class="section-title">🌲 Model Decision Trees</span>
-            <span class="source-badge" style="background:#451a03;color:#f59e0b;border:1px solid #78350f">XGBoost</span>
+        <!-- TAB 2: ANALYSIS -->
+        <div class="tab-panel" id="tab-analysis">
+          <!-- Claude AI Narrative -->
+          <div class="section" style="border-left:3px solid #8b5cf6" id="narrative-section">
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+              <span class="section-title">🤖 AI Analysis</span>
+              <span class="source-badge source-badge-ai" id="narrative-badge">Loading...</span>
+            </div>
+            <div class="section-body" id="narrative-body">
+              <div class="skeleton skeleton-line" style="width:90%"></div>
+              <div class="skeleton skeleton-line" style="width:85%"></div>
+              <div class="skeleton skeleton-line" style="width:70%"></div>
+              <div class="skeleton skeleton-line" style="width:80%"></div>
+              <div class="skeleton skeleton-line" style="width:60%"></div>
+            </div>
           </div>
-          <div class="section-body" id="trees-body"></div>
+
+          <!-- Drug Mechanism -->
+          <div class="section" style="border-left:3px solid #a78bfa;display:none" id="drug-mech-section">
+            <div class="section-header"><span class="section-title">🧬 Drug Mechanism</span><span class="source-badge" style="background:#1e1b4b;color:#a78bfa;border:1px solid #3730a3" id="drug-mech-badge">PubMed</span></div>
+            <div class="section-body" id="drug-mech-body"></div>
+          </div>
         </div>
 
-        <div class="section ai-summary-container" style="border-left:3px solid #8b5cf6"
-          <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
-            <span class="section-title">🧠 AI Analysis</span>
-            <span class="source-badge" style="background:#1e1b4b;color:#a78bfa;border:1px solid #3730a3" id="analysis-badge">✦ Researching...</span>
-          </div>
-          <div class="section-body" id="analysis-body">
-            <div style="color:#64748b;font-size:13px"><span class="ai-loading-pulse"></span> Researching trial... searching web for company, drug, and regulatory data</div>
-          </div>
-          <div id="analysis-sources" style="display:none;padding:8px 20px 12px;border-top:1px solid #1e2a3a"></div>
-          <div class="ai-disclaimer">AI-generated analysis with web research. Always verify with primary sources.</div>
+        <!-- TAB 3: TRIAL DETAILS -->
+        <div class="tab-panel" id="tab-details">
+          ${descriptionSection}
+          ${whyStoppedHtml}
+          ${trialData.intervention ? `
+          <div class="section">
+            <div class="section-header"><span class="section-title">💊 Intervention</span></div>
+            <div class="section-body"><div class="description-text">${trialData.intervention}</div></div>
+          </div>` : ''}
+          ${eligibilitySection}
+          ${locationsSection}
         </div>
 
-        <div class="section" style="border-left:3px solid #059669">
-          <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
-            <span class="section-title">📋 Similar Trials</span>
-            <span class="source-badge source-badge-evidence">📎 Completed Trials</span>
+        <!-- TAB 4: SIMILAR TRIALS -->
+        <!-- TAB 4: SIMILAR TRIALS -->
+        <div class="tab-panel" id="tab-similar">
+          <div class="section" style="border-left:3px solid #059669">
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+              <span class="section-title">📋 Similar Trials</span>
+              <span class="source-badge source-badge-evidence">📎 Completed Trials</span>
+            </div>
+            <div class="section-body" id="evidence-body">
+              <div class="skeleton skeleton-card"></div>
+              <div class="skeleton skeleton-card"></div>
+              <div class="skeleton skeleton-card"></div>
+            </div>
           </div>
-          <div class="section-body" id="evidence-body">
-            <div style="color:#64748b;font-size:13px"><span class="ai-loading-pulse"></span> Retrieving similar trials...</div>
+        </div>
+
+        <!-- Analysis section (inside Tab 2 via JS, kept here as hidden container) -->
+        <div id="template-analysis-container" style="display:none">
+          <div class="section ai-summary-container" style="border-left:3px solid #8b5cf6">
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+              <span class="section-title">📄 Template Analysis</span>
+              <span class="source-badge" style="background:#1e1b4b;color:#a78bfa;border:1px solid #3730a3" id="analysis-badge">✦ Loading...</span>
+            </div>
+            <div class="section-body" id="analysis-body"></div>
+            <div id="analysis-sources" style="display:none;padding:8px 20px 12px;border-top:1px solid #1e2a3a"></div>
+          </div>
+        </div>
+
+        <!-- Decision Trees (inside Tab 1 prediction) -->
+        <div id="trees-container-hidden" style="display:none">
+          <div class="section" style="border-left:3px solid #f59e0b" id="trees-section">
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+              <span class="section-title">🌲 Model Decision Trees</span>
+              <span class="source-badge" style="background:#451a03;color:#f59e0b;border:1px solid #78350f">XGBoost</span>
+            </div>
+            <div class="section-body" id="trees-body"></div>
           </div>
         </div>
 
@@ -658,6 +823,19 @@
             var ep = document.getElementById('ensemble-panel');
             if (ep) ep.innerHTML = ensHtml;
           }
+
+          // Render circular probability gauge
+          const failPctGauge = p.probability != null ? Math.round(p.probability * 100) : 50;
+          renderProbGauge(failPctGauge);
+
+          // Render SHAP feature impact chart
+          if (p.feature_impacts && p.feature_impacts.length > 0) {
+            renderShapChart(p.feature_impacts);
+          }
+
+          // Load Claude narrative asynchronously (Tab 2)
+          loadNarrative(nctId);
+
         } else {
           predEl.innerHTML = '<span style="color:#64748b">No prediction available.</span>';
           badgeEl.textContent = 'N/A';
@@ -692,6 +870,22 @@
           }
         } else {
           $('analysis-body').innerHTML = '<span style="color:#64748b">Analysis unavailable.</span>';
+        }
+
+        // Move template analysis into Tab 2 (Analysis)
+        const tac = $('template-analysis-container');
+        const tab2 = $('tab-analysis');
+        if (tac && tab2) {
+          tac.style.display = 'block';
+          tab2.appendChild(tac);
+        }
+
+        // Move decision trees into Tab 1 (Prediction)
+        const treesC = $('trees-container-hidden');
+        const tab1 = $('tab-prediction');
+        if (treesC && tab1) {
+          treesC.style.display = 'block';
+          tab1.appendChild(treesC);
         }
 
         // Analytics panel

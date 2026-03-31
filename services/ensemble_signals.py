@@ -376,7 +376,32 @@ def compute_xgb_signal(trial: dict) -> dict:
         for col, imp in sorted(zip(_xgb_feat_cols, importances), key=lambda x: -x[1])[:8]:
             drivers.append({"feature": col, "importance": round(float(imp) * 100, 1)})
 
-    return {"prob": round(fail_prob, 4), "drivers": drivers, "detail": f"XGBoost V10: {len(_xgb_feat_cols)} features, 785 training trials (MCC 0.715)"}
+    # Per-trial SHAP-style feature contributions (not global importances)
+    feature_impacts = []
+    try:
+        import xgboost as xgb
+        booster = _xgb_model.estimator.get_booster() if hasattr(_xgb_model, "estimator") else None
+        if booster:
+            dmat = xgb.DMatrix(X, feature_names=_xgb_feat_cols)
+            contribs = booster.predict(dmat, pred_contribs=True)[0]
+            for col, val, contrib in zip(_xgb_feat_cols, feat_vals, contribs[:-1]):
+                if abs(float(contrib)) > 0.005:
+                    feature_impacts.append({
+                        "feature": col,
+                        "value": round(float(val), 2),
+                        "impact": round(float(contrib) * 100, 1),
+                        "direction": "risk" if contrib > 0 else "protective",
+                    })
+            feature_impacts.sort(key=lambda x: abs(x["impact"]), reverse=True)
+            feature_impacts = feature_impacts[:10]
+    except Exception as e:
+        logger.warning("SHAP contrib failed: %s", e)
+    return {
+        "prob": round(fail_prob, 4),
+        "drivers": drivers,
+        "feature_impacts": feature_impacts,
+        "detail": f"XGBoost V10: {len(_xgb_feat_cols)} features, 785 training trials (MCC 0.715)",
+    }
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -881,6 +906,7 @@ def compute_ensemble(trial: dict) -> dict:
                     "detail": result.get("detail", ""),
                     "available": True,
                     "drivers": result.get("drivers", []),
+                    "feature_impacts": result.get("feature_impacts", []),
                 })
                 total_weight += weight
             else:
@@ -906,8 +932,9 @@ def compute_ensemble(trial: dict) -> dict:
     outcome = "failure" if final_prob >= 0.5 else "success"
     confidence = "high" if abs(final_prob - 0.5) > 0.25 else ("medium" if abs(final_prob - 0.5) > 0.10 else "low")
 
-    # Get drivers from XGBoost signal
+    # Get drivers and per-trial feature impacts from XGBoost signal
     xgb_drivers = next((s.get("drivers", []) for s in signals if s["name"] == "XGBoost Model" and s["available"]), [])
+    xgb_impacts = next((s.get("feature_impacts", []) for s in signals if s["name"] == "XGBoost Model" and s["available"]), [])
 
     # ═══ DUAL MODEL PREDICTIONS (Optimist vs Pessimist) ═══
     dual = _compute_dual_prediction(trial)
@@ -919,6 +946,7 @@ def compute_ensemble(trial: dict) -> dict:
         "source": "ensemble_v10",
         "signals": signals,
         "drivers": xgb_drivers,
+        "feature_impacts": xgb_impacts,
         "dual": dual,
     }
 

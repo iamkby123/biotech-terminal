@@ -1156,6 +1156,45 @@ def ticker_intel(ticker: str):
     return result
 
 
+@app.get("/api/trial-narrative/{nct_id}")
+def trial_narrative(nct_id: str):
+    """Generate Claude AI narrative analysis for a trial. Cached 24h."""
+    from services.orchestrator import predict_trial_for_ticker, _load_rag_evidence, _load_drug_science
+
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("""SELECT nct_id, title, phase, status, condition, intervention,
+                       sponsor, enrollment, study_design, brief_summary
+                       FROM trials WHERE nct_id = %s""", (nct_id.upper(),))
+        row = cur.fetchone()
+        cur.close()
+    finally:
+        try:
+            from models.ticker_map import release_connection
+            release_connection(conn)
+        except Exception:
+            conn.close()
+
+    if not row:
+        return {"narrative": None}
+
+    trial = dict(row)
+
+    # Get prediction (cached)
+    _, prediction = predict_trial_for_ticker(trial)
+
+    # Get evidence
+    rag_evidence = _load_rag_evidence(trial)
+    drug_science = _load_drug_science(trial.get("intervention", ""))
+
+    # Generate narrative
+    from services.claude_analysis import generate_narrative
+    result = generate_narrative(trial, prediction, rag_evidence, drug_science)
+    return {"narrative": result.get("narrative") if result else None,
+            "model": result.get("model") if result else None}
+
+
 @app.get("/api/trial-intel/{nct_id}")
 def trial_intel(nct_id: str):
     """AI prediction + analysis for a single trial by NCT ID."""

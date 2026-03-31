@@ -1027,6 +1027,7 @@ def predict_trial_for_ticker(trial):
                 "reasons": {k: False for k in REASON_KEYS},
                 "reason_source": "ensemble",
                 "drivers": gb_result.get("drivers", []),
+                "feature_impacts": gb_result.get("feature_impacts", []),
                 "signals": gb_result.get("signals", []),
                 "dual": gb_result.get("dual"),
                 "explanation": f"Ensemble predicts {gb_result['outcome']} with {gb_result['probability']*100:.1f}% failure probability.",
