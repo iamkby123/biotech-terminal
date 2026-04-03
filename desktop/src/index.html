@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Biotech Terminal</title>
+  <style>
+    body { margin: 0; background: #0a0e1a; color: #e2e8f0; font-family: system-ui; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    .loader { text-align: center; }
+    .spinner { width: 40px; height: 40px; border: 3px solid #1e293b; border-top: 3px solid #60a5fa; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="loader">
+    <div class="spinner"></div>
+    <div>Starting Biotech Terminal...</div>
+    <div style="font-size:12px;color:#64748b;margin-top:8px">Loading prediction models and connecting to databases</div>
+  </div>
+  <script>
+    // Poll until FastAPI server is ready, then redirect
+    async function waitForServer() {
+      const maxAttempts = 60; // 30 seconds
+      for (let i = 0; i < maxAttempts; i++) {
+        try {
+          const r = await fetch('http://localhost:8000/', { signal: AbortSignal.timeout(1000) });
+          if (r.ok) {
+            window.location.href = 'http://localhost:8000/';
+            return;
+          }
+        } catch (e) {}
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      document.querySelector('.loader').innerHTML = '<div style="color:#f87171">Failed to start server. Please restart the application.</div>';
+    }
+    waitForServer();
+  </script>
+</body>
+</html>

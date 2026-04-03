@@ -38,3 +38,5 @@ Thumbs.db
 *.tmp
 *.bak
 *_backup.*
+desktop/src-tauri/target/
+desktop/node_modules/

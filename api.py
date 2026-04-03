@@ -28,7 +28,7 @@ app = FastAPI(title="Biotech Terminal")
 
 # CORS for Next.js frontend
 from fastapi.middleware.cors import CORSMiddleware
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://localhost:3001"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://localhost:3001", "tauri://localhost", "https://tauri.localhost"], allow_methods=["*"], allow_headers=["*"])
 
 
 # ── Startup: load EntityResolver ──────────────────────────────────────

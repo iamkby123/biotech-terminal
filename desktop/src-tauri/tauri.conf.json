@@ -1,0 +1,32 @@
+{
+  "productName": "Biotech Terminal",
+  "version": "1.0.0",
+  "identifier": "com.biotech-terminal.app",
+  "build": {
+    "frontendDist": "../src",
+    "beforeDevCommand": "",
+    "beforeBuildCommand": ""
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Biotech Terminal",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' http://localhost:8000 https://*.tradingview.com https://cdn.tailwindcss.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:8000 https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://s3.tradingview.com https://unpkg.com; style-src 'self' 'unsafe-inline' http://localhost:8000 https://cdn.tailwindcss.com; img-src 'self' data: http://localhost:8000 https:; connect-src 'self' http://localhost:8000 https:; frame-src https://*.tradingview.com;"
+    }
+  },
+  "plugins": {
+    "shell": {
+      "open": true
+    }
+  }
+}
